@@ -4,6 +4,7 @@ import Homepage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import SignUpPage from "./pages/SignUpPage";
 import LoginLayout from "./layouts/LoginLayout";
+import { SidebarProvider } from './components/Sidebar/SidebarContext';
 
 // import Login from './pages/Login';
 // import Register from './pages/Register';
@@ -16,9 +17,11 @@ function App() {
         <Route
           path="/"
           element={
-            <Layout>
-              <Homepage />
-            </Layout>
+            <SidebarProvider>
+              <Layout>
+                <Homepage />
+              </Layout>
+            </SidebarProvider>
           }
         />
         <Route

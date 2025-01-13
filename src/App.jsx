@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from './layouts/HomeLayout';
 import Homepage from './pages/HomePage';
+import { SidebarProvider } from './components/Sidebar/SidebarContext';
 
 // import Login from './pages/Login';
 // import Register from './pages/Register';
@@ -13,9 +14,11 @@ function App() {
         <Route
           path="/"
           element={
-            <Layout>
-              <Homepage />
-            </Layout>
+            <SidebarProvider>
+              <Layout>
+                <Homepage />
+              </Layout>
+            </SidebarProvider>
           }
         />
 

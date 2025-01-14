@@ -4,12 +4,11 @@ import Homepage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import SignUpPage from "./pages/SignUpPage";
 import LoginLayout from "./layouts/LoginLayout";
-import Home from './pages/Home';
-import HomeManager from './pages/HomeManager';
-import Recent from './components/Recent';
-import Dashboard from './pages/Dashboard';
-import { SidebarProvider } from './components/Sidebar/SidebarContext';
-
+import Home from "./pages/Home";
+import HomeManager from "./pages/HomeManager";
+import Recent from "./components/Recent";
+import Dashboard from "./pages/Dashboard";
+import { SidebarProvider } from "./components/Sidebar/SidebarContext";
 
 // import Login from './pages/Login';
 // import Register from './pages/Register';
@@ -19,18 +18,19 @@ function App() {
     <Router>
       <Routes>
         {/* Route Trang chủ */}
+      <Route path="/" element={<Home />} />
+        
         <Route
-          path="/"
+          path="/homepage"
           element={
             <SidebarProvider>
               <Layout>
-                 <Dashboard />
-//                <Homepage />
+                <Homepage />
               </Layout>
             </SidebarProvider>
-
           }
         />
+
         <Route
           path="/login"
           element={
@@ -47,7 +47,6 @@ function App() {
             </LoginLayout>
           }
         />
-
 
         {/* Các Route khác */}
         {/* <Route path="/login" element={<Login />} />

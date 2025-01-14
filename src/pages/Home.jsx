@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 const Homepage = () => {
   return (
@@ -25,12 +26,16 @@ const Homepage = () => {
           </div>
           {/* Buttons */}
           <div className="flex gap-4">
-            <button className="bg-gradient-to-r from-purple-600 to-pink-500 text-white px-4 py-2 rounded-full shadow hover:opacity-90">
+              <Link to={'/login'}>
+              <button className="bg-gradient-to-r from-purple-600 to-pink-500 text-white px-4 py-2 rounded-full shadow hover:opacity-90">
               Log In
             </button>
+            </Link>
+            <Link to={'/signup'}>
             <button className="bg-gradient-to-r from-purple-600 to-pink-500 text-white px-4 py-2 rounded-full shadow hover:opacity-90">
               Sign Up
             </button>
+            </Link>
           </div>
         </header>
 

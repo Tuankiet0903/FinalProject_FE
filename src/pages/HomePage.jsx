@@ -2,6 +2,7 @@ import React from "react";
 import CardComponent from "../components/Card"; // Đảm bảo đường dẫn đúng
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"; // Import FontAwesomeIcon
+import Sidebar from "../components/Sidebar/Sidebar";
 
 const Homepage = () => {
   const apps = [
@@ -18,44 +19,9 @@ const Homepage = () => {
   ];
 
   return (
-    <div className="flex flex-col md:flex-row bg-white text-black min-h-screen">
+      <div className="flex flex-col md:flex-row bg-white text-black min-h-screen">
       {/* Sidebar */}
-      <aside className="md:w-1/5 md:static hidden md:block bg-white shadow-md">
-        <nav className="flex flex-col p-4 space-y-2">
-          <a
-            href="#"
-            className="flex items-center space-x-3 px-3 py-2 rounded-md text-gray-600 hover:bg-gray-100 hover:text-blue-600 transition"
-          >
-            <i className="fa fa-home" aria-hidden="true"></i>
-            <span>Trang chủ</span>
-          </a>
-          <a
-            href="#"
-            className="flex items-center space-x-3 px-3 py-2 rounded-md text-gray-600 hover:bg-gray-100 hover:text-blue-600 transition"
-          >
-            <i className="fa fa-compass" aria-hidden="true"></i>
-            <span>Cập nhật trạng thái</span>
-          </a>
-        </nav>
-      </aside>
-
-      {/* Sidebar for small screens */}
-      <nav className="md:hidden bg-white p-4 shadow-md flex flex-col space-y-2">
-        <a
-          href="#"
-          className="flex items-center space-x-3 text-gray-600 hover:text-blue-600 transition"
-        >
-          <i className="fa fa-home" aria-hidden="true"></i>
-          <span>Trang chủ</span>
-        </a>
-        <a
-          href="#"
-          className="flex items-center space-x-3 text-gray-600 hover:text-blue-600 transition"
-        >
-          <i className="fa fa-compass" aria-hidden="true"></i>
-          <span>Cập nhật trạng thái</span>
-        </a>
-      </nav>
+      <Sidebar/>
 
       {/* Main Content */}
       <main className="flex-1 p-6">

@@ -4,7 +4,12 @@ import Homepage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import SignUpPage from "./pages/SignUpPage";
 import LoginLayout from "./layouts/LoginLayout";
+import Home from './pages/Home';
+import HomeManager from './pages/HomeManager';
+import Recent from './components/Recent';
+import Dashboard from './pages/Dashboard';
 import { SidebarProvider } from './components/Sidebar/SidebarContext';
+
 
 // import Login from './pages/Login';
 // import Register from './pages/Register';
@@ -19,9 +24,11 @@ function App() {
           element={
             <SidebarProvider>
               <Layout>
-                <Homepage />
+                 <Dashboard />
+//                <Homepage />
               </Layout>
             </SidebarProvider>
+
           }
         />
         <Route

@@ -1,19 +1,9 @@
-// Dashboard.jsx
-import React from "react";
-import Recent from "../components/Recent";
-import Agenda from "../components/Agenda";
-import Work from "../components/Work";
-import Assign from "../components/Assign";
-
-const Dashboard = () => {
+// pages/Dashboard.jsx
+export default function Dashboard() {
   return (
-    <div className="grid grid-cols-2 gap-4 p-6 bg-gray-100 min-h-screen">
-      <Recent />
-      <Agenda />
-      <Work />
-      <Assign />
+    <div>
+      <h1 className="text-2xl font-semibold text-black">Dashboard</h1>
+      <p>Welcome to the Dashboard page.</p>
     </div>
   );
-};
-
-export default Dashboard;
+}

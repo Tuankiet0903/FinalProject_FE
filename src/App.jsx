@@ -1,59 +1,19 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Layout from "./layouts/HomeLayout";
-import Homepage from "./pages/HomePage";
-import LoginPage from "./pages/LoginPage";
-import SignUpPage from "./pages/SignUpPage";
-import LoginLayout from "./layouts/LoginLayout";
-import Home from "./pages/Home";
-import HomeManager from "./pages/HomeManager";
-import Recent from "./components/Recent";
-import Dashboard from "./pages/Dashboard";
-import { SidebarProvider } from "./components/Sidebar/SidebarContext";
+// App.jsx
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import BoardLayout from './layouts/BoardLayout';
+import Dashboard from './pages/Dashboard';  // Example page component
+import Settings from './pages/Settings';    // Another page component
 
-// import Login from './pages/Login';
-// import Register from './pages/Register';
-
-function App() {
+export default function App() {
   return (
     <Router>
       <Routes>
-        {/* Route Trang chủ */}
-      <Route path="/" element={<Home />} />
-        
-        <Route
-          path="/homepage"
-          element={
-            <SidebarProvider>
-              <Layout>
-                <Homepage />
-              </Layout>
-            </SidebarProvider>
-          }
-        />
-
-        <Route
-          path="/login"
-          element={
-            <LoginLayout>
-              <LoginPage />
-            </LoginLayout>
-          }
-        />
-        <Route
-          path="/signup"
-          element={
-            <LoginLayout>
-              <SignUpPage />
-            </LoginLayout>
-          }
-        />
-
-        {/* Các Route khác */}
-        {/* <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} /> */}
+        {/* Main layout */}
+        <Route path="/" element={<BoardLayout />}>
+          <Route index element={<Dashboard />} />  {/* Default route */}
+          <Route path="/settings" element={<Settings />} />
+        </Route>
       </Routes>
     </Router>
   );
 }
-
-export default App;

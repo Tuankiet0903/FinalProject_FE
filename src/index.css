@@ -77,3 +77,29 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+
+/* Extremely thin scrollbar styling */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 2px; /* Make scrollbar extremely thin */
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.1); /* Very light gray, almost invisible */
+  border-radius: 1px;
+}
+
+/* Hide scrollbar when not hovering */
+.custom-scrollbar:not(:hover)::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Firefox scrollbar styling */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.1) transparent;
+}

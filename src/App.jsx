@@ -1,10 +1,10 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Layout from "./layouts/HomeLayout";
-import Homepage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import SignUpPage from "./pages/SignUpPage";
 import LoginLayout from "./layouts/LoginLayout";
 import Home from "./pages/Home";
+import Profile from "./pages/Profile"
 import HomeManager from "./pages/HomeManager";
 import Recent from "./components/Recent";
 import Dashboard from "./pages/Dashboard";
@@ -25,7 +25,17 @@ function App() {
           element={
             <SidebarProvider>
               <Layout>
-                <Homepage />
+              <Dashboard></Dashboard>
+              </Layout>
+            </SidebarProvider>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <SidebarProvider>
+              <Layout>
+               <Profile></Profile>
               </Layout>
             </SidebarProvider>
           }

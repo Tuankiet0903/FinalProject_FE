@@ -1,0 +1,4 @@
+export const LAYOUT = {
+    HEADER_HEIGHT: 56,
+    DEFAULT_SIDEBAR_WIDTH: 256,
+  };

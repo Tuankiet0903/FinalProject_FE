@@ -1,27 +1,25 @@
 import { Search,MessageSquare, Clipboard,Monitor,Clock,Grid,Languages,ChevronDown,Plus,AlertCircle,RefreshCcw,Menu,} from "lucide-react";
 import logo from "../../assets/logo-clickup.svg";
-import { useState } from "react";
+
 import avatarPlaceholder from "../../assets/avt.png";
-import MobileMenu from "./MobileMenu";
 
 const Header = () => {
-  const [menuOpen, setMenuOpen] = useState(false);
   const iconClass = "w-5 h-5 text-white hover:text-gray-300 transition";
   const buttonClass = "p-2 bg-[#372C81] hover:bg-white/10 rounded-lg transition";
   const userAvatar = avatarPlaceholder;
 
   return (
     <header className="flex items-center justify-between px-6 py-3 bg-[#372C81] shadow-md w-full">
-      {/* Left section */}
+    {/* Logo */}
       <div className="flex items-center gap-3">
         <button className={buttonClass}>
           <img src={logo} alt="Logo" className="w-7 h-7" />
         </button>
       </div>
 
-      {/* Middle section */}
+      {/* Thanh Search */}
       <div className="flex-grow flex justify-center">
-        <div className="relative w-[500px] max-w-full">
+        <div className="relative w-2/3 ml-52 ">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white" />
           <input
             type="text"
@@ -60,14 +58,6 @@ const Header = () => {
           <ChevronDown className={iconClass} />
         </button>
       </div>
-
-      {/* Mobile Menu Button */}
-      <button className="md:hidden p-2" onClick={() => setMenuOpen(!menuOpen)}>
-        <Menu className={iconClass} />
-      </button>
-
-      {/* Mobile Menu */}
-      <MobileMenu menuOpen={menuOpen} iconClass={iconClass} buttonClass={buttonClass} setMenuOpen={setMenuOpen} />
     </header>
   );
 };

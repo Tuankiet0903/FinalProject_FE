@@ -1,17 +1,19 @@
-// App.jsx
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import BoardLayout from './layouts/BoardLayout';
-import Dashboard from './pages/Dashboard';  // Example page component
-import Settings from './pages/Settings';    // Another page component
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import BoardLayout from "./layouts/BoardLayout"; // Layout chứa Sidebar & Header
+import Home from "./pages/Home"; // Trang chính khi vào Home
+import Inbox from "./pages/Inbox"; // Trang Settings khi bấm vào Inbox
 
 export default function App() {
   return (
     <Router>
       <Routes>
-        {/* Main layout */}
+        {/* Main layout - Layout chứa Sidebar & Header */}
         <Route path="/" element={<BoardLayout />}>
-          <Route index element={<Dashboard />} />  {/* Default route */}
-          <Route path="/settings" element={<Settings />} />
+          {/* Trang mặc định khi truy cập "/" */}
+          <Route index element={<Home />} />
+
+          {/* Trang Settings khi truy cập "/settings" */}
+          <Route path="settings" element={<Inbox />} />
         </Route>
       </Routes>
     </Router>

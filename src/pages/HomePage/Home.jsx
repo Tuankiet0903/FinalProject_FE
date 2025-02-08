@@ -1,9 +1,15 @@
-
+import React from "react";
+import Recent from "../../components/home/Recent";
+import Agenda from "../../components/home/Agenda";
+import Work from "../../components/home/Work";
+import Assign from "../../components/home/AssignedToMe";
 export default function Home() {
   return (
-    <div>
-      <h1 className="text-2xl font-semibold text-black">Home</h1>
-      <p>Trang Home - Tín làm mấy cái bữa m làm vô trong này, nhớ chia components là được</p>
-    </div>
+    <div className="grid grid-cols-2 gap-4 p-6 bg-gray-100 min-h-screen">
+    <Recent />
+    <Agenda />
+    <Work />
+    <Assign />
+  </div>
   );
 }

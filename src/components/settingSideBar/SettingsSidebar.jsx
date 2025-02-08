@@ -20,9 +20,9 @@ import {
 
 function SettingsSidebar() {
   const workspaceItems = [
-    { icon: Users, label: "People" },
-    { icon: Sparkles, label: "Upgrade" },
-    { icon: Settings, label: "Settings" },
+    { icon: Users, label: "People", path: "/setting/manage-people" }, // Thêm đường dẫn
+   { icon: Sparkles, label: "Upgrade", path: "/setting/upgrade" }, // Cập nhật đường dẫn
+    { icon: Settings, label: "Settings" , path: "/setting/workspace-settings" },
     { icon: Grid, label: "Spaces" },
     { icon: Shield, label: "Security & Permissions" },
     { icon: Users2, label: "Teams" },
@@ -53,23 +53,34 @@ function SettingsSidebar() {
           <p className="text-sm font-medium text-gray-500">PTM-2025</p>
         </div>
         <nav className="px-2">
-          {workspaceItems.map((item) => (
-            <a
-              key={item.label}
-              href="#"
-              className="flex items-center gap-2 px-2 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
-            >
-              <item.icon className="h-4 w-4" />
-              <span>{item.label}</span>
-            </a>
-          ))}
+          {workspaceItems.map((item) =>
+            item.path ? ( // Kiểm tra nếu có đường dẫn thì dùng Link
+              <Link
+                key={item.label}
+                to={item.path}
+                className="flex items-center gap-2 px-2 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+              >
+                <item.icon className="h-4 w-4" />
+                <span>{item.label}</span>
+              </Link>
+            ) : (
+              <a
+                key={item.label}
+                href="#"
+                className="flex items-center gap-2 px-2 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+              >
+                <item.icon className="h-4 w-4" />
+                <span>{item.label}</span>
+              </a>
+            )
+          )}
         </nav>
         <div className="mt-4 px-4 py-2">
           <p className="text-sm font-medium text-gray-500">TÚ NGUYỄN VĂN</p>
         </div>
         <nav className="px-2">
           {personalItems.map((item) =>
-            item.path ? ( // Kiểm tra nếu có path thì dùng Link
+            item.path ? ( // Kiểm tra nếu có đường dẫn thì dùng Link
               <Link
                 key={item.label}
                 to={item.path}

@@ -4,7 +4,7 @@ import Sidebar from "../components/slideBar/SideBar";
 
 const BoardLayout = () => {
   return (
-    <div className="flex flex-col h-screen">
+    <div className="bg-white flex flex-col h-screen">
           <Header />
       <div className="flex flex-grow "> 
         <div className="flex p-3 mt-1 fixed left-0  bg-white shadow-md">

@@ -1,8 +1,8 @@
 
-export default function Dashboard() {
+export default function Home() {
   return (
     <div>
-      <h1 className="text-2xl font-semibold text-black">Dashboard</h1>
+      <h1 className="text-2xl font-semibold text-black">Home</h1>
       <p>Trang Home - Tín làm mấy cái bữa m làm vô trong này, nhớ chia components là được</p>
     </div>
   );

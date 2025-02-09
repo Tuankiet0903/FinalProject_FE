@@ -1,59 +1,46 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Layout from "./layouts/HomeLayout";
-import Homepage from "./pages/HomePage";
-import LoginPage from "./pages/LoginPage";
-import SignUpPage from "./pages/SignUpPage";
-import LoginLayout from "./layouts/LoginLayout";
-import Home from "./pages/Home";
-import HomeManager from "./pages/HomeManager";
-import Recent from "./components/Recent";
-import Dashboard from "./pages/Dashboard";
-import { SidebarProvider } from "./components/Sidebar/SidebarContext";
+import HomePage from "./pages/auth/LandingPage"; // Trang Home chính
+import BoardLayout from "./layouts/BoardLayout"; 
+import SettingLayout from "./layouts/SettingLayout"; 
+import LoginLayout from "./layouts/LoginLayout"; 
+import Dashboard from "./pages/auth/HomePage/DashBoards";
+import Home from "./pages/auth/HomePage/Home";
+import Inbox from "./pages/auth/HomePage/Inbox";
+import UserProfile from "./pages/auth/Settings/UserProfile";
+import Settings from "./pages/auth/Settings/Settings";
+import ManagePeople from "./pages/auth/Settings/ManagePeople";
+import Upgrade from "./pages/auth/Settings/Upgrade";
+import WorkspaceSettings from "./pages/auth/Settings/WorkspaceSettings";
+import LoginPage from "./pages/auth/LoginPage"; 
+import SignupPage from "./pages/auth/SignupPage"; 
 
-// import Login from './pages/Login';
-// import Register from './pages/Register';
-
-function App() {
+export default function App() {
   return (
     <Router>
       <Routes>
-        {/* Route Trang chủ */}
-      <Route path="/" element={<Home />} />
-        
-        <Route
-          path="/homepage"
-          element={
-            <SidebarProvider>
-              <Layout>
-                <Homepage />
-              </Layout>
-            </SidebarProvider>
-          }
-        />
+        {/* Trang chủ */}
+        <Route path="/" element={<HomePage />} />
 
-        <Route
-          path="/login"
-          element={
-            <LoginLayout>
-              <LoginPage />
-            </LoginLayout>
-          }
-        />
-        <Route
-          path="/signup"
-          element={
-            <LoginLayout>
-              <SignUpPage />
-            </LoginLayout>
-          }
-        />
+        {/* Layout chính cho Board */}
+        <Route path="/user" element={<BoardLayout />}>
+          <Route path="home" element={<Home />} />
+          <Route path="inbox" element={<Inbox />} />
+          <Route path="dashboard" element={<Dashboard />} />
+        </Route>
 
-        {/* Các Route khác */}
-        {/* <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} /> */}
+        {/* Layout riêng cho Settings */}
+        <Route path="/setting" element={<SettingLayout />}>
+          <Route index element={<Settings />} />
+          <Route path="profile" element={<UserProfile />} />
+          <Route path="manage-people" element={<ManagePeople />} />
+          <Route path="upgrade" element={<Upgrade />} />
+          <Route path="workspace-settings" element={<WorkspaceSettings />} />
+        </Route>
+
+        {/* Login và Signup có Layout riêng */}
+        <Route path="/login" element={<LoginLayout><LoginPage /></LoginLayout>} />
+        <Route path="/signup" element={<LoginLayout><SignupPage /></LoginLayout>} />
       </Routes>
     </Router>
   );
 }
-
-export default App;

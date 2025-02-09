@@ -1,5 +1,4 @@
-import { Link } from "react-router-dom"
-import { HelpCircle } from "lucide-react"
+import { Link } from "react-router-dom";
 
 export default function LoginPage() {
   return (
@@ -45,29 +44,20 @@ export default function LoginPage() {
             />
           </div>
 
-          <button className="w-full bg-purple-600 text-white py-2.5 rounded-lg hover:bg-purple-700 transition-colors">
-            Log In
+          <button className="w-full py-3 bg-purple-600 text-white rounded-md hover:bg-purple-700">
+            Login
           </button>
         </form>
 
-        <button className="w-full text-purple-600 hover:text-purple-700 text-sm mt-4">or login with SSO</button>
-
         <p className="mt-6 text-center text-gray-600">
           Don't have an account?{" "}
-          <Link to="/sign-up" className="text-purple-600 hover:text-purple-700">
+          <Link to="/signup" className="text-purple-600 hover:text-purple-700">
             Sign up
           </Link>
         </p>
       </div>
 
-      {/* Help button */}
-      <button
-        className="fixed bottom-24 right-6 bg-white p-3 rounded-full shadow-lg hover:bg-gray-50 transition-colors"
-        aria-label="Help"
-      >
-        <HelpCircle className="w-6 h-6 text-purple-600" />
-      </button>
+      
     </>
-  )
+  );
 }
-

@@ -103,3 +103,21 @@ button:focus-visible {
   scrollbar-width: thin;
   scrollbar-color: rgba(0, 0, 0, 0.1) transparent;
 }
+
+/* Tùy chỉnh thanh cuộn */
+.scrollbar-custom::-webkit-scrollbar {
+  width: 8px;
+}
+
+.scrollbar-custom::-webkit-scrollbar-track {
+  background: white; /* Nền trắng */
+}
+
+.scrollbar-custom::-webkit-scrollbar-thumb {
+  background: #d1d5db; /* Màu xám nhạt */
+  border-radius: 4px;
+}
+
+.scrollbar-custom::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af; /* Màu xám đậm hơn khi hover */
+}

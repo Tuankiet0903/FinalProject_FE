@@ -1,20 +1,26 @@
 import { useState, useEffect } from "react";
 import { ChevronDown } from "lucide-react";
 import SidebarHeaderDropdown from "./SidebarHeaderDropdown";
-import mockWorkspaces from "../../lib/mockWorkspaces"; // Import dữ liệu giả lập
+import mockWorkspaces from "../../lib/mockWorkspaces";
 
-export default function SidebarHeader() {
+export default function SidebarHeader({ setSelectedWorkspaceId }) {
   const [isOpen, setIsOpen] = useState(false);
   const [currentWorkspace, setCurrentWorkspace] = useState(null);
 
   useEffect(() => {
-    // Giả lập việc lấy workspace đầu tiên làm workspace hiện tại
+    // Chọn workspace đầu tiên mặc định
     setCurrentWorkspace(mockWorkspaces[0]);
+    setSelectedWorkspaceId(mockWorkspaces[0]?.workSpaceId);
   }, []);
+
+  const handleWorkspaceChange = (workspace) => {
+    setCurrentWorkspace(workspace);
+    setSelectedWorkspaceId(workspace.workSpaceId);
+    setIsOpen(false);
+  };
 
   return (
     <div className="p-2 flex items-center gap-2 border-b bg-white sticky top-0 z-10 relative">
-      {/* Workspace Info */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-2 cursor-pointer"
@@ -26,11 +32,10 @@ export default function SidebarHeader() {
         <ChevronDown className="w-4 h-4 text-gray-600 transition-transform duration-200" />
       </button>
 
-      {/* Dropdown Menu */}
       {isOpen && (
         <SidebarHeaderDropdown 
           currentWorkspace={currentWorkspace} 
-          setCurrentWorkspace={setCurrentWorkspace} 
+          setCurrentWorkspace={handleWorkspaceChange} 
         />
       )}
     </div>

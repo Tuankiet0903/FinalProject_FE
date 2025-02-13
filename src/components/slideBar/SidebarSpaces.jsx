@@ -6,7 +6,7 @@ import mockFolders from "../../lib/mockFolders";
 import mockLists from "../../lib/mockLists";
 import CreateSpaceDialog from "./CreateSpaceDialog";
 
-export default function SidebarSpaces() {
+export default function SidebarSpaces({ selectedWorkspaceId }) {
   const [isSpacesOpen, setIsSpacesOpen] = useState(true);
   const [expandedSpaces, setExpandedSpaces] = useState({});
   const [expandedFolders, setExpandedFolders] = useState({});
@@ -15,18 +15,21 @@ export default function SidebarSpaces() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const enrichedSpaces = mockSpaces.map((space) => {
-      const foldersInSpace = mockFolders.filter((folder) => folder.spaceId === space.spaceId);
-      return {
+    // Lọc dữ liệu theo workspaceId được chọn
+    const filteredSpaces = mockSpaces
+      .filter(space => space.workSpaceId === selectedWorkspaceId)
+      .map(space => ({
         ...space,
-        folders: foldersInSpace.map((folder) => ({
-          ...folder,
-          lists: mockLists.filter((list) => list.folderId === folder.folderId),
-        })),
-      };
-    });
-    setSpaces(enrichedSpaces);
-  }, []);
+        folders: mockFolders
+          .filter(folder => folder.spaceId === space.spaceId)
+          .map(folder => ({
+            ...folder,
+            lists: mockLists.filter(list => list.folderId === folder.folderId),
+          })),
+      }));
+
+    setSpaces(filteredSpaces);
+  }, [selectedWorkspaceId]);
 
   const toggleSpace = (spaceId) => {
     setExpandedSpaces((prev) => ({

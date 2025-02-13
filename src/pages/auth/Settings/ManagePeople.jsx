@@ -22,9 +22,9 @@ class ManagePeople extends React.Component {
 
   roleTypes = [
     { label: "Member", description: "Access to public Spaces, Docs and Dashboards." },
-    { label: "Limited Member", description: "Must be invited to Spaces, Folders, Lists and tasks." },
+    { label: "leader", description: "Must be invited to Spaces, Folders, Lists and tasks." },
     { label: "Guest", description: "Cannot be added to Spaces. Must be invited to Folders, Lists and tasks." },
-    { label: "Admin", description: "Manage Spaces, People, Billing, and other Workspace settings." },
+    { label: "....", description: "Manage Spaces, People, Billing, and other Workspace settings." },
   ];
 
   settingsOptions = [

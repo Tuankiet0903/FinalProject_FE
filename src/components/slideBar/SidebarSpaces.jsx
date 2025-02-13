@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { ChevronDownIcon, PlusIcon, ChevronRightIcon, CircleIcon } from "lucide-react";
-import mockSpaces from "../../lib/mockSpaces"; // Mock dữ liệu cho Spaces
-import CreateSpaceDialog from "./CreateSpaceDialog"; // Import CreateSpaceDialog
+import mockSpaces from "../../lib/mockSpaces";
+import CreateSpaceDialog from "./CreateSpaceDialog";
+import { fetchWorkspaceByID } from "../../api/workspace";
 
 export default function SidebarSpaces() {
   const [isSpacesOpen, setIsSpacesOpen] = useState(true);
@@ -9,11 +10,26 @@ export default function SidebarSpaces() {
   const [expandedFolders, setExpandedFolders] = useState({});
   const [spaces, setSpaces] = useState([]);
   const [activeItem, setActiveItem] = useState(null);
-  const [isCreateSpaceOpen, setIsCreateSpaceOpen] = useState(false); // Quản lý trạng thái modal
+  const [isCreateSpaceOpen, setIsCreateSpaceOpen] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [workspaceId, setWorkspaceId] = useState(null);
 
   useEffect(() => {
-    setSpaces(mockSpaces);
-  }, []);
+    const fetchSpaces = async () => {
+      try {
+        const workspaceData = await fetchWorkspaceByID(2);
+        setSpaces(workspaceData.spaces);
+        setWorkspaceId(workspaceData.workspaceId);
+      } catch (error) {
+        console.error("Failed to fetch workspace:", error);
+      }
+    };
+    fetchSpaces();
+  }, [refreshTrigger]);
+
+  const handleSpaceCreated = () => {
+    setRefreshTrigger((prev) => prev + 1);
+  };
 
   const toggleSpace = (spaceId) => {
     setExpandedSpaces((prev) => ({
@@ -49,28 +65,28 @@ export default function SidebarSpaces() {
         {isSpacesOpen && (
           <div className="space-y-1">
             {spaces.map((space) => (
-              <div key={space.id}>
+              <div key={space.spaceId}>
                 <button
-                  onClick={() => toggleSpace(space.id)}
+                  onClick={() => toggleSpace(space.spaceId)}
                   className="w-full flex items-center justify-between px-2 py-2 text-sm rounded-md hover:bg-gray-100 bg-white text-black"
                 >
-                  <span className="text-sm text-black">{space.icon} {space.name}</span>
-                  <ChevronRightIcon className={`h-4 w-4 transform transition-transform ${expandedSpaces[space.id] ? "rotate-90" : ""}`} />
+                  <span className="text-sm text-black truncate">{space.icon} {space.name}</span>
+                  <ChevronRightIcon className={`h-4 w-4 transform transition-transform ${expandedSpaces[space.spaceId] ? "rotate-90" : ""}`} />
                 </button>
 
-                {expandedSpaces[space.id] && (
+                {expandedSpaces[space.spaceId] && (
                   <div className="ml-6 space-y-1 mt-1">
                     {space.folders.map((folder) => (
-                      <div key={folder.id}>
+                      <div key={folder.folderId}>
                         <button
-                          onClick={() => toggleFolder(folder.id)}
+                          onClick={() => toggleFolder(folder.folderId)}
                           className="w-full flex items-center justify-between px-2 py-2 text-sm rounded-md hover:bg-gray-100 bg-white text-black"
                         >
                           <span className="text-sm text-black">{folder.icon} {folder.name}</span>
-                          <ChevronRightIcon className={`h-4 w-4 transform transition-transform ${expandedFolders[folder.id] ? "rotate-90" : ""}`} />
+                          <ChevronRightIcon className={`h-4 w-4 transform transition-transform ${expandedFolders[folder.folderId] ? "rotate-90" : ""}`} />
                         </button>
 
-                        {expandedFolders[folder.id] && folder.lists && (
+                        {expandedFolders[folder.folderId] && folder.lists && (
                           <div className="ml-6 space-y-1 mt-1">
                             {folder.lists.map((list) => (
                               <button
@@ -99,7 +115,7 @@ export default function SidebarSpaces() {
       </div>
 
       {/* Hiển thị modal CreateSpaceDialog khi isCreateSpaceOpen === true */}
-      <CreateSpaceDialog open={isCreateSpaceOpen} onOpenChange={setIsCreateSpaceOpen} />
+      <CreateSpaceDialog open={isCreateSpaceOpen} onOpenChange={setIsCreateSpaceOpen} workspaceId={workspaceId} onSpaceCreated={handleSpaceCreated} />
     </>
   );
 }

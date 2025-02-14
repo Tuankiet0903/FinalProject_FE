@@ -2,20 +2,28 @@ import { useState, useEffect } from "react";
 import { ChevronDown } from "lucide-react";
 import SidebarHeaderDropdown from "./SidebarHeaderDropdown";
 import mockWorkspaces from "../../lib/mockWorkspaces";
+import { getAllWorkspace } from "../../api/workspace";
 
 export default function SidebarHeader({ setSelectedWorkspaceId }) {
   const [isOpen, setIsOpen] = useState(false);
   const [currentWorkspace, setCurrentWorkspace] = useState(null);
 
   useEffect(() => {
-    // Chọn workspace đầu tiên mặc định
-    setCurrentWorkspace(mockWorkspaces[0]);
-    setSelectedWorkspaceId(mockWorkspaces[0]?.workSpaceId);
+    const fetchAllWorkspace = async () => {
+      try {
+        const workspaceData = await getAllWorkspace();
+        setCurrentWorkspace(workspaceData[0]);
+        setSelectedWorkspaceId(workspaceData[0].workspaceId);
+      } catch (error) {
+        console.error("Failed to fetch workspace:", error);
+      }
+    };
+    fetchAllWorkspace();
   }, []);
 
   const handleWorkspaceChange = (workspace) => {
     setCurrentWorkspace(workspace);
-    setSelectedWorkspaceId(workspace.workSpaceId);
+    setSelectedWorkspaceId(workspace.workspaceId);
     setIsOpen(false);
   };
 

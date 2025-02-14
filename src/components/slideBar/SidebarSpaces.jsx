@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { ChevronDownIcon, PlusIcon, ChevronRightIcon, CircleIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import mockSpaces from "../../lib/mockSpaces";
-import mockFolders from "../../lib/mockFolders";
-import mockLists from "../../lib/mockLists";
+// import mockSpaces from "../../lib/mockSpaces";
+// import mockFolders from "../../lib/mockFolders";
+// import mockLists from "../../lib/mockLists";
 import CreateSpaceDialog from "./CreateSpaceDialog";
+import { fetchWorkspaceByID } from "../../api/workspace";
 
 export default function SidebarSpaces({ selectedWorkspaceId }) {
   const [isSpacesOpen, setIsSpacesOpen] = useState(true);
@@ -12,24 +13,26 @@ export default function SidebarSpaces({ selectedWorkspaceId }) {
   const [expandedFolders, setExpandedFolders] = useState({});
   const [spaces, setSpaces] = useState([]);
   const [isCreateSpaceOpen, setIsCreateSpaceOpen] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Lọc dữ liệu theo workspaceId được chọn
-    const filteredSpaces = mockSpaces
-      .filter(space => space.workSpaceId === selectedWorkspaceId)
-      .map(space => ({
-        ...space,
-        folders: mockFolders
-          .filter(folder => folder.spaceId === space.spaceId)
-          .map(folder => ({
-            ...folder,
-            lists: mockLists.filter(list => list.folderId === folder.folderId),
-          })),
-      }));
+    if (!selectedWorkspaceId) return;
+    console.log("Selected workspace ID: ", selectedWorkspaceId);
+    const fetchSpaces = async () => {
+      try {
+        const workspaceData = await fetchWorkspaceByID(selectedWorkspaceId);
+        setSpaces(workspaceData.spaces);
+      } catch (error) {
+        console.error("Failed to fetch workspace:", error);
+      }
+    };
+    fetchSpaces();
+  }, [selectedWorkspaceId, refreshTrigger]);
 
-    setSpaces(filteredSpaces);
-  }, [selectedWorkspaceId]);
+  const handleSpaceCreated = () => {
+    setRefreshTrigger((prev) => prev + 1);
+  };
 
   const toggleSpace = (spaceId) => {
     setExpandedSpaces((prev) => ({
@@ -45,8 +48,8 @@ export default function SidebarSpaces({ selectedWorkspaceId }) {
     }));
   };
 
-  const handleListClick = (spaceId, folderId, listId) => {
-    navigate(`/user/kanban/${spaceId}/${folderId}/${listId}`);
+  const handleListClick = ( workspaceId, spaceId, folderId, listId) => {
+    navigate(`/user/kanban/${workspaceId}/${spaceId}/${folderId}/${listId}`);
   };
 
   return (
@@ -97,7 +100,7 @@ export default function SidebarSpaces({ selectedWorkspaceId }) {
                             {folder.lists.map((list) => (
                               <button
                                 key={list.listId}
-                                onClick={() => handleListClick(space.spaceId, folder.folderId, list.listId)}
+                                onClick={() => handleListClick( selectedWorkspaceId, space.spaceId, folder.folderId, list.listId)}
                                 className="w-full bg-white flex items-center px-2 py-2 text-sm rounded-md hover:bg-gray-100"
                               >
                                 <CircleIcon className="h-3 w-3 mr-2" />
@@ -116,7 +119,7 @@ export default function SidebarSpaces({ selectedWorkspaceId }) {
         )}
       </div>
 
-      <CreateSpaceDialog open={isCreateSpaceOpen} onOpenChange={setIsCreateSpaceOpen} />
+      <CreateSpaceDialog open={isCreateSpaceOpen} onOpenChange={setIsCreateSpaceOpen} workspaceId={selectedWorkspaceId} onSpaceCreated={handleSpaceCreated} />
     </>
   );
 }

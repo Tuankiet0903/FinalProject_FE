@@ -9,13 +9,23 @@ import {
   ChevronRight,
 } from "lucide-react";
 import mockWorkspaces from "../../lib/mockWorkspaces"; // Import mock data
+import { getAllWorkspace } from "../../api/workspace";
+import CreateWorkspace from "./CreateWorkspace";
 
 export default function SidebarHeaderDropdown({ currentWorkspace, setCurrentWorkspace }) {
   const [workspaces, setWorkspaces] = useState([]);
+  const [showCreateWorkspace, setShowCreateWorkspace] = useState(false);
 
   useEffect(() => {
-    // Fetch danh sách workspaces từ mockWorkspaces
-    setWorkspaces(mockWorkspaces);
+    const fetchAllWorkspace = async () => {
+          try {
+            const workspaceData = await getAllWorkspace();
+            setWorkspaces(workspaceData);
+          } catch (error) {
+            console.error("Failed to fetch workspace:", error);
+          }
+        };
+    fetchAllWorkspace();
   }, []);
 
   return (
@@ -92,11 +102,19 @@ export default function SidebarHeaderDropdown({ currentWorkspace, setCurrentWork
         </div>
 
         {/* New Workspace Button */}
-        <button className="w-full px-3 py-2 flex items-center gap-2 hover:bg-gray-50 mt-2 text-sm">
+        <button className="w-full px-3 py-2 flex items-center gap-2 hover:bg-gray-50 mt-2 text-sm" onClick={() => setShowCreateWorkspace(true)}>
           <Plus className="w-4 h-4" />
           <span>New Workspace</span>
         </button>
       </div>
+      
+      {showCreateWorkspace && (
+        <div className="fixed inset-0 w-full h-full flex items-center justify-center bg-gray-800 bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <CreateWorkspace onClose={() => setShowCreateWorkspace(false)} />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

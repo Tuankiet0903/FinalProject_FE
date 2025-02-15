@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import HomePage from "./pages/auth/LandingPage"; // Trang Home chính
+import HomePage from "./pages/auth/LandingPage"; 
 import BoardLayout from "./layouts/BoardLayout"; 
+import KanbanBoardPage from "./pages/auth/KanbanList/KanbanBoardPage"; 
 import SettingLayout from "./layouts/SettingLayout"; 
 import LoginLayout from "./layouts/LoginLayout"; 
 import Dashboard from "./pages/auth/HomePage/DashBoards";
@@ -26,6 +27,9 @@ export default function App() {
           <Route path="home" element={<Home />} />
           <Route path="inbox" element={<Inbox />} />
           <Route path="dashboard" element={<Dashboard />} />
+
+          {/* 🔥 Cập nhật đường dẫn Kanban đầy đủ với `spaceId` */}
+          <Route path="kanban/:spaceId/:folderId/:listId" element={<KanbanBoardPage />} />
         </Route>
 
         {/* Layout riêng cho Settings */}

@@ -5,6 +5,14 @@ const MyWork = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [tasks, setTasks] = useState([
     { title: "[FE] - Dash Board trang chủ", status: "Today", dueDate: "Tomorrow, 11:15pm" },
+    { title: "[FE] - Dash Board trang chủ", status: "Today", dueDate: "Tomorrow, 11:15pm" },
+    { title: "[FE] - Dash Board trang chủ", status: "Today", dueDate: "Tomorrow, 11:15pm" },
+    { title: "[FE] - Dash Board trang chủ", status: "Today", dueDate: "Tomorrow, 11:15pm" },
+    { title: "[FE] - Dash Board trang chủ", status: "Today", dueDate: "Tomorrow, 11:15pm" },
+    { title: "[FE] - Dash Board trang chủ", status: "Today", dueDate: "Tomorrow, 11:15pm" },
+    { title: "[FE] - Dash Board trang chủ", status: "Today", dueDate: "Tomorrow, 11:15pm" },
+    { title: "[FE] - Dash Board trang chủ", status: "Today", dueDate: "Tomorrow, 11:15pm" },
+    { title: "[FE] - Dash Board trang chủ", status: "Today", dueDate: "Tomorrow, 11:15pm" },
   ]);
 
   const handleRemove = (index) => {
@@ -48,30 +56,34 @@ const MyWork = () => {
           />
         </div>
       </div>
-      {/* List of Tasks */}
-      <ul className="space-y-3">
-        {tasks.map((task, index) => (
-          <li
-            key={index}
-            className="flex justify-between items-center p-2 hover:bg-gray-100 rounded cursor-pointer"
-          >
-            <div className="flex items-center space-x-3">
-              {/* Circle */}
-              <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
-              <div>
-                <p className="font-medium text-gray-700">{task.title}</p>
-                <p className="text-sm text-gray-500">
-                  {task.status} - {task.dueDate}
-                </p>
+
+      {/* List of Tasks with Scroll */}
+      <div className={`overflow-y-auto scrollbar-custom ${isExpanded ? "h-full" : "max-h-80"}`}>
+        <ul className="space-y-3">
+          {tasks.map((task, index) => (
+            <li
+              key={index}
+              className="flex justify-between items-center p-2 hover:bg-gray-100 rounded cursor-pointer"
+            >
+              <div className="flex items-center space-x-3">
+                {/* Circle */}
+                <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
+                <div>
+                  <p className="font-medium text-gray-700">{task.title}</p>
+                  <p className="text-sm text-gray-500">
+                    {task.status} - {task.dueDate}
+                  </p>
+                </div>
               </div>
-            </div>
-            <FiTrash2
-              className="text-red-500 hover:text-red-700 cursor-pointer text-sm"
-              onClick={() => handleRemove(index)}
-            />
-          </li>
-        ))}
-      </ul>
+              <FiTrash2
+                className="text-red-500 hover:text-red-700 cursor-pointer text-sm"
+                onClick={() => handleRemove(index)}
+              />
+            </li>
+          ))}
+        </ul>
+      </div>
+
       {tasks.length === 0 && (
         <p className="text-gray-500 text-center mt-6">No tasks available</p>
       )}

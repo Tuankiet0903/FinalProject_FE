@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { useState } from "react";
 import { FaUser, FaPhone, FaEnvelope, FaMapMarkerAlt, FaLock, FaLink } from "react-icons/fa";
 
@@ -86,7 +87,7 @@ export default function UserProfile() {
 
         {activeTab === "linked" && (
           <div className="grid grid-cols-1 gap-4 mt-4">
-            {["Google", "Facebook", "GitHub"].map((service, index) => (
+            {["Google", "Facebook"].map((service, index) => (
               <div key={index} className="flex items-center justify-between bg-gray-800 p-4 rounded-lg">
                 <span className="text-white">{service}</span>
                 <button className="bg-teal-500 hover:bg-teal-600 px-4 py-2 rounded text-white">Kết nối</button>

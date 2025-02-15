@@ -49,7 +49,7 @@ const StepThree = ({ workspaceName, setWorkspaceName, description, setDescriptio
   </div>
 );
 
-export default function CreateWorkspace({ onClose }) {
+export default function CreateWorkspace({ onClose, refreshWorkspaces }) {
   const [step, setStep] = useState(1);
   const [workspaceName, setWorkspaceName] = useState("");
   const [description, setDescription] = useState("");
@@ -84,6 +84,7 @@ export default function CreateWorkspace({ onClose }) {
       setDescription("");
       setEmail("");
       setPurpose("");
+      refreshWorkspaces();
       onClose();
     } catch (error) {
       message.error("Failed to create space!");

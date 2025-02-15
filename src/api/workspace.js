@@ -17,7 +17,7 @@ export const createWorkspace = async ({ name, description, type }) => {
             name,
             description,
             type,
-            createBy: 1,
+            createdBy: 1,
         });
 
         return response.data;
@@ -32,7 +32,7 @@ export const createSpace = async ({ name, description, workspaceId }) => {
         const response = await axios.post(`${API_ROOT}/space/spaces`, {
             name,
             description,
-            createBy: 1,
+            createdBy: 1,
             workspaceId,
         });
 

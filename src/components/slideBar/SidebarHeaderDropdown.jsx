@@ -16,15 +16,16 @@ export default function SidebarHeaderDropdown({ currentWorkspace, setCurrentWork
   const [workspaces, setWorkspaces] = useState([]);
   const [showCreateWorkspace, setShowCreateWorkspace] = useState(false);
 
+  const fetchAllWorkspace = async () => {
+    try {
+      const workspaceData = await getAllWorkspace();
+      setWorkspaces(workspaceData);
+    } catch (error) {
+      console.error("Failed to fetch workspace:", error);
+    }
+  };
+
   useEffect(() => {
-    const fetchAllWorkspace = async () => {
-          try {
-            const workspaceData = await getAllWorkspace();
-            setWorkspaces(workspaceData);
-          } catch (error) {
-            console.error("Failed to fetch workspace:", error);
-          }
-        };
     fetchAllWorkspace();
   }, []);
 
@@ -111,7 +112,7 @@ export default function SidebarHeaderDropdown({ currentWorkspace, setCurrentWork
       {showCreateWorkspace && (
         <div className="fixed inset-0 w-full h-full flex items-center justify-center bg-gray-800 bg-opacity-50">
           <div className="bg-white p-6 rounded-lg shadow-lg">
-            <CreateWorkspace onClose={() => setShowCreateWorkspace(false)} />
+            <CreateWorkspace onClose={() => setShowCreateWorkspace(false)} refreshWorkspaces={fetchAllWorkspace}/>
           </div>
         </div>
       )}

@@ -1,9 +1,17 @@
 
+import InboxHeader from "../../../components/header/InboxHeader";
+import InboxList from "../../../components/InboxBoard";
+
+
+
 export default function Inbox() {
   return (
-    <div>
-      <h1 className="text-2xl font-semibold text-black">inbox</h1>
-      <p>Welcome to the Inbox page.</p>
-    </div>
+    <div className="bg-gray-100 min-h-screen">
+      {/* Thêm Header ở trên cùng */}
+      <InboxHeader />
+      <div className="max-w-screen-xl mx-auto py-6 px-6">
+      <InboxList />
+      </div>
+      </div>
   );
 }

@@ -1,35 +1,51 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import HomePage from "./pages/auth/LandingPage"; 
+import BoardLayout from "./layouts/BoardLayout"; 
+import KanbanBoardPage from "./pages/auth/KanbanList/KanbanBoardPage"; 
+import SettingLayout from "./layouts/SettingLayout"; 
+import LoginLayout from "./layouts/LoginLayout"; 
+import Dashboard from "./pages/auth/HomePage/DashBoards";
+import Home from "./pages/auth/HomePage/Home";
+import Inbox from "./pages/auth/HomePage/Inbox";
+import UserProfile from "./pages/auth/Settings/UserProfile";
+import Settings from "./pages/auth/Settings/Settings";
+import ManagePeople from "./pages/auth/Settings/ManagePeople";
+import Upgrade from "./pages/auth/Settings/Upgrade";
+import WorkspaceSettings from "./pages/auth/Settings/WorkspaceSettings";
+import LoginPage from "./pages/auth/LoginPage"; 
+import SignupPage from "./pages/auth/SignupPage"; 
 
-function App() {
-  const [count, setCount] = useState(0)
-
+export default function App() {
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1 className='text-red-600'>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <Router>
+      <Routes>
+        {/* Trang chủ */}
+        <Route path="/" element={<HomePage />} />
 
-export default App
+        {/* Layout chính cho Board */}
+        <Route path="/user" element={<BoardLayout />}>
+          <Route path="home" element={<Home />} />
+          <Route path="inbox" element={<Inbox />} />
+          <Route path="dashboard" element={<Dashboard />} />
+
+          {/* 🔥 Cập nhật đường dẫn Kanban đầy đủ với `spaceId` */}
+          <Route path="kanban/:workspaceId/:spaceId/:folderId/:listId" element={<KanbanBoardPage />} />
+        </Route>
+
+        {/* Layout riêng cho Settings */}
+        <Route path="/setting" element={<SettingLayout />}>
+          <Route index element={<Settings />} />
+          <Route path="profile" element={<UserProfile />} />
+          <Route path="manage-people" element={<ManagePeople />} />
+          <Route path="upgrade" element={<Upgrade />} />
+          <Route path="workspace-settings" element={<WorkspaceSettings />} />
+        </Route>
+
+        {/* Login và Signup có Layout riêng */}
+        <Route path="/login" element={<LoginLayout><LoginPage /></LoginLayout>} />
+        <Route path="/signup" element={<LoginLayout><SignupPage /></LoginLayout>} />
+      </Routes>
+      
+    </Router>
+  );
+}

@@ -45,6 +45,7 @@ export default function App() {
         <Route path="/login" element={<LoginLayout><LoginPage /></LoginLayout>} />
         <Route path="/signup" element={<LoginLayout><SignupPage /></LoginLayout>} />
       </Routes>
+      
     </Router>
   );
 }

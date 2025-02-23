@@ -49,7 +49,7 @@ const StepThree = ({ workspaceName, setWorkspaceName, description, setDescriptio
   </div>
 );
 
-export default function CreateWorkspace({ onClose, refreshWorkspaces }) {
+export default function CreateWorkspace({ onClose, refreshWorkspaces, setCurrentWorkspace }) {
   const [step, setStep] = useState(1);
   const [workspaceName, setWorkspaceName] = useState("");
   const [description, setDescription] = useState("");
@@ -73,7 +73,7 @@ export default function CreateWorkspace({ onClose, refreshWorkspaces }) {
     }
 
     try {
-      await createWorkspace({
+      const newWorkspace = await createWorkspace({
         name: workspaceName,
         description,
         type: purpose ? purpose : "team"
@@ -85,6 +85,7 @@ export default function CreateWorkspace({ onClose, refreshWorkspaces }) {
       setEmail("");
       setPurpose("");
       refreshWorkspaces();
+      setCurrentWorkspace(newWorkspace.workspace); // Select the newly created workspace
       onClose();
     } catch (error) {
       message.error("Failed to create space!");

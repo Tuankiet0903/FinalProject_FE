@@ -42,3 +42,93 @@ export const createSpace = async ({ name, description, workspaceId }) => {
         throw error;
     }
 };
+
+export const deleteSpace = async (spaceId) => {
+    try {
+        const response = await axios.delete(`${API_ROOT}/space/spaces/${spaceId}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error deleting space:", error);
+        throw error;
+    }
+};
+
+export const updateSpace = async (space) => {
+    try {
+        const response = await axios.put(`${API_ROOT}/space/spaces/${space.spaceId}`, space);
+        return response.data;
+    } catch (error) {
+        console.error("Error updating space:", error);
+        throw error;
+    }
+};
+
+export const createFolder = async ({ name, description, spaceId }) => {
+    try {
+        const response = await axios.post(`${API_ROOT}/folder/folders`, {
+            name,
+            description,
+            createdBy: 1,
+            spaceId,
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error creating folder:", error);
+        throw error;
+    }
+};
+
+export const deleteFolder = async (folderId) => {
+    try {
+        const response = await axios.delete(`${API_ROOT}/folder/folders/${folderId}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error deleting folder:", error);
+        throw error;
+    }
+};
+
+export const updateFolder = async (folder) => {
+    try {
+        const response = await axios.put(`${API_ROOT}/folder/folders/${folder.folderId}`, folder);
+        return response.data;
+    } catch (error) {
+        console.error("Error updating folder:", error);
+        throw error;
+    }
+};
+
+export const createList = async ({ name, description, folderId }) => {
+    try {
+        const response = await axios.post(`${API_ROOT}/list/lists`, {
+            name,
+            description,
+            createdBy: 1,
+            folderId,
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error creating list:", error);
+        throw error;
+    }
+};
+
+export const deleteList = async (listId) => {
+    try {
+        const response = await axios.delete(`${API_ROOT}/list/lists/${listId}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error deleting list:", error);
+        throw error;
+    }
+};
+
+export const updateList = async (list) => {
+    try {
+        const response = await axios.put(`${API_ROOT}/list/lists/${list.listId}`, list);
+        return response.data;
+    } catch (error) {
+        console.error("Error updating list:", error);
+        throw error;
+    }
+};

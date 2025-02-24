@@ -109,8 +109,8 @@ export default function SidebarHeaderDropdown({ currentWorkspace, setCurrentWork
       </div>
       
       {showCreateWorkspace && (
-        <div className="fixed inset-0 w-full h-full flex items-center justify-center bg-gray-800 bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg">
+        <div className="fixed inset-0 w-full h-full flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
+          <div className="bg-white rounded-lg shadow-lg">
             <CreateWorkspace 
               onClose={() => setShowCreateWorkspace(false)} 
               refreshWorkspaces={fetchAllWorkspace} 

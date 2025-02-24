@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import axios from "axios";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -9,17 +10,21 @@ export default function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("http://localhost:5000/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password })
+      const response = await axios.post("http://localhost:5000/auth/login", {
+        email,
+        password,
       });
-      const data = await response.json();
-      if (response.ok) {
-        localStorage.setItem("token", data.token);
+
+      if (response.status === 200) {
+        const { token, user } = response.data;
+
+        // Lưu token vào localStorage
+        localStorage.setItem("token", token);
+        localStorage.setItem("user", JSON.stringify(user)); // 🔥 Lưu thông tin user
+
         navigate("/user");
       } else {
-        alert(data.error || "Login failed");
+        alert(response.data.error || "Login failed");
       }
     } catch (err) {
       console.error("Error:", err);

@@ -55,7 +55,7 @@ export default function SignupPage() {
             <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="123456" className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent" required />
           </div>
 
-          <button type="submit" className="w-full py-3 bg-purple-600 text-white rounded-md hover:bg-purple-700">Play with ClickUp</button>
+          <button type="submit" className="w-full py-3 bg-purple-600 text-white rounded-md hover:bg-purple-700">Play with PTM</button>
         </form>
       </div>
     </main>

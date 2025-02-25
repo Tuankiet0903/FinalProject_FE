@@ -10,29 +10,49 @@ const Header = () => {
   const iconClass = "w-5 h-5 text-white hover:text-gray-300 transition";
   const buttonClass = "p-2 bg-[#372C81] hover:bg-white/10 rounded-lg transition";
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUserProfile = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) return;
-
       try {
+        setLoading(true);
+        console.log("📡 Fetching user profile...");
+        
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+          throw new Error("No token found. Please login again.");
+        }
+
         const response = await axios.get("http://localhost:5000/api/user/profile", {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: {
+            Authorization: `Bearer ${token}`,  // Gửi token trong header
+          },
+          withCredentials: true, // ✅ Gửi cookies kèm request
         });
+
+        console.log("✅ API Response Data:", response.data);
+        if (!response.data || !response.data.userId) {
+          throw new Error("Invalid user data");
+        }
+
         setUser(response.data);
       } catch (error) {
-        console.error("Failed to fetch user profile", error);
-        if (error.response && error.response.status === 401) {
-          localStorage.removeItem("token");
+        console.error("❌ Failed to fetch user profile", error.response?.data || error.message);
+        if (error.response?.status === 401) {
           navigate("/login");
         }
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchUserProfile();
   }, [navigate]);
+
+  // ✅ Lấy họ từ fullName (Chỉ lấy từ đầu tiên)
+  const getFirstName = (fullName) => fullName?.split(" ")[0] || "Guest";
 
   return (
     <header className="flex items-center justify-between px-6 py-3 bg-[#372C81] shadow-md w-full">
@@ -69,11 +89,17 @@ const Header = () => {
         </button>
         <Dropdown overlay={<UserDropdownMenu user={user} />} trigger={["click"]} placement="bottomRight" arrow>
           <button className="flex items-center gap-2 p-1 bg-[#372C81] hover:bg-white/10 rounded-md transition ml-1">
-            <img src={user?.avatar ? user.avatar : "/placeholder.svg"} 
-                 alt="User Avatar" 
-                 className="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover border-2 border-white shadow-md" />
-            <span className="text-white text-sm font-semibold">{user?.fullName || "Guest"}</span>
-            <ChevronDown className={iconClass} />
+            {loading ? (
+              <span className="text-white text-sm font-semibold">Loading...</span>
+            ) : (
+              <>
+                <img src={user?.avatar ? user.avatar : "/placeholder.svg"}
+                  alt="User Avatar"
+                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover border-2 border-white shadow-md" />
+                <span className="text-white text-sm font-semibold">{loading ? "Loading..." : getFirstName(user?.fullName)}</span>
+                <ChevronDown className={iconClass} />
+              </>
+            )}
           </button>
         </Dropdown>
       </div>

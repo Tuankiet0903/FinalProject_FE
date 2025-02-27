@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { ChevronDown } from "lucide-react";
 import SidebarHeaderDropdown from "./SidebarHeaderDropdown";
 import mockWorkspaces from "../../lib/mockWorkspaces";
-import { getAllWorkspace } from "../../api/workspace";
+import { getAllWorkspaceByUserId } from "../../api/workspace";
 
 export default function SidebarHeader({ setSelectedWorkspaceId }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -11,7 +11,7 @@ export default function SidebarHeader({ setSelectedWorkspaceId }) {
   useEffect(() => {
     const fetchAllWorkspace = async () => {
       try {
-        const workspaceData = await getAllWorkspace();
+        const workspaceData = await getAllWorkspaceByUserId();
         if (workspaceData && workspaceData.length > 0) {
           setCurrentWorkspace(workspaceData[0]);
           setSelectedWorkspaceId(workspaceData[0].workspaceId);

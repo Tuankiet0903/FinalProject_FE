@@ -1,5 +1,14 @@
 import axios from 'axios'
 import { API_ROOT } from '../utils/constants'
+import { jwtDecode } from "jwt-decode";
+
+const getUserId = () => {
+    const token = localStorage.getItem("token");
+    if (!token) throw new Error("Người dùng chưa đăng nhập!");
+
+    const decoded = jwtDecode(token);
+    return decoded.userId;
+}
 
 export const fetchWorkspaceByID = async (workspaceId) => {
     const response = await axios.get(`${API_ROOT}/workspace/workspaces/${workspaceId}`)
@@ -11,13 +20,18 @@ export const getAllWorkspace = async () => {
     return response.data
 }
 
+export const getAllWorkspaceByUserId = async () => {
+    const response = await axios.get(`${API_ROOT}/workspace/workspaces/user/${getUserId()}`)
+    return response.data
+}
+
 export const createWorkspace = async ({ name, description, type }) => {
     try {
         const response = await axios.post(`${API_ROOT}/workspace/create-with-defaults`, {
             name,
             description,
             type,
-            createdBy: 1,
+            createdBy: getUserId(),
         });
 
         return response.data;
@@ -32,7 +46,7 @@ export const createSpace = async ({ name, description, workspaceId }) => {
         const response = await axios.post(`${API_ROOT}/space/spaces`, {
             name,
             description,
-            createdBy: 1,
+            createdBy: getUserId(),
             workspaceId,
         });
 
@@ -68,7 +82,7 @@ export const createFolder = async ({ name, description, spaceId }) => {
         const response = await axios.post(`${API_ROOT}/folder/folders`, {
             name,
             description,
-            createdBy: 1,
+            createdBy: getUserId(),
             spaceId,
         });
         return response.data;
@@ -103,7 +117,7 @@ export const createList = async ({ name, description, folderId }) => {
         const response = await axios.post(`${API_ROOT}/list/lists`, {
             name,
             description,
-            createdBy: 1,
+            createdBy: getUserId(),
             folderId,
         });
         return response.data;

@@ -18,16 +18,30 @@ const Header = () => {
       try {
         setLoading(true);
         console.log("📡 Fetching user profile...");
-        
-        const token = localStorage.getItem("token");
 
+        // ✅ Lấy token từ localStorage trước
+        let token = localStorage.getItem("token");
+
+        // ✅ Nếu không có token trong localStorage, thử lấy từ cookies
         if (!token) {
-          throw new Error("No token found. Please login again.");
+          console.log("🔍 Không tìm thấy token trong localStorage, thử lấy từ cookies...");
+          const cookieResponse = await axios.get("http://localhost:5000/auth/google/success", {
+            withCredentials: true, // ✅ Quan trọng: Gửi cookies khi gọi API
+          });
+
+          if (cookieResponse.data?.token) {
+            token = cookieResponse.data.token;
+            localStorage.setItem("token", token); // ✅ Lưu vào localStorage để dùng lại sau
+            console.log("✅ Token lấy từ cookies:", token);
+          } else {
+            throw new Error("No token found in cookies.");
+          }
         }
 
+        // ✅ Gọi API lấy thông tin user
         const response = await axios.get("http://localhost:5000/api/user/profile", {
           headers: {
-            Authorization: `Bearer ${token}`,  // Gửi token trong header
+            Authorization: `Bearer ${token}`, // Gửi token trong header
           },
           withCredentials: true, // ✅ Gửi cookies kèm request
         });
@@ -41,6 +55,7 @@ const Header = () => {
       } catch (error) {
         console.error("❌ Failed to fetch user profile", error.response?.data || error.message);
         if (error.response?.status === 401) {
+          localStorage.removeItem("token");
           navigate("/login");
         }
       } finally {

@@ -64,6 +64,7 @@ const UserDropdownMenu = () => {
             await axios.get("http://localhost:5000/auth/logout", {
                 withCredentials: true, // ✅ Gửi request logout kèm cookies
             });
+            localStorage.removeItem("token");
         } catch (error) {
             console.error("❌ Failed to logout", error);
         }
@@ -77,6 +78,10 @@ const UserDropdownMenu = () => {
 
     const handleSetting = () => {
         navigate("/setting")
+    }
+
+    const handleSettingProfile = () => {
+        navigate("/setting/profile")
     }
 
     const avatarUrl = user?.avatar && user.avatar !== "null" ? user.avatar : "/placeholder.svg";
@@ -105,7 +110,7 @@ const UserDropdownMenu = () => {
             </Menu.Item>
             <Menu.Item key="status" icon={<Clock className="mr-2 h-4 w-4" />}>Set status</Menu.Item>
             <Menu.Item key="mute" icon={<Volume2 className="mr-2 h-4 w-4" />}>Mute notifications</Menu.Item>
-            <Menu.Item key="profile" icon={<User className="mr-2 h-4 w-4" />}>Profile</Menu.Item>
+            <Menu.Item key="profile" icon={<User className="mr-2 h-4 w-4" />} onClick={handleSettingProfile} >Profile</Menu.Item>
             <Menu.Item key="themes" icon={<Palette className="mr-2 h-4 w-4" />}>Themes</Menu.Item>
             <Menu.Item key="settings" icon={<Settings className="mr-2 h-4 w-4" />} onClick={handleSetting}>Settings</Menu.Item>
             <Menu.Item key="notifications" icon={<Bell className="mr-2 h-4 w-4" />}>Notification settings</Menu.Item>

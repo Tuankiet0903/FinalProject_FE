@@ -1,11 +1,39 @@
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
 import axios from "axios";
 
 export default function LoginPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  // 🔥 Kiểm tra token sau khi Google redirect về
+  useEffect(() => {
+    const checkGoogleLogin = async () => {
+      try {
+        // Gọi API để lấy token từ cookie
+        const response = await axios.get("http://localhost:5000/auth/google/success", {
+          withCredentials: true, // 🔥 Quan trọng: Gửi cookies nếu backend lưu token trong cookies
+        });
+
+        console.log("✅ Google Login Response:", response.data);
+
+        if (response.data?.token) {
+          localStorage.setItem("token", response.data.token); // ✅ Lưu token vào localStorage
+          localStorage.setItem("user", JSON.stringify(response.data.user)); // ✅ Lưu user vào localStorage
+          navigate("/user");
+        } else {
+          console.error("❌ Không nhận được token từ backend.");
+          navigate("/login");
+        }
+      } catch (error) {
+        console.error("❌ Lỗi khi lấy token từ Google login:", error);
+        navigate("/login");
+      }
+    };
+
+    checkGoogleLogin();
+  }, [navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -18,9 +46,9 @@ export default function LoginPage() {
       if (response.status === 200) {
         const { token, user } = response.data;
 
-        // Lưu token vào localStorage
+        // ✅ Lưu token vào localStorage
         localStorage.setItem("token", token);
-        localStorage.setItem("user", JSON.stringify(user)); // 🔥 Lưu thông tin user
+        localStorage.setItem("user", JSON.stringify(user));
 
         navigate("/user");
       } else {

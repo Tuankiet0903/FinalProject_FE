@@ -15,6 +15,7 @@ import WorkspaceSettings from "./pages/auth/Settings/WorkspaceSettings";
 import LoginPage from "./pages/auth/LoginPage"; 
 import SignupPage from "./pages/auth/SignupPage"; 
 import SpaceDetail from "./pages/auth/Settings/SpaceDetail"
+import DashboardSpace from "./pages/auth/HomePage/DashboardSpace";
 
 export default function App() {
   return (
@@ -29,6 +30,7 @@ export default function App() {
           <Route path="inbox" element={<Inbox />} />
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="space" element={<SpaceDetail/>}></Route>
+          <Route path="dashboardspace" element={<DashboardSpace/>} />
 
           {/* 🔥 Cập nhật đường dẫn Kanban đầy đủ với `spaceId` */}
           <Route path="kanban/:workspaceId/:spaceId/:folderId/:listId" element={<KanbanBoardPage />} />

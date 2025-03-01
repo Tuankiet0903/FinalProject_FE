@@ -81,7 +81,7 @@ const DashboardList = () => {
           {["all", "space", "folder", "list"].map((tab) => (
             <button
               key={tab}
-              className={`py-2 px-4 min-w-[120px] bg-white text-black rounded-md transition-all ${
+              className={`py-2 px-4 min-w-[120px] bg-white text-black rounded-2xl transition-all ${
                 selectedTab === tab
                   ? "border border-black font-semibold"
                   : "hover:text-black"
@@ -107,7 +107,7 @@ const DashboardList = () => {
             placeholder="Search"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="bg-gray-100 pl-10 pr-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="bg-gray-100 pl-10 pr-4 py-1 rounded-2xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
         </div>
       </div>

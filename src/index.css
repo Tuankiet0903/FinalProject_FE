@@ -121,3 +121,23 @@ button:focus-visible {
 .scrollbar-custom::-webkit-scrollbar-thumb:hover {
   background: #9ca3af; /* Màu xám đậm hơn khi hover */
 }
+
+.ant-btn-dangerous {
+  border-color: red !important;
+  color: red !important;
+}
+
+.ant-btn-dangerous:hover, .ant-btn-dangerous:focus {
+  background-color: red !important;
+  color: white !important;
+}
+
+.ant-btn-edit {
+  border-color: #ffdf00 !important;
+  color: #ffdf00 !important;
+}
+
+.ant-btn-edit:hover, .ant-btn-edit:focus {
+  background-color: #ffdf00 !important;
+  color: white !important;
+}

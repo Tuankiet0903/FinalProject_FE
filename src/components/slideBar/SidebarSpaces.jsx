@@ -2,8 +2,9 @@ import { useState, useEffect } from "react";
 import { ChevronDownIcon, PlusIcon, ChevronRightIcon, CircleIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import CreateSpaceDialog from "./CreateSpaceDialog";
-import { fetchWorkspaceByID } from "../../api/workspace";
-import mockSpaces from "../../lib/mockSpaces"; // Import mock data
+import { fetchWorkspaceByID, deleteSpace, updateSpace, createFolder, deleteFolder, updateFolder, createList, deleteList, updateList } from "../../api/workspace";
+import ItemDropdown from "../dropdown/ItemDropdown";
+
 
 export default function SidebarSpaces({ selectedWorkspaceId }) {
   const [isSpacesOpen, setIsSpacesOpen] = useState(true);
@@ -55,9 +56,78 @@ export default function SidebarSpaces({ selectedWorkspaceId }) {
       [folderId]: !prev[folderId],
     }));
   };
+  };
 
-  const handleSpaceClick = (spaceId) => {
-    navigate(`user/space/${spaceId}`); // Điều hướng đến trang SpaceDetailPage
+  const handleDeleteSpace = async (spaceId) => {
+    try {
+      await deleteSpace(spaceId);
+      setRefreshTrigger(prev => prev + 1);
+    } catch (error) {
+      console.error("Failed to delete space:", error);
+    }
+  };
+
+  const handleUpdateSpace = async (updatedSpace) => {
+    try {
+      await updateSpace(updatedSpace);
+      setRefreshTrigger(prev => prev + 1);
+    } catch (error) {
+      console.error("Failed to update space:", error);
+    }
+  };
+
+  const handleCreateFolder = async (spaceId, folderName) => {
+    try {
+      await createFolder({ name: folderName, description: "", spaceId });
+      setRefreshTrigger(prev => prev + 1);
+    } catch (error) {
+      console.error("Failed to create folder:", error);
+    }
+  }
+
+  const handleDeleteFolder = async (folderId) => {
+    try {
+      await deleteFolder(folderId);
+      setRefreshTrigger(prev => prev + 1);
+    } catch (error) {
+      console.error("Failed to delete folder:", error);
+    }
+  };
+
+  const handleUpdateFolder = async (updatedFolder) => {
+    try {
+      await updateFolder(updatedFolder);
+      setRefreshTrigger(prev => prev + 1);
+    } catch (error) {
+      console.error("Failed to update folder:", error);
+    }
+  };
+
+  const hanldeCreateList = async (folderId, listName) => {
+    try {
+      await createList({ name: listName, description: "", folderId });
+      setRefreshTrigger(prev => prev + 1);
+    } catch (error) {
+      console.error("Failed to create list:", error);
+    }
+  }
+
+  const handleDeleteList = async (listId) => {
+    try {
+      await deleteList(listId);
+      setRefreshTrigger(prev => prev + 1);
+    } catch (error) {
+      console.error("Failed to delete list:", error);
+    }
+  };
+
+  const handleUpdateList = async (updatedList) => {
+    try {
+      await updateList(updatedList);
+      setRefreshTrigger(prev => prev + 1);
+    } catch (error) {
+      console.error("Failed to update list:", error);
+    }
   };
 
   return (
@@ -81,52 +151,80 @@ export default function SidebarSpaces({ selectedWorkspaceId }) {
 
         {isSpacesOpen && (
           <div className="space-y-1">
-            {spaces.length === 0 ? (
-              <p className="text-gray-500 text-sm px-2">Không có Space nào. Hãy tạo một Space mới!</p>
-            ) : (
-              spaces.map((space) => (
-                <div key={space.spaceId}>
+            {spaces.map((space) => (
+              <div key={space.spaceId}>
+                <div
+                  className="w-full bg-white hover:bg-white flex items-center justify-between px-2 py-2 text-sm rounded-md text-black"
+                >
                   <button
-                    onClick={() => handleSpaceClick(space.spaceId)}
-                    className="w-full flex items-center justify-between px-2 py-2 text-sm rounded-md hover:bg-gray-100 bg-white text-black"
+                    onClick={() => toggleSpace(space.spaceId)}
+                    className="flex items-center flex-grow"
                   >
                     <span className="text-sm text-black">📦 {space.name}</span>
-                    <ChevronRightIcon className="h-4 w-4" />
+                    <ChevronRightIcon className={`h-4 w-4 ml-2 transform transition-transform ${expandedSpaces[space.spaceId] ? "rotate-90" : ""}`} />
                   </button>
+                  <ItemDropdown
+                    type="space"
+                    item={space}
+                    onDelete={() => handleDeleteSpace(space.spaceId)}
+                    onUpdate={(updatedSpace) => handleUpdateSpace(updatedSpace)}
+                    onCreate={(folderName) => handleCreateFolder(space.spaceId, folderName)}
+                  />
+                </div>
 
-                  {expandedSpaces[space.spaceId] && (
-                    <div className="ml-6 space-y-1 mt-1">
-                      {space.folders.map((folder) => (
-                        <div key={folder.folderId}>
+                {expandedSpaces[space.spaceId] && (
+                  <div className="ml-6 space-y-1">
+                    {space.folders.map((folder) => (
+                      <div key={folder.folderId}>
+                        <div
+                          className="w-full bg-white hover:bg-white flex items-center justify-between px-2 py-2 text-sm rounded-md text-black"
+                        >
                           <button
                             onClick={() => toggleFolder(folder.folderId)}
-                            className="w-full flex items-center justify-between px-2 py-2 text-sm rounded-md hover:bg-gray-100 bg-white text-black"
+                            className="flex items-center flex-grow"
                           >
                             <span className="text-sm text-black">📂 {folder.name}</span>
-                            <ChevronRightIcon className={`h-4 w-4 transform transition-transform ${expandedFolders[folder.folderId] ? "rotate-90" : ""}`} />
+                            <ChevronRightIcon className={`h-4 w-4 ml-2 transform transition-transform ${expandedFolders[folder.folderId] ? "rotate-90" : ""}`} />
                           </button>
+                          <ItemDropdown
+                            type="folder"
+                            item={folder}
+                            onDelete={() => handleDeleteFolder(folder.folderId)}
+                            onUpdate={(updatedFolder) => handleUpdateFolder(updatedFolder)}
+                            onCreate={(listName) => hanldeCreateList(folder.folderId, listName)}
+                          />
+                        </div>
 
-                          {expandedFolders[folder.folderId] && folder.lists.length > 0 && (
-                            <div className="ml-6 space-y-1 mt-1">
-                              {folder.lists.map((list) => (
+                        {expandedFolders[folder.folderId] && folder.lists.length > 0 && (
+                          <div className="ml-6 space-y-1">
+                            {folder.lists.map((list) => (
+                              <div
+                                key={list.listId}
+                                className="w-full bg-white hover:bg-white flex items-center justify-between px-2 py-2 text-sm rounded-md"
+                              >
                                 <button
-                                  key={list.listId}
-                                  onClick={() => navigate(`/user/kanban/${selectedWorkspaceId}/${space.spaceId}/${folder.folderId}/${list.listId}`)}
-                                  className="w-full bg-white flex items-center px-2 py-2 text-sm rounded-md hover:bg-gray-100"
+                                  onClick={() => handleListClick(selectedWorkspaceId, space.spaceId, folder.folderId, list.listId)}
+                                  className="flex items-center flex-grow"
                                 >
                                   <CircleIcon className="h-3 w-3 mr-2" />
                                   <span>{list.name}</span>
                                 </button>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))
-            )}
+                                <ItemDropdown
+                                  type="list"
+                                  item={list}
+                                  onDelete={() => handleDeleteList(list.listId)}
+                                  onUpdate={(updatedList) => handleUpdateList(updatedList)}
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         )}
       </div>

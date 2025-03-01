@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 
 export default function ListHeader({ activeTab, setActiveTab }) {
    return (
-      <nav className="sticky top-0 bg-white shadow-md border-b z-10">
+      <nav className="sticky top-0 bg-white shadow-md border-b z-5">
          <div className="flex justify-between items-center px-4 py-2 overflow-x-auto whitespace-nowrap">
             {/* Menu chính */}
             <div className="flex items-center space-x-4 flex-wrap">

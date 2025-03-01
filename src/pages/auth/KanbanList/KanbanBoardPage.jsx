@@ -5,31 +5,35 @@ import mockFolders from "../../../lib/mockFolders";
 import mockLists from "../../../lib/mockLists";
 import ListHeader from "../../../components/ListHeader";
 import KanbanBoard from "../../../components/KanbanBoard";
+import CalendarView from "../../../components/board/CalendarView";
 
 export default function KanbanBoardPage() {
   const { spaceId, folderId, listId } = useParams();
   const [activeTab, setActiveTab] = useState("Overview");
-
+  
   // Tìm Space
   const space = mockSpaces.find((s) => s.spaceId === parseInt(spaceId));
-
+  
   // Tìm Folder trong Space
   const folder = mockFolders.find((f) => f.folderId === parseInt(folderId) && f.spaceId === parseInt(spaceId));
-
+  
   // Tìm List trong Folder
   const list = mockLists.find((l) => l.listId === parseInt(listId) && l.folderId === parseInt(folderId));
-
-  return (
-    <div className="flex flex-col h-screen">
-      <ListHeader activeTab={activeTab} setActiveTab={setActiveTab} />
-
-      <div className="p-6 bg-white shadow-md rounded-lg">
-        
-        {activeTab === "Board" ? (
-          // Khi chọn "Board" hiển thị KanbanBoard
-          <KanbanBoard />
-        ) : activeTab === "Overview" && space && folder && list ? (
-        // Khi chọn "Overview" hiển thị chi tiết danh sách
+  
+  // Hàm render nội dung theo tab active
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case "Board":
+        return <KanbanBoard />;
+      case "List":
+        return <div className="p-4">Nội dung List View</div>;
+      case "Dashboard":
+        return <div className="p-4">Nội dung Dashboard View</div>;
+      case "Calendar":
+        return <CalendarView />;
+      case "Overview":
+      default:
+        return space && folder && list ? (
           <div>
             <h1 className="text-2xl font-semibold text-black mb-4">📌 Chi Tiết Danh Sách</h1>
             <h2 className="text-lg font-bold">🌌 Không gian: {space.name}</h2>
@@ -44,7 +48,16 @@ export default function KanbanBoardPage() {
           </div>
         ) : (
           <p className="text-red-500">Không tìm thấy danh sách.</p>
-        )}
+        );
+    }
+  };
+
+  return (
+    <div className="flex flex-col h-screen">
+      <ListHeader activeTab={activeTab} setActiveTab={setActiveTab} />
+      
+      <div className="p-6 bg-white shadow-md rounded-lg">
+        {renderTabContent()}
       </div>
     </div>
   );

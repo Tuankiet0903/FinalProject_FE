@@ -1,12 +1,10 @@
 import { useState, useEffect } from "react";
 import { ChevronDownIcon, PlusIcon, ChevronRightIcon, CircleIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-// import mockSpaces from "../../lib/mockSpaces";
-// import mockFolders from "../../lib/mockFolders";
-// import mockLists from "../../lib/mockLists";
 import CreateSpaceDialog from "./CreateSpaceDialog";
 import { fetchWorkspaceByID, deleteSpace, updateSpace, createFolder, deleteFolder, updateFolder, createList, deleteList, updateList } from "../../api/workspace";
 import ItemDropdown from "../dropdown/ItemDropdown";
+
 
 export default function SidebarSpaces({ selectedWorkspaceId }) {
   const [isSpacesOpen, setIsSpacesOpen] = useState(true);
@@ -19,15 +17,25 @@ export default function SidebarSpaces({ selectedWorkspaceId }) {
 
   useEffect(() => {
     if (!selectedWorkspaceId) return;
+
     console.log("Selected workspace ID: ", selectedWorkspaceId);
+
     const fetchSpaces = async () => {
       try {
         const workspaceData = await fetchWorkspaceByID(selectedWorkspaceId);
-        setSpaces(workspaceData.spaces);
+
+        if (workspaceData?.spaces?.length > 0) {
+          setSpaces(workspaceData.spaces);
+        } else {
+          console.warn("No spaces found, using mock data.");
+          setSpaces(mockSpaces); // Dùng mock data nếu API không có dữ liệu
+        }
       } catch (error) {
         console.error("Failed to fetch workspace:", error);
+        setSpaces(mockSpaces); // Dùng mock data nếu API bị lỗi
       }
     };
+
     fetchSpaces();
   }, [selectedWorkspaceId, refreshTrigger]);
 
@@ -48,9 +56,6 @@ export default function SidebarSpaces({ selectedWorkspaceId }) {
       [folderId]: !prev[folderId],
     }));
   };
-
-  const handleListClick = (workspaceId, spaceId, folderId, listId) => {
-    navigate(`/user/kanban/${workspaceId}/${spaceId}/${folderId}/${listId}`);
   };
 
   const handleDeleteSpace = async (spaceId) => {

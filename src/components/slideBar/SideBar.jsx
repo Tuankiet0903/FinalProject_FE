@@ -5,7 +5,7 @@ import SidebarNavigation from "./SidebarNavigation";
 import SidebarSpaces from "./SidebarSpaces";
 
 export default function Sidebar() {
-  const [selectedWorkspaceId, setSelectedWorkspaceId] = useState(2);
+  const [selectedWorkspaceId, setSelectedWorkspaceId] = useState(null);
 
   return (
     <div className="w-72 bg-white h-screen border-r text-black border-gray-200 fixed left-0 top-[72px] shadow-md flex flex-col">

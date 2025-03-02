@@ -14,6 +14,12 @@ import Upgrade from "./pages/auth/Settings/Upgrade";
 import WorkspaceSettings from "./pages/auth/Settings/WorkspaceSettings";
 import LoginPage from "./pages/auth/LoginPage"; 
 import SignupPage from "./pages/auth/SignupPage"; 
+import SpaceDetail from "./pages/auth/Settings/SpaceDetail"
+import DashboardSpace from "./pages/auth/HomePage/DashboardSpace";
+import AdminDashboard from "./pages/auth/Admin/AdminDashBoard";
+import AdminLayout from "./layouts/AdminLayout";
+import WorkspaceListTable from "./pages/auth/Admin/AdminWorkspaceList";
+import UserListTable from "./pages/auth/Admin/AdminUserList";
 
 export default function App() {
   return (
@@ -27,6 +33,8 @@ export default function App() {
           <Route path="home" element={<Home />} />
           <Route path="inbox" element={<Inbox />} />
           <Route path="dashboard" element={<Dashboard />} />
+          <Route path="space" element={<SpaceDetail/>}></Route>
+          <Route path="dashboardspace" element={<DashboardSpace/>} />
 
           {/* 🔥 Cập nhật đường dẫn Kanban đầy đủ với `spaceId` */}
           <Route path="kanban/:workspaceId/:spaceId/:folderId/:listId" element={<KanbanBoardPage />} />
@@ -45,6 +53,14 @@ export default function App() {
         {/* Login và Signup có Layout riêng */}
         <Route path="/login" element={<LoginLayout><LoginPage /></LoginLayout>} />
         <Route path="/signup" element={<LoginLayout><SignupPage /></LoginLayout>} />
+
+        {/* Admin routes */}
+        <Route path="/admin" element={<AdminLayout/>}>
+          <Route index element={<AdminDashboard/>} />
+          <Route path="users" element={<UserListTable/>}/>  
+          <Route path="profile" element={<AdminDashboard/>} />
+          <Route path="workspaces" element={<WorkspaceListTable/>} />
+        </Route>
       </Routes>
       
     </Router>

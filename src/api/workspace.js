@@ -1,5 +1,14 @@
 import axios from 'axios'
 import { API_ROOT } from '../utils/constants'
+import { jwtDecode } from "jwt-decode";
+
+const getUserId = () => {
+    const token = localStorage.getItem("token");
+    if (!token) throw new Error("Người dùng chưa đăng nhập!");
+
+    const decoded = jwtDecode(token);
+    return decoded.userId;
+}
 
 export const fetchWorkspaceByID = async (workspaceId) => {
     const response = await axios.get(`${API_ROOT}/workspace/workspaces/${workspaceId}`)
@@ -11,13 +20,18 @@ export const getAllWorkspace = async () => {
     return response.data
 }
 
+export const getAllWorkspaceByUserId = async () => {
+    const response = await axios.get(`${API_ROOT}/workspace/workspaces/user/${getUserId()}`)
+    return response.data
+}
+
 export const createWorkspace = async ({ name, description, type }) => {
     try {
         const response = await axios.post(`${API_ROOT}/workspace/create-with-defaults`, {
             name,
             description,
             type,
-            createdBy: 1,
+            createdBy: getUserId(),
         });
 
         return response.data;
@@ -32,13 +46,103 @@ export const createSpace = async ({ name, description, workspaceId }) => {
         const response = await axios.post(`${API_ROOT}/space/spaces`, {
             name,
             description,
-            createdBy: 1,
+            createdBy: getUserId(),
             workspaceId,
         });
 
         return response.data;
     } catch (error) {
         console.error("Error creating space:", error);
+        throw error;
+    }
+};
+
+export const deleteSpace = async (spaceId) => {
+    try {
+        const response = await axios.delete(`${API_ROOT}/space/spaces/${spaceId}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error deleting space:", error);
+        throw error;
+    }
+};
+
+export const updateSpace = async (space) => {
+    try {
+        const response = await axios.put(`${API_ROOT}/space/spaces/${space.spaceId}`, space);
+        return response.data;
+    } catch (error) {
+        console.error("Error updating space:", error);
+        throw error;
+    }
+};
+
+export const createFolder = async ({ name, description, spaceId }) => {
+    try {
+        const response = await axios.post(`${API_ROOT}/folder/folders`, {
+            name,
+            description,
+            createdBy: getUserId(),
+            spaceId,
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error creating folder:", error);
+        throw error;
+    }
+};
+
+export const deleteFolder = async (folderId) => {
+    try {
+        const response = await axios.delete(`${API_ROOT}/folder/folders/${folderId}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error deleting folder:", error);
+        throw error;
+    }
+};
+
+export const updateFolder = async (folder) => {
+    try {
+        const response = await axios.put(`${API_ROOT}/folder/folders/${folder.folderId}`, folder);
+        return response.data;
+    } catch (error) {
+        console.error("Error updating folder:", error);
+        throw error;
+    }
+};
+
+export const createList = async ({ name, description, folderId }) => {
+    try {
+        const response = await axios.post(`${API_ROOT}/list/lists`, {
+            name,
+            description,
+            createdBy: getUserId(),
+            folderId,
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error creating list:", error);
+        throw error;
+    }
+};
+
+export const deleteList = async (listId) => {
+    try {
+        const response = await axios.delete(`${API_ROOT}/list/lists/${listId}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error deleting list:", error);
+        throw error;
+    }
+};
+
+export const updateList = async (list) => {
+    try {
+        const response = await axios.put(`${API_ROOT}/list/lists/${list.listId}`, list);
+        return response.data;
+    } catch (error) {
+        console.error("Error updating list:", error);
         throw error;
     }
 };

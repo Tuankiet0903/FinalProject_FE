@@ -67,7 +67,7 @@ export default function LoginPage() {
         <img src="/placeholder.svg" alt="Google" className="w-6 h-6" />
         <span className="text-gray-700">Continue with Google</span>
       </button>
-      <form className="space-y-4" onSubmit={handleSubmit}>
+      <form className="space-y-4 text-black" onSubmit={handleSubmit}>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Work Email</label>
           <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Enter your work email" className="w-full px-4 py-2.5 border rounded-lg bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500" required />

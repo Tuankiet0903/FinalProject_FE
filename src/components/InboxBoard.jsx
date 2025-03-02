@@ -1,51 +1,50 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FiMail, FiCheck, FiUser } from "react-icons/fi"; // Import icons
+
+// Mock Data for Tasks
+const tasks = [
+  { id: 1, title: "FE - Header Home, inbox, Dashboards", assignedBy: "Tú Nguyễn Văn", date: "Today", status: 3 },
+  { id: 2, title: "BE-FE - Invite member WorkSpace", assignedBy: "Tú Nguyễn Văn", date: "Yesterday", status: 3 },
+  { id: 3, title: "[FE] - Dash Board trang chủ", assignedBy: "Tú Nguyễn Văn", date: "January", overdue: "Jan 13, 11:15pm", status: 3 },
+  { id: 4, title: "[FE] - Assigned comments", assignedBy: "Tú Nguyễn Văn", date: "January", status: 3 },
+  { id: 5, title: "[FE] - Assigned to me", assignedBy: "Tú Nguyễn Văn", date: "January", status: 3 },
+  { id: 6, title: "[FE] - My Work", assignedBy: "Tú Nguyễn Văn", date: "January", status: 3 },
+  { id: 7, title: "[FE] - Agenda", assignedBy: "Tú Nguyễn Văn", date: "January", status: 3 },
+  { id: 8, title: "[FE] - Recents", assignedBy: "Tú Nguyễn Văn", date: "January", status: 3 },
+  { id: 9, title: "[FE] - Home", assignedBy: "Tú Nguyễn Văn", date: "January", status: 3 },
+];
 
 const InboxList = () => {
   const [selectedTab, setSelectedTab] = useState("inbox");
-  const [tasks, setTasks] = useState([
-    { id: 1, title: "FE - Header Home, inbox, Dashboards", assignedBy: "Tú Nguyễn Văn", date: "Today", status: "unread" },
-    { id: 2, title: "BE-FE - Invite member WorkSpace", assignedBy: "Tú Nguyễn Văn", date: "Yesterday", status: "unread" },
-    { id: 3, title: "[FE] - Dash Board trang chủ", assignedBy: "Tú Nguyễn Văn", date: "January", overdue: "Jan 13, 11:15pm", status: "unread" },
-    { id: 4, title: "[FE] - Assigned comments", assignedBy: "Tú Nguyễn Văn", date: "January", status: "unread" },
-    { id: 5, title: "[FE] - Assigned to me", assignedBy: "Tú Nguyễn Văn", date: "January", status: "unread" },
-    { id: 6, title: "[FE] - My Work", assignedBy: "Tú Nguyễn Văn", date: "January", status: "unread" },
-    { id: 7, title: "[FE] - Agenda", assignedBy: "Tú Nguyễn Văn", date: "January", status: "unread" },
-    { id: 8, title: "[FE] - Recents", assignedBy: "Tú Nguyễn Văn", date: "January", status: "unread" },
-    { id: 9, title: "[FE] - Home", assignedBy: "Tú Nguyễn Văn", date: "January", status: "unread" },
-  ]);
+  const [taskList, setTaskList] = useState([]);
 
-  // Handle Mark as Read
-  const handleMarkAsRead = (id) => {
-    const updatedTasks = [...tasks];
-    const taskIndex = updatedTasks.findIndex((task) => task.id === id);
-    if (taskIndex !== -1) {
-      updatedTasks[taskIndex].status = "read"; // Mark as read
-      setTasks(updatedTasks);
-    }
-  };
+  useEffect(() => {
+    // Lọc các task có trạng thái là 3 (complete)
+    const completedTasks = tasks.filter(task => task.status === 3);
+    setTaskList(completedTasks);
+  }, []);
 
   // Handle Clear Task (move to cleared)
   const handleClearTask = (id) => {
-    const updatedTasks = [...tasks];
+    const updatedTasks = [...taskList];
     const taskIndex = updatedTasks.findIndex((task) => task.id === id);
     if (taskIndex !== -1) {
       updatedTasks[taskIndex].status = "cleared"; // Move to cleared state
-      setTasks(updatedTasks);
+      setTaskList(updatedTasks);
     }
   };
 
   // Handle Clear all Tasks (move all to cleared)
   const handleClearAll = () => {
-    const updatedTasks = tasks.map(task => ({
+    const updatedTasks = taskList.map(task => ({
       ...task,
       status: "cleared" // Set all tasks to cleared
     }));
-    setTasks(updatedTasks);
+    setTaskList(updatedTasks);
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md">
+    <div className="bg-white p-6 rounded-2xl shadow-md">
       {/* Tab navigation */}
       <div className="flex justify-between items-center mb-4">
         <div className="flex space-x-6 text-sm font-medium">
@@ -81,7 +80,7 @@ const InboxList = () => {
           <>
             <h3 className="text-gray-700 font-semibold my-4">Inbox</h3>
             <div className="space-y-2">
-              {tasks
+              {taskList
                 .filter((task) => task.status !== "cleared") // Filter out cleared tasks
                 .map((task) => (
                   <div
@@ -107,7 +106,7 @@ const InboxList = () => {
                     <div className="absolute right-4 opacity-0 group-hover:opacity-100 flex space-x-4">
                       <button
                         className="bg-white text-black p-2 rounded-md hover:bg-gray-100"
-                        onClick={() => handleMarkAsRead(task.id)}
+                        onClick={() => handleClearTask(task.id)}
                       >
                         <FiMail className="text-black" />
                       </button>
@@ -134,7 +133,7 @@ const InboxList = () => {
           <>
             <h3 className="text-gray-700 font-semibold my-4">Cleared</h3>
             <div className="space-y-2">
-              {tasks
+              {taskList
                 .filter((task) => task.status === "cleared") // Show only cleared tasks
                 .map((task) => (
                   <div key={task.id} className="p-4 border rounded-lg bg-gray-100 flex justify-between items-center">

@@ -44,6 +44,21 @@ const mockTasks = [
       endDate: "2024-02-23",
       completedAt: null,
    },
+   {
+      taskId: 4,
+      parentTaskId: null,
+      title: "BE - Calendar",
+      description: "Make UI Calendar",
+      status: 3,
+      priority: "Rất khó",
+      type: "nghiên cứu",
+      taskColumnId: 3,
+      assigneeId: 3,
+      createdBy: 3,
+      startDate: "2025-02-27",
+      endDate: "2025-02-28",
+      completedAt: null,
+   },
 ];
 
 export default mockTasks;

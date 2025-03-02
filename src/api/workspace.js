@@ -25,18 +25,34 @@ export const getAllWorkspaceByUserId = async () => {
     return response.data
 }
 
-export const createWorkspace = async ({ name, description, type }) => {
+export const createWorkspace = async ({ name, description, type = 'personal' }) => {
     try {
         const response = await axios.post(`${API_ROOT}/workspace/create-with-defaults`, {
             name,
             description,
-            type,
+            type: type || 'personal', // Đảm bảo luôn có giá trị mặc định
             createdBy: getUserId(),
+        }, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+        });
+
+        console.log('Workspace creation request:', {
+            name,
+            description,
+            type,
+            createdBy: getUserId()
         });
 
         return response.data;
     } catch (error) {
-        console.error("Error creating space:", error);
+        console.error("Error creating workspace:", {
+            message: error.message,
+            data: error.response?.data,
+            status: error.response?.status
+        });
         throw error;
     }
 };

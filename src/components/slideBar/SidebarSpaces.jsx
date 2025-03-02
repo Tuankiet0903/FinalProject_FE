@@ -129,9 +129,10 @@ export default function SidebarSpaces({ selectedWorkspaceId }) {
     }
   };
 
-  const handleListClick = (workspaceId, spaceId, folderId, listId) => {
-    navigate(`/workspace/${workspaceId}/space/${spaceId}/folder/${folderId}/list/${listId}`);
-  };
+ const handleListClick = (workspaceId, spaceId, folderId, listId) => {
+  // Thêm /user vào đầu đường dẫn
+  navigate(`/user/workspace/${workspaceId}/space/${spaceId}/folder/${folderId}/list/${listId}`);
+};
 
   return (
     <>

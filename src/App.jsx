@@ -33,12 +33,16 @@ export default function App() {
           <Route path="home" element={<Home />} />
           <Route path="inbox" element={<Inbox />} />
           <Route path="dashboard" element={<Dashboard />} />
-          <Route path="space" element={<SpaceDetail/>}></Route>
+          <Route path="space" element={<SpaceDetail/>} />
           <Route path="dashboardspace" element={<DashboardSpace/>} />
-
-          {/* 🔥 Cập nhật đường dẫn Kanban đầy đủ với `spaceId` */}
-          <Route path="kanban/:workspaceId/:spaceId/:folderId/:listId" element={<KanbanBoardPage />} />
-          <Route/>
+          
+          {/* Workspace và List Routes */}
+          <Route path="workspace/:workspaceId/space/:spaceId/folder/:folderId/list/:listId" 
+                 element={<KanbanBoardPage />} 
+          />
+          {/* <Route path="kanban/:workspaceId/:spaceId/:folderId/:listId" 
+                 element={<KanbanBoardPage />} 
+          /> */}
         </Route>
 
         {/* Layout riêng cho Settings */}
@@ -57,12 +61,11 @@ export default function App() {
         {/* Admin routes */}
         <Route path="/admin" element={<AdminLayout/>}>
           <Route index element={<AdminDashboard/>} />
-          <Route path="users" element={<UserListTable/>}/>  
+          <Route path="users" element={<UserListTable/>} />  
           <Route path="profile" element={<AdminDashboard/>} />
           <Route path="workspaces" element={<WorkspaceListTable/>} />
         </Route>
       </Routes>
-      
     </Router>
   );
 }

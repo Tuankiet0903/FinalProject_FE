@@ -1,10 +1,10 @@
+import React from 'react';
 import { useState, useEffect } from "react";
 import { ChevronDownIcon, PlusIcon, ChevronRightIcon, CircleIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import CreateSpaceDialog from "./CreateSpaceDialog";
 import { fetchWorkspaceByID, deleteSpace, updateSpace, createFolder, deleteFolder, updateFolder, createList, deleteList, updateList } from "../../api/workspace";
 import ItemDropdown from "../dropdown/ItemDropdown";
-
 
 export default function SidebarSpaces({ selectedWorkspaceId }) {
   const [isSpacesOpen, setIsSpacesOpen] = useState(true);
@@ -28,11 +28,11 @@ export default function SidebarSpaces({ selectedWorkspaceId }) {
           setSpaces(workspaceData.spaces);
         } else {
           console.warn("No spaces found, using mock data.");
-          setSpaces(mockSpaces); // Dùng mock data nếu API không có dữ liệu
+          setSpaces(mockSpaces);
         }
       } catch (error) {
         console.error("Failed to fetch workspace:", error);
-        setSpaces(mockSpaces); // Dùng mock data nếu API bị lỗi
+        setSpaces(mockSpaces);
       }
     };
 
@@ -82,7 +82,7 @@ export default function SidebarSpaces({ selectedWorkspaceId }) {
     } catch (error) {
       console.error("Failed to create folder:", error);
     }
-  }
+  };
 
   const handleDeleteFolder = async (folderId) => {
     try {
@@ -102,14 +102,14 @@ export default function SidebarSpaces({ selectedWorkspaceId }) {
     }
   };
 
-  const hanldeCreateList = async (folderId, listName) => {
+  const handleCreateList = async (folderId, listName) => {
     try {
       await createList({ name: listName, description: "", folderId });
       setRefreshTrigger(prev => prev + 1);
     } catch (error) {
       console.error("Failed to create list:", error);
     }
-  }
+  };
 
   const handleDeleteList = async (listId) => {
     try {
@@ -127,6 +127,10 @@ export default function SidebarSpaces({ selectedWorkspaceId }) {
     } catch (error) {
       console.error("Failed to update list:", error);
     }
+  };
+
+  const handleListClick = (workspaceId, spaceId, folderId, listId) => {
+    navigate(`/workspace/${workspaceId}/space/${spaceId}/folder/${folderId}/list/${listId}`);
   };
 
   return (
@@ -190,7 +194,7 @@ export default function SidebarSpaces({ selectedWorkspaceId }) {
                             item={folder}
                             onDelete={() => handleDeleteFolder(folder.folderId)}
                             onUpdate={(updatedFolder) => handleUpdateFolder(updatedFolder)}
-                            onCreate={(listName) => hanldeCreateList(folder.folderId, listName)}
+                            onCreate={(listName) => handleCreateList(folder.folderId, listName)}
                           />
                         </div>
 
@@ -228,7 +232,12 @@ export default function SidebarSpaces({ selectedWorkspaceId }) {
         )}
       </div>
 
-      <CreateSpaceDialog open={isCreateSpaceOpen} onOpenChange={setIsCreateSpaceOpen} workspaceId={selectedWorkspaceId} onSpaceCreated={handleSpaceCreated} />
+      <CreateSpaceDialog 
+        open={isCreateSpaceOpen} 
+        onOpenChange={setIsCreateSpaceOpen} 
+        workspaceId={selectedWorkspaceId} 
+        onSpaceCreated={handleSpaceCreated} 
+      />
     </>
   );
 }

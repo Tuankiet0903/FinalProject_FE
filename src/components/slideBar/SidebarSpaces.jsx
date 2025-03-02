@@ -56,7 +56,6 @@ export default function SidebarSpaces({ selectedWorkspaceId }) {
       [folderId]: !prev[folderId],
     }));
   };
-  };
 
   const handleDeleteSpace = async (spaceId) => {
     try {

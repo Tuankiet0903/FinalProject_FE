@@ -102,6 +102,8 @@ export const showWorkspaceDetailModal = (workspace) => {
           <div>
             <Typography.Title level={5}>{workspace.name}</Typography.Title>
             <Typography.Text type="secondary">Owner: {workspace.owner}</Typography.Text>
+            <br />
+            <Typography.Text type="secondary">Total member: {workspace.members}</Typography.Text>
           </div>
         </div>
 

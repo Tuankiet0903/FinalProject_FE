@@ -118,7 +118,7 @@ button:focus-visible {
 }
 
 .scrollbar-custom::-webkit-scrollbar-thumb:hover {
-  background: #d1d5db;* Màu xám đậm hơn khi hover */
+  background: #d1d5db;
 }
 
 .ant-btn-dangerous {

@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom"; // Import Link để điều hướng
+import { Link, useNavigate } from "react-router-dom"; // Import Link để điều hướng
 import {
   ArrowLeft,
   Users,
@@ -22,6 +22,8 @@ const workspaceName = "PTM-2025"; // Mock data cho tên workspace
 const userName = "Tú Nguyễn Văn"; // Mock data cho tên người dùng
 
 function SettingsSidebar() {
+  const navigate = useNavigate();
+
   const workspaceItems = [
     { icon: Users, label: "People", path: "/setting/manage-people" }, // Thêm đường dẫn
     { icon: Sparkles, label: "Upgrade", path: "/setting/upgrade" }, // Cập nhật đường dẫn
@@ -43,10 +45,11 @@ function SettingsSidebar() {
     { icon: LogOut, label: "Log out" },
   ];
 
+
   return (
     <div className="w-64 h-screen bg-white border-r border-gray-200 flex flex-col ">
       <div className="h-14 border-b border-gray-200 px-4 flex items-center">
-        <a href="#" className="flex items-center gap-2 text-sm font-medium text-gray-700">
+        <a href="/user" className="flex items-center gap-2 text-sm font-medium text-gray-700">
           <ArrowLeft className="h-4 w-4" />
           Back to Workspace
         </a>

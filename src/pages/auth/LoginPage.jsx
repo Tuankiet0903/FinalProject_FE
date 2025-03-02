@@ -1,25 +1,58 @@
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import axios from "axios";
 
 export default function LoginPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  // 🔥 Kiểm tra token sau khi Google redirect về
+  useEffect(() => {
+    const checkGoogleLogin = async () => {
+      try {
+        // Gọi API để lấy token từ cookie
+        const response = await axios.get("http://localhost:5000/auth/google/success", {
+          withCredentials: true, // 🔥 Quan trọng: Gửi cookies nếu backend lưu token trong cookies
+        });
+
+        console.log("✅ Google Login Response:", response.data);
+
+        if (response.data?.token) {
+          localStorage.setItem("token", response.data.token); // ✅ Lưu token vào localStorage
+          localStorage.setItem("user", JSON.stringify(response.data.user)); // ✅ Lưu user vào localStorage
+          navigate("/user");
+        } else {
+          console.error("❌ Không nhận được token từ backend.");
+          navigate("/login");
+        }
+      } catch (error) {
+        console.error("❌ Lỗi khi lấy token từ Google login:", error);
+        navigate("/login");
+      }
+    };
+
+    checkGoogleLogin();
+  }, [navigate]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("http://localhost:5000/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password })
+      const response = await axios.post("http://localhost:5000/auth/login", {
+        email,
+        password,
       });
-      const data = await response.json();
-      if (response.ok) {
-        localStorage.setItem("token", data.token);
+
+      if (response.status === 200) {
+        const { token, user } = response.data;
+
+        // ✅ Lưu token vào localStorage
+        localStorage.setItem("token", token);
+        localStorage.setItem("user", JSON.stringify(user));
+
         navigate("/user");
       } else {
-        alert(data.error || "Login failed");
+        alert(response.data.error || "Login failed");
       }
     } catch (err) {
       console.error("Error:", err);

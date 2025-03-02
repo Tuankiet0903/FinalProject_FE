@@ -38,6 +38,7 @@ export default function App() {
 
           {/* 🔥 Cập nhật đường dẫn Kanban đầy đủ với `spaceId` */}
           <Route path="kanban/:workspaceId/:spaceId/:folderId/:listId" element={<KanbanBoardPage />} />
+          <Route/>
         </Route>
 
         {/* Layout riêng cho Settings */}

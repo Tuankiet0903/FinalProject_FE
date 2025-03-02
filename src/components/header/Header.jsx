@@ -4,13 +4,15 @@ import UserDropdownMenu from "./UserDropdownMenu";
 import NotificationModal from "../notifications/NotificationModal";
 import logo from "../../assets/logo-clickup.svg";
 import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const Header = () => {
   const iconClass = "w-5 h-5 text-white hover:text-gray-300 transition";
   const buttonClass = "p-2 bg-[#372C81] hover:bg-white/10 rounded-lg transition";
-  const [userAvatar, setUserAvatar] = useState("");
-  const location = useLocation();
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   // Mock data cho notifications
   const mockNotifications = [
@@ -62,10 +64,60 @@ const Header = () => {
   ];
 
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const avatar = params.get("avatar");
-    if (avatar) setUserAvatar(avatar);
-  }, [location]);
+    const fetchUserProfile = async () => {
+      try {
+        setLoading(true);
+        console.log("📡 Fetching user profile...");
+
+        // ✅ Lấy token từ localStorage trước
+        let token = localStorage.getItem("token");
+
+        // ✅ Nếu không có token trong localStorage, thử lấy từ cookies
+        if (!token) {
+          console.log("🔍 Không tìm thấy token trong localStorage, thử lấy từ cookies...");
+          const cookieResponse = await axios.get("http://localhost:5000/auth/google/success", {
+            withCredentials: true, // ✅ Quan trọng: Gửi cookies khi gọi API
+          });
+
+          if (cookieResponse.data?.token) {
+            token = cookieResponse.data.token;
+            localStorage.setItem("token", token); // ✅ Lưu vào localStorage để dùng lại sau
+            console.log("✅ Token lấy từ cookies:", token);
+          } else {
+            throw new Error("No token found in cookies.");
+          }
+        }
+
+        // ✅ Gọi API lấy thông tin user
+        const response = await axios.get("http://localhost:5000/api/user/profile", {
+          headers: {
+            Authorization: `Bearer ${token}`, // Gửi token trong header
+          },
+          withCredentials: true, // ✅ Gửi cookies kèm request
+        });
+
+        console.log("✅ API Response Data:", response.data);
+        if (!response.data || !response.data.userId) {
+          throw new Error("Invalid user data");
+        }
+
+        setUser(response.data);
+      } catch (error) {
+        console.error("❌ Failed to fetch user profile", error.response?.data || error.message);
+        if (error.response?.status === 401) {
+          localStorage.removeItem("token");
+          navigate("/login");
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserProfile();
+  }, [navigate]);
+
+  // ✅ Lấy họ từ fullName (Chỉ lấy từ đầu tiên)
+  const getFirstName = (fullName) => fullName?.split(" ")[0] || "Guest";
 
   return (
     <header className="flex items-center justify-between px-6 py-3 bg-[#372C81] shadow-md w-full">
@@ -121,21 +173,20 @@ const Header = () => {
         <button className={buttonClass}>
           <RefreshCcw className={iconClass} />
         </button>
-
-        {/* User Avatar Dropdown */}
-        <Dropdown 
-          overlay={<UserDropdownMenu />} 
-          trigger={["click"]} 
-          placement="bottomRight" 
-          arrow
-        >
+        <Dropdown overlay={<UserDropdownMenu user={user} />} trigger={["click"]} placement="bottomRight" arrow>
           <button className="flex items-center gap-2 p-1 bg-[#372C81] hover:bg-white/10 rounded-md transition ml-1">
-            <img 
-              src={userAvatar || "/placeholder.svg"} 
-              alt="User Avatar" 
-              className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover" 
-            />
-            <ChevronDown className={iconClass} />
+            {loading ? (
+              <span className="text-white text-sm font-semibold">Loading...</span>
+            ) : (
+              <>
+                <img src={user?.avatar ? user.avatar : "/placeholder.svg"}
+                  alt="User Avatar"
+                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover border-2 border-white shadow-md" />
+                <span className="text-white text-sm font-semibold">{loading ? "Loading..." : getFirstName(user?.fullName)}</span>
+                <ChevronDown className={iconClass} />
+              </>
+            )}
+
           </button>
         </Dropdown>
       </div>

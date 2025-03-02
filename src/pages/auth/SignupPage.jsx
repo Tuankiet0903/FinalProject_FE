@@ -94,6 +94,9 @@ export default function SignupPage() {
             />
           </div>
 
+
+//           <button type="submit" className="w-full py-3 bg-purple-600 text-white rounded-md hover:bg-purple-700">Play with PTM</button>
+
           <button
             type="submit"
             className="w-full py-3 bg-purple-600 text-white rounded-md hover:bg-purple-700"
@@ -108,6 +111,7 @@ export default function SignupPage() {
               "Sign Up"
             )}
           </button>
+
         </form>
       </div>
 

@@ -8,7 +8,7 @@ import {
   Plus,
   ChevronRight,
 } from "lucide-react";
-import { getAllWorkspace } from "../../api/workspace";
+import { getAllWorkspaceByUserId } from "../../api/workspace";
 import CreateWorkspace from "./CreateWorkspace";
 
 export default function SidebarHeaderDropdown({ currentWorkspace, setCurrentWorkspace }) {
@@ -17,7 +17,7 @@ export default function SidebarHeaderDropdown({ currentWorkspace, setCurrentWork
 
   const fetchAllWorkspace = async () => {
     try {
-      const workspaceData = await getAllWorkspace();
+      const workspaceData = await getAllWorkspaceByUserId();
       setWorkspaces(workspaceData);
     } catch (error) {
       console.error("Failed to fetch workspace:", error);
@@ -83,7 +83,7 @@ export default function SidebarHeaderDropdown({ currentWorkspace, setCurrentWork
         </div>
 
         {/* Workspace List */}
-        <div className="max-h-40 overflow-y-auto">
+        <div className="max-h-40 custom-scrollbar overflow-y-auto">
           {workspaces.map((workspace) => (
             <button 
               key={workspace.workSpaceId} 

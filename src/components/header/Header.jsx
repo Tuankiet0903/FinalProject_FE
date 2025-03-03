@@ -5,7 +5,7 @@ import NotificationModal from "../notifications/NotificationModal";
 import logo from "../../assets/logo-clickup.svg";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import { fetchUserProfile } from "../../api/Header";
 
 const Header = () => {
   const iconClass = "w-5 h-5 text-white hover:text-gray-300 transition";
@@ -14,96 +14,13 @@ const Header = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Mock data cho notifications
-  const mockNotifications = [
-    {
-      notificationId: 1,
-      taskId: 101,
-      workspaceId: 1,
-      userId: 1,
-      content: "Bạn được giao task 'Frontend Development'",
-      createdAt: "2024-03-01T08:00:00.000Z",
-      updatedAt: "2024-03-01T08:00:00.000Z"
-    },
-    {
-      notificationId: 2,
-      taskId: 102,
-      workspaceId: 1,
-      userId: 1,
-      content: "Tú Nguyễn Văn đã bình luận trong task 'Backend Integration'",
-      createdAt: "2024-03-01T09:30:00.000Z",
-      updatedAt: "2024-03-01T09:30:00.000Z"
-    },
-    {
-      notificationId: 3,
-      taskId: null,
-      workspaceId: 1,
-      userId: 1,
-      content: "Bạn đã được thêm vào workspace 'PTM-2025'",
-      createdAt: "2024-03-01T10:15:00.000Z",
-      updatedAt: "2024-03-01T10:15:00.000Z"
-    },
-    {
-      notificationId: 4,
-      taskId: 103,
-      workspaceId: null,
-      userId: 1,
-      content: "Task 'UI Design' sẽ hết hạn vào ngày mai",
-      createdAt: "2024-03-01T11:00:00.000Z",
-      updatedAt: "2024-03-01T11:00:00.000Z"
-    },
-    {
-      notificationId: 5,
-      taskId: null,
-      workspaceId: null,
-      userId: 1,
-      content: "Chào mừng bạn đến với hệ thống PTM-2025",
-      createdAt: "2024-03-01T12:00:00.000Z",
-      updatedAt: "2024-03-01T12:00:00.000Z"
-    }
-  ];
-
   useEffect(() => {
-    const fetchUserProfile = async () => {
+    const loadUserProfile = async () => {
       try {
         setLoading(true);
-        console.log("📡 Fetching user profile...");
-
-        // ✅ Lấy token từ localStorage trước
-        let token = localStorage.getItem("token");
-
-        // ✅ Nếu không có token trong localStorage, thử lấy từ cookies
-        if (!token) {
-          console.log("🔍 Không tìm thấy token trong localStorage, thử lấy từ cookies...");
-          const cookieResponse = await axios.get("http://localhost:5000/auth/google/success", {
-            withCredentials: true, // ✅ Quan trọng: Gửi cookies khi gọi API
-          });
-
-          if (cookieResponse.data?.token) {
-            token = cookieResponse.data.token;
-            localStorage.setItem("token", token); // ✅ Lưu vào localStorage để dùng lại sau
-            console.log("✅ Token lấy từ cookies:", token);
-          } else {
-            throw new Error("No token found in cookies.");
-          }
-        }
-
-        // ✅ Gọi API lấy thông tin user
-        const response = await axios.get("http://localhost:5000/api/user/profile", {
-          headers: {
-            Authorization: `Bearer ${token}`, // Gửi token trong header
-          },
-          withCredentials: true, // ✅ Gửi cookies kèm request
-        });
-
-        console.log("✅ API Response Data:", response.data);
-        if (!response.data || !response.data.userId) {
-          throw new Error("Invalid user data");
-        }
-
-        setUser(response.data);
+        const userProfile = await fetchUserProfile();
+        setUser(userProfile);
       } catch (error) {
-        console.error("❌ Failed to fetch user profile", error.response?.data || error.message);
         if (error.response?.status === 401) {
           localStorage.removeItem("token");
           navigate("/login");
@@ -113,10 +30,10 @@ const Header = () => {
       }
     };
 
-    fetchUserProfile();
+    loadUserProfile();
   }, [navigate]);
 
-  // ✅ Lấy họ từ fullName (Chỉ lấy từ đầu tiên)
+  // Lấy họ từ fullName (Chỉ lấy từ đầu tiên)
   const getFirstName = (fullName) => fullName?.split(" ")[0] || "Guest";
 
   return (
@@ -166,7 +83,7 @@ const Header = () => {
               <Icon className={iconClass} />
             </button>
           ))}
-          <NotificationModal notifications={mockNotifications} />
+          {user && <NotificationModal userId={user.userId} />}
         </div>
 
         {/* Refresh Button */}

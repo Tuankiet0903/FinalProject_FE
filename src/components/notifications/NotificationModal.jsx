@@ -1,35 +1,57 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Bell } from "lucide-react";
 import * as Popover from '@radix-ui/react-popover';
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
+import { fetchUserNotifications, markNotificationAsRead, markAllNotificationsAsRead } from '../../api/Notification';
 
-const NotificationModal = ({ notifications: initialNotifications }) => {
+const NotificationModal = ({ userId }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [notifications, setNotifications] = useState(
-    initialNotifications.map(notification => ({
-      id: notification.notificationId,
-      content: notification.content,
-      time: formatDistanceToNow(new Date(notification.createdAt), { 
-        addSuffix: true,
-        locale: vi 
-      }),
-      read: false
-    }))
-  );
+  const [notifications, setNotifications] = useState([]);
+
+  useEffect(() => {
+    const loadNotifications = async () => {
+      try {
+        const fetchedNotifications = await fetchUserNotifications(userId);
+        setNotifications(fetchedNotifications.map(notification => ({
+          id: notification.id,
+          content: notification.content,
+          time: formatDistanceToNow(new Date(notification.createdAt), { 
+            addSuffix: true,
+            locale: vi 
+          }),
+          read: notification.isRead
+        })));
+      } catch (error) {
+        console.error('Error loading notifications:', error);
+      }
+    };
+
+    loadNotifications();
+  }, [userId]);
 
   const unreadCount = notifications.filter((notification) => !notification.read).length;
 
-  const markAsRead = (id) => {
-    setNotifications(
-      notifications.map((notification) => 
-        notification.id === id ? { ...notification, read: true } : notification
-      )
-    );
+  const handleMarkAsRead = async (id) => {
+    try {
+      await markNotificationAsRead(id);
+      setNotifications(
+        notifications.map((notification) => 
+          notification.id === id ? { ...notification, read: true } : notification
+        )
+      );
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+    }
   };
 
-  const markAllAsRead = () => {
-    setNotifications(notifications.map((notification) => ({ ...notification, read: true })));
+  const handleMarkAllAsRead = async () => {
+    try {
+      await markAllNotificationsAsRead(userId);
+      setNotifications(notifications.map((notification) => ({ ...notification, read: true })));
+    } catch (error) {
+      console.error('Error marking all notifications as read:', error);
+    }
   };
 
   return (
@@ -52,7 +74,7 @@ const NotificationModal = ({ notifications: initialNotifications }) => {
                 <h2 className="text-lg font-semibold text-black">Thông báo</h2>
                 {unreadCount > 0 && (
                   <button
-                    onClick={markAllAsRead}
+                    onClick={handleMarkAllAsRead}
                     className="text-xs text-black hover:text-gray-600"
                   >
                     Đánh dấu tất cả đã đọc
@@ -68,7 +90,7 @@ const NotificationModal = ({ notifications: initialNotifications }) => {
                         className={`p-4 hover:bg-gray-50 transition-colors cursor-pointer ${
                           !notification.read ? "bg-blue-50" : "bg-white"
                         }`}
-                        onClick={() => markAsRead(notification.id)}
+                        onClick={() => handleMarkAsRead(notification.id)}
                       >
                         <div className="flex items-start gap-3">
                           {!notification.read && (

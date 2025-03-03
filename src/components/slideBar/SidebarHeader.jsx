@@ -35,6 +35,7 @@ export default function SidebarHeader({ setSelectedWorkspaceId }) {
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-2 cursor-pointer"
       >
+        
         <div className="bg-red-500 px-3 py-2 text-white rounded">
           <span className="font-semibold">{currentWorkspace?.name?.charAt(0) || "W"}</span>
         </div>

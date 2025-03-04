@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Dropdown, Modal, Input, Button, message } from 'antd';
-import { MoreOutlined, LoadingOutlined } from '@ant-design/icons';
+import { MoreOutlined, LoadingOutlined, PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { ExclamationCircleFilled } from '@ant-design/icons';
 const { confirm } = Modal;
 
@@ -65,9 +65,13 @@ export default function ItemDropdown({ type, item, onDelete, onUpdate, onCreate,
   };
 
   const items = [
-    (type !== "list"  ) && {
+    (type !== "list") && {
       key: 'create',
-      label: `Create New ${type === "space" ? "Folder" : "List"}`,
+      label: (
+        <span>
+          <PlusOutlined className="mr-2" /> Create New {type === "space" ? "Folder" : "List"}
+        </span>
+      ),
       onClick: (e) => {
         e.domEvent.stopPropagation();
         setNewName("");
@@ -76,7 +80,11 @@ export default function ItemDropdown({ type, item, onDelete, onUpdate, onCreate,
     },
     {
       key: 'update',
-      label: `Update ${type}`,
+      label: (
+        <span>
+          <EditOutlined className="mr-2" /> Update {type}
+        </span>
+      ),
       onClick: (e) => {
         e.domEvent.stopPropagation();
         setNewName(item?.name || "");
@@ -85,7 +93,11 @@ export default function ItemDropdown({ type, item, onDelete, onUpdate, onCreate,
     },
     {
       key: 'delete',
-      label: `Delete ${type}`,
+      label: (
+        <span>
+          <DeleteOutlined className="mr-2" /> Delete {type}
+        </span>
+      ),
       danger: true,
       onClick: (e) => {
         e.domEvent.stopPropagation();
@@ -106,7 +118,7 @@ export default function ItemDropdown({ type, item, onDelete, onUpdate, onCreate,
 
       {/* Update Modal */}
       <Modal
-        title={`Update ${type}`}
+        title={<><EditOutlined className="mr-2" /> Update {type}</>}
         open={isUpdateModalOpen}
         onCancel={(e) => {
           e.stopPropagation();
@@ -122,7 +134,7 @@ export default function ItemDropdown({ type, item, onDelete, onUpdate, onCreate,
 
       {/* Create Modal */}
       <Modal
-        title={`Create New ${type === "space" ? "Folder" : "List"}`}
+        title={<><PlusOutlined className="mr-2" /> Create New {type === "space" ? "Folder" : "List"}</>}
         open={isCreateModalOpen}
         onCancel={(e) => {
           e.stopPropagation();

@@ -25,7 +25,19 @@ export default function SidebarSpaces({ selectedWorkspaceId }) {
         const workspaceData = await fetchWorkspaceByID(selectedWorkspaceId);
 
         if (workspaceData?.spaces?.length > 0) {
-          setSpaces(workspaceData.spaces);
+          // Sắp xếp spaces theo createdAt (cũ -> mới)
+          const sortedSpaces = workspaceData.spaces
+            .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+            .map(space => ({
+              ...space,
+              folders: space.folders
+                .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+                .map(folder => ({
+                  ...folder,
+                  lists: folder.lists.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+                }))
+            }));
+          setSpaces(sortedSpaces);
         } else {
           console.warn("No spaces found, using mock data.");
           setSpaces(mockSpaces);
@@ -161,10 +173,15 @@ export default function SidebarSpaces({ selectedWorkspaceId }) {
                 >
                   <button
                     onClick={() => toggleSpace(space.spaceId)}
-                    className="flex items-center flex-grow"
+                    className="flex items-center justify-between w-full"
                   >
-                    <span className="text-sm text-black">📦 {space.name}</span>
-                    <ChevronRightIcon className={`h-4 w-4 ml-2 transform transition-transform ${expandedSpaces[space.spaceId] ? "rotate-90" : ""}`} />
+                    <span className="text-sm text-black text-left flex-1 truncate w-[200px]">
+                      📦 {space.name}
+                    </span>
+                    <ChevronRightIcon
+                      className={`h-4 w-4 ml-2 transform transition-transform ${expandedSpaces[space.spaceId] ? "rotate-90" : ""
+                        }`}
+                    />
                   </button>
                   <ItemDropdown
                     type="space"
@@ -184,9 +201,9 @@ export default function SidebarSpaces({ selectedWorkspaceId }) {
                         >
                           <button
                             onClick={() => toggleFolder(folder.folderId)}
-                            className="flex items-center flex-grow"
+                            className="flex items-center justify-between w-full"
                           >
-                            <span className="text-sm text-black">📂 {folder.name}</span>
+                            <span className="text-sm text-black text-left flex-1 truncate w-[200px]">📂 {folder.name}</span>
                             <ChevronRightIcon className={`h-4 w-4 ml-2 transform transition-transform ${expandedFolders[folder.folderId] ? "rotate-90" : ""}`} />
                           </button>
                           <ItemDropdown
@@ -207,11 +224,12 @@ export default function SidebarSpaces({ selectedWorkspaceId }) {
                               >
                                 <button
                                   onClick={() => handleListClick(selectedWorkspaceId, space.spaceId, folder.folderId, list.listId)}
-                                  className="flex items-center flex-grow"
+                                  className="flex items-center justify-between w-full"
                                 >
                                   <CircleIcon className="h-3 w-3 mr-2" />
-                                  <span>{list.name}</span>
+                                  <span className='text-sm text-black text-left flex-1 truncate w-[200px]'>{list.name}</span>
                                 </button>
+                                
                                 <ItemDropdown
                                   type="list"
                                   item={list}
@@ -232,11 +250,11 @@ export default function SidebarSpaces({ selectedWorkspaceId }) {
         )}
       </div>
 
-      <CreateSpaceDialog 
-        open={isCreateSpaceOpen} 
-        onOpenChange={setIsCreateSpaceOpen} 
-        workspaceId={selectedWorkspaceId} 
-        onSpaceCreated={handleSpaceCreated} 
+      <CreateSpaceDialog
+        open={isCreateSpaceOpen}
+        onOpenChange={setIsCreateSpaceOpen}
+        workspaceId={selectedWorkspaceId}
+        onSpaceCreated={handleSpaceCreated}
       />
     </>
   );

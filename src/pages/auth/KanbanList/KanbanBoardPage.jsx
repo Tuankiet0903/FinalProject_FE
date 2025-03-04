@@ -1,134 +1,105 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
-import ListHeader from "../../../components/ListHeader";
-import KanbanBoard from "../../../components/KanbanBoard";
-import CalendarView from "../../../components/board/CalendarView";
 import { fetchWorkspaceByID } from "../../../api/workspace";
+import ListHeader from "../../../components/ListHeader";
+import KanbanBoard from "../../../components/Kanban/KanbanBoard";
+import { MoreHorizontal } from "lucide-react"; // Import MoreHorizontal
+import StatusModal from "../../../components/Kanban/StatusModal"; // Modal Component for Sprint Status
 
 export default function KanbanBoardPage() {
-  // Lấy các params từ URL thông qua react-router-dom
   const { workspaceId, spaceId, folderId, listId } = useParams();
-  
-  // State quản lý tab đang active
-  const [activeTab, setActiveTab] = useState("Overview");
-  
-  // State để lưu trữ dữ liệu
   const [workspace, setWorkspace] = useState(null);
-  const [space, setSpace] = useState(null);
-  const [folder, setFolder] = useState(null);
-  const [list, setList] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [activeTab, setActiveTab] = useState("Overview");
+  const [isModalOpen, setIsModalOpen] = useState(false); // Modal visibility state
 
-  // Effect để fetch dữ liệu khi component mount hoặc params thay đổi
   useEffect(() => {
-    const fetchData = async () => {
+    if (!workspaceId || isNaN(Number(workspaceId))) return;
+
+    const fetchWorkspace = async () => {
       try {
         setLoading(true);
-        setError(null);
-
-        // Fetch workspace data và tất cả data liên quan
-        const workspaceData = await fetchWorkspaceByID(workspaceId);
-        
-        // Tìm space trong workspace
-        const foundSpace = workspaceData.spaces.find(
-          s => s.spaceId === parseInt(spaceId)
-        );
-
-        // Tìm folder trong space
-        const foundFolder = foundSpace?.folders.find(
-          f => f.folderId === parseInt(folderId)
-        );
-
-        // Tìm list trong folder
-        const foundList = foundFolder?.lists.find(
-          l => l.listId === parseInt(listId)
-        );
-
-        // Cập nhật state với dữ liệu tìm được
+        const workspaceData = await fetchWorkspaceByID(Number(workspaceId));
         setWorkspace(workspaceData);
-        setSpace(foundSpace);
-        setFolder(foundFolder);
-        setList(foundList);
-      } catch (err) {
-        console.error("Error fetching data:", err);
-        setError("Có lỗi xảy ra khi tải dữ liệu");
+      } catch (error) {
+        setError(error);
+        console.error("Failed to fetch workspace:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchData();
-  }, [workspaceId, spaceId, folderId, listId]); // Dependencies cho useEffect
+    fetchWorkspace();
+  }, [workspaceId]);
 
-  // Hàm render nội dung theo tab active
-  const renderTabContent = () => {
-    // Nếu đang loading, hiển thị loading state
-    if (loading) {
-      return <div className="p-4">Đang tải dữ liệu...</div>;
-    }
+  const selectedData = useMemo(() => {
+    if (!workspace) return { space: null, folder: null, list: null };
 
-    // Nếu có lỗi, hiển thị error message
-    if (error) {
-      return <div className="p-4 text-red-500">{error}</div>;
-    }
+    const space = workspace.spaces?.find((s) => s.spaceId === Number(spaceId));
+    const folder = space?.folders?.find((f) => f.folderId === Number(folderId));
+    const list = folder?.lists?.find((l) => l.listId === Number(listId));
 
-    // Render nội dung dựa trên tab đang active
-    switch (activeTab) {
-      case "Board":
-        return <KanbanBoard listData={list} />;
-      case "List":
-        return <div className="p-4">Nội dung List View</div>;
-      case "Dashboard":
-        return <div className="p-4">Nội dung Dashboard View</div>;
-      case "Calendar":
-        return <CalendarView listData={list} />;
-      case "Overview":
-      default:
-        return space && folder && list ? (
-          <div>
-            <h1 className="text-2xl font-semibold text-black mb-4">
-              📌 Chi Tiết Danh Sách
-            </h1>
-            <h2 className="text-lg font-bold">
-              🌌 Không gian: {space.name}
-            </h2>
-            <p className="text-gray-600">{space.description}</p>
-            <h3 className="text-md font-semibold mt-3">
-              📂 Thư mục: {folder.name}
-            </h3>
-            <p className="text-gray-600">{folder.description}</p>
-            <p className="text-lg text-gray-700 mt-3">
-              📌 Danh sách: {list.name}
-            </p>
-            <p className="text-gray-500">{list.description}</p>
-            <div className="mt-4 space-y-2 text-sm text-gray-500">
-              <p>🆔 List ID: {list.listId}</p>
-              <p>🗂 Folder ID: {folder.folderId}</p>
-              <p>📦 Space ID: {space.spaceId}</p>
-              <p>🏢 Workspace ID: {workspace.id}</p>
-            </div>
-          </div>
-        ) : (
-          <p className="text-red-500">
-            Không tìm thấy danh sách hoặc dữ liệu không hợp lệ.
-          </p>
-        );
-    }
+    return { space, folder, list };
+  }, [workspace, spaceId, folderId, listId]);
+
+  const { space, folder, list } = selectedData;
+
+  if (loading) return <p className="text-gray-500">Đang tải dữ liệu...</p>;
+  if (error) return <p className="text-red-500">Lỗi: {error.message || "Không thể tải dữ liệu"}</p>;
+
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
   };
 
-  // Render component chính
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
   return (
     <div className="flex flex-col h-screen">
-      <ListHeader 
-        activeTab={activeTab} 
-        setActiveTab={setActiveTab}
-        listName={list?.name}
-      />
-      
+      {/* Header với Tabs */}
+      <ListHeader activeTab={activeTab} setActiveTab={setActiveTab} />
+
       <div className="p-6 bg-white shadow-md rounded-lg">
-        {renderTabContent()}
+        {activeTab === "Board" ? (
+          // Khi chọn tab "Board", hiển thị KanbanBoard
+          <KanbanBoard />
+        ) : activeTab === "Overview" && space && folder && list ? (
+          // Khi chọn tab "Overview", hiển thị chi tiết danh sách
+          <Details space={space} folder={folder} list={list} />
+        ) : (
+          <p className="text-red-500">Không tìm thấy danh sách.</p>
+        )}
       </div>
+
+      {/* Dấu 3 chấm ở dưới cùng */}
+      <div className="absolute bottom-4 right-4">
+        <MoreHorizontal
+          className="h-8 w-8 text-gray-600 cursor-pointer"
+          onClick={handleOpenModal}
+        />
+      </div>
+
+      {/* Modal for Sprint Status */}
+      {isModalOpen && <StatusModal onClose={handleCloseModal} />}
+    </div>
+  );
+}
+
+function Details({ space, folder, list }) {
+  return (
+    <div>
+      <h1 className="text-2xl font-semibold text-black mb-4">📌 Chi Tiết Danh Sách</h1>
+      <h2 className="text-lg font-bold">🌌 Không gian: {space.name}</h2>
+      <p className="text-gray-600">{space.description}</p>
+      <h3 className="text-md font-semibold mt-3">📂 Thư mục: {folder.name}</h3>
+      <p className="text-gray-600">{folder.description}</p>
+      <p className="text-lg text-gray-700 mt-3">📌 Danh sách: {list.name}</p>
+      <p className="text-gray-500">{list.description}</p>
+      <p className="text-gray-500 text-sm mt-2">🆔 List ID: {list.listId}</p>
+      <p className="text-gray-500 text-sm">🗂 Folder ID: {folder.folderId}</p>
+      <p className="text-gray-500 text-sm">📦 Space ID: {space.spaceId}</p>
     </div>
   );
 }

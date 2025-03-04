@@ -22,6 +22,16 @@ export const markNotificationAsRead = async (notificationId) => {
    }
 };
 
+// Mark a notification as unread
+export const markNotificationAsUnread = async (notificationId) => {
+   try {
+      await axios.put(`${API_ROOT}/notifications/${notificationId}/unread`);
+   } catch (error) {
+      console.error('Error marking notification as unread:', error);
+      throw error;
+   }
+};
+
 // Mark all notifications as read
 export const markAllNotificationsAsRead = async (userId) => {
    try {
@@ -32,6 +42,16 @@ export const markAllNotificationsAsRead = async (userId) => {
       await Promise.all(markAsReadPromises);
    } catch (error) {
       console.error('Error marking all notifications as read:', error);
+      throw error;
+   }
+};
+
+// Delete a notification
+export const deleteNotification = async (notificationId) => {
+   try {
+      await axios.delete(`${API_ROOT}/notifications/${notificationId}`);
+   } catch (error) {
+      console.error('Error deleting notification:', error);
       throw error;
    }
 };

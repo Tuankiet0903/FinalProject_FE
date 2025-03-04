@@ -3,11 +3,15 @@ import { Bell } from "lucide-react";
 import * as Popover from '@radix-ui/react-popover';
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
-import { fetchUserNotifications, markNotificationAsRead, markAllNotificationsAsRead } from '../../api/Notification';
+import { fetchUserNotifications, markNotificationAsRead, markNotificationAsUnread, markAllNotificationsAsRead, deleteNotification } from '../../api/Notification';
+import { Modal, Button } from 'antd';
+import { NotificationItem } from "./NotificationItem";
 
-const NotificationModal = ({ userId }) => {
+const NotificationModal = ({ userId, userName, userAvatar }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
+  const [selectedNotification, setSelectedNotification] = useState(null);
+  const [isOptionsModalOpen, setIsOptionsModalOpen] = useState(false);
 
   useEffect(() => {
     const loadNotifications = async () => {
@@ -15,6 +19,8 @@ const NotificationModal = ({ userId }) => {
         const fetchedNotifications = await fetchUserNotifications(userId);
         setNotifications(fetchedNotifications.map(notification => ({
           id: notification.id,
+          avatar: userAvatar, // Use logged-in user's avatar
+          name: userName, // Use logged-in user's name
           content: notification.content,
           time: formatDistanceToNow(new Date(notification.createdAt), { 
             addSuffix: true,
@@ -28,7 +34,7 @@ const NotificationModal = ({ userId }) => {
     };
 
     loadNotifications();
-  }, [userId]);
+  }, [userId, userName, userAvatar]);
 
   const unreadCount = notifications.filter((notification) => !notification.read).length;
 
@@ -45,6 +51,19 @@ const NotificationModal = ({ userId }) => {
     }
   };
 
+  const handleMarkAsUnread = async (id) => {
+    try {
+      await markNotificationAsUnread(id);
+      setNotifications(
+        notifications.map((notification) => 
+          notification.id === id ? { ...notification, read: false } : notification
+        )
+      );
+    } catch (error) {
+      console.error('Error marking notification as unread:', error);
+    }
+  };
+
   const handleMarkAllAsRead = async () => {
     try {
       await markAllNotificationsAsRead(userId);
@@ -52,6 +71,25 @@ const NotificationModal = ({ userId }) => {
     } catch (error) {
       console.error('Error marking all notifications as read:', error);
     }
+  };
+
+  const handleDeleteNotification = async (id) => {
+    try {
+      await deleteNotification(id);
+      setNotifications(notifications.filter((notification) => notification.id !== id));
+    } catch (error) {
+      console.error('Error deleting notification:', error);
+    }
+  };
+
+  const openOptionsModal = (notification) => {
+    setSelectedNotification(notification);
+    setIsOptionsModalOpen(true);
+  };
+
+  const closeOptionsModal = () => {
+    setIsOptionsModalOpen(false);
+    setSelectedNotification(null);
   };
 
   return (
@@ -85,25 +123,18 @@ const NotificationModal = ({ userId }) => {
                 {notifications.length > 0 ? (
                   <div className="divide-y divide-gray-100">
                     {notifications.map((notification) => (
-                      <div
+                      <NotificationItem
                         key={notification.id}
-                        className={`p-4 hover:bg-gray-50 transition-colors cursor-pointer ${
-                          !notification.read ? "bg-blue-50" : "bg-white"
-                        }`}
-                        onClick={() => handleMarkAsRead(notification.id)}
-                      >
-                        <div className="flex items-start gap-3">
-                          {!notification.read && (
-                            <div className="w-2 h-2 mt-1.5 rounded-full bg-blue-500 flex-shrink-0" />
-                          )}
-                          <div className={`flex-1 ${notification.read ? "pl-5" : ""}`}>
-                            <p className={`text-sm text-black ${!notification.read ? "font-medium" : ""}`}>
-                              {notification.content}
-                            </p>
-                            <p className="text-xs text-gray-600 mt-1">{notification.time}</p>
-                          </div>
-                        </div>
-                      </div>
+                        avatar={notification.avatar}
+                        name={notification.name}
+                        content={notification.content}
+                        time={notification.time}
+                        isRead={notification.read}
+                        onMarkAsRead={() => handleMarkAsRead(notification.id)}
+                        onMarkAsUnread={() => handleMarkAsUnread(notification.id)}
+                        onDelete={() => handleDeleteNotification(notification.id)}
+                        onReport={() => console.log("Reported notification")}
+                      />
                     ))}
                   </div>
                 ) : (
@@ -116,6 +147,34 @@ const NotificationModal = ({ userId }) => {
           </Popover.Content>
         </Popover.Portal>
       </Popover.Root>
+
+      <Modal
+        title="Tùy chọn thông báo"
+        visible={isOptionsModalOpen}
+        onCancel={closeOptionsModal}
+        footer={null}
+      >
+        <Button
+          type="primary"
+          danger
+          onClick={() => {
+            handleDeleteNotification(selectedNotification.id);
+            closeOptionsModal();
+          }}
+          className="mb-2"
+        >
+          Xóa thông báo
+        </Button>
+        <Button
+          type="default"
+          onClick={() => {
+            handleMarkAsUnread(selectedNotification.id);
+            closeOptionsModal();
+          }}
+        >
+          Đánh dấu chưa đọc
+        </Button>
+      </Modal>
     </div>
   );
 };

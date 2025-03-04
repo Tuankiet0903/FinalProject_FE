@@ -83,7 +83,7 @@ const Header = () => {
               <Icon className={iconClass} />
             </button>
           ))}
-          {user && <NotificationModal userId={user.userId} />}
+          {user && <NotificationModal userId={user.userId} userName={user.fullName} userAvatar={user.avatar} />}
         </div>
 
         {/* Refresh Button */}

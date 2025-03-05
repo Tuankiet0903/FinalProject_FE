@@ -33,10 +33,11 @@ export default function App() {
           <Route path="home" element={<Home />} />
           <Route path="inbox" element={<Inbox />} />
           <Route path="dashboard" element={<Dashboard />} />
-          <Route path="space" element={<SpaceDetail/>} />
+          
           <Route path="dashboardspace" element={<DashboardSpace/>} />
           
           {/* Workspace và List Routes */}
+          <Route path="workspace/:workspaceId" element={<SpaceDetail />} />
           <Route path="workspace/:workspaceId/space/:spaceId/folder/:folderId/list/:listId" 
                  element={<KanbanBoardPage />} 
           />

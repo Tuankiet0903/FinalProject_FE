@@ -162,3 +162,61 @@ export const updateList = async (list) => {
         throw error;
     }
 };
+
+export const fetchUserWorkspaces = async () => {
+    try {
+        const response = await axios.get(`${API_ROOT}/workspace/workspaces/user/${getUserId()}`, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching user workspaces:", error);
+        throw error;
+    }
+};
+
+export const fetchWorkspaceById = async (workspaceId) => {
+    try {
+        const response = await axios.get(`${API_ROOT}/workspace/workspaces/${workspaceId}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching workspace by ID:", error);
+        throw error;
+    }
+};
+
+export const fetchSpaceByWorkspaceId = async (workspaceId) => {
+    try {
+      const response = await fetch(`/api/spaces?workspaceId=${workspaceId}`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch spaces");
+      }
+      return response.json();
+    } catch (error) {
+      console.error("Error fetching spaces:", error);
+      throw error;
+    }
+  };
+  
+  
+export const fetchFoldersBySpaceId = async (spaceId) => {
+    try {
+      const response = await fetch(`/api/folders?spaceId=${spaceId}`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch folders");
+      }
+      return response.json();
+    } catch (error) {
+      console.error("Error fetching folders:", error);
+      throw error;
+    }
+  };
+  
+
+
+
+
+
+

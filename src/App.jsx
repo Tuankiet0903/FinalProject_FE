@@ -37,6 +37,7 @@ export default function App() {
           <Route path="dashboardspace" element={<DashboardSpace/>} />
           
           {/* Workspace và List Routes */}
+          <Route path="space/:spaceId" element={<SpaceDetail />} />
           <Route path="workspace/:workspaceId/space/:spaceId/folder/:folderId/list/:listId" 
                  element={<KanbanBoardPage />} 
           />

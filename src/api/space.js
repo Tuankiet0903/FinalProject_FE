@@ -48,6 +48,28 @@ export async function fetchFoldersBySpaceId(spaceId) {
     }
 }
 
+export const getUserSpaces = async (userId) => {
+    try {
+      const response = await fetch(`http://localhost:5000/space/spaces?userId=${userId}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include" // Nếu có authentication bằng cookies
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to fetch user spaces");
+      }
+  
+      return await response.json();
+    } catch (error) {
+      console.error("Error fetching user spaces:", error);
+      return [];
+    }
+  };
+  
+
+
+
 
 
   

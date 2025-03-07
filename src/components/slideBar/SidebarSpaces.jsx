@@ -25,6 +25,9 @@ export default function SidebarSpaces({ selectedWorkspaceId }) {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const navigate = useNavigate();
 
+  const handleSpaceCreated = () => {
+    setRefreshTrigger((prev) => prev + 1);
+  };
   useEffect(() => {
     if (!selectedWorkspaceId) return;
 
@@ -228,6 +231,19 @@ export default function SidebarSpaces({ selectedWorkspaceId }) {
           </div>
         )}
       </div>
+      <div
+              className="flex items-center px-2 py-2 text-sm text-gray-600 hover:text-black transition cursor-pointer"
+              onClick={() => navigate("/user/allspaces")}
+            >
+              <ChevronRight className="h-4 w-4 mr-2" />
+              <span>View all Spaces</span>
+            </div>
+            <CreateSpaceDialog 
+        open={isCreateSpaceOpen} 
+        onOpenChange={setIsCreateSpaceOpen} 
+        workspaceId={selectedWorkspaceId} 
+        onSpaceCreated={handleSpaceCreated} 
+      />
     </>
   );
 }

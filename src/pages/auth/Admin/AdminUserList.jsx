@@ -1,65 +1,145 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Table, Input, Button, Tag, Space, message } from "antd";
 import { motion } from "framer-motion";
-import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import {
+  DeleteOutlined,
+  EditOutlined,
+  UserOutlined,
+  MailOutlined,
+  CalendarOutlined,
+  CheckCircleOutlined,
+  StopOutlined,
+  InfoCircleOutlined,
+} from "@ant-design/icons";
 import {
   showDeleteAllConfirm,
   showDeleteConfirm,
   showEditModal,
 } from "../../../components/admin/AdminModal";
+import config from "../../../config/Config";
 
 const { Search } = Input;
 
-// Sample data
-const initialData = Array.from({ length: 10 }, (_, i) => ({
-  userId: i + 1,
-  fullName: `User ${i + 1}`,
-  email: `user${i + 1}@example.com`,
-  avatar: `https://i.pravatar.cc/40?img=${i + 1}`,
-  isBlocked: i % 2 === 0,
-  active: i % 2 !== 0,
-  dateOfBirth: `199${i}-05-20`,
-  createdAt: `2024-01-0${i + 1}`,
-}));
-
 export default function UsersDataTable() {
+  const API_URL = config.API_URL;
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [searchText, setSearchText] = useState("");
-  const [filteredData, setFilteredData] = useState(initialData);
+  const [data, setData] = useState([]);
+  const [filteredData, setFilteredData] = useState(data);
+
+  useEffect(() => {
+    fetch(`${API_URL}/admin/getAllUser`)
+      .then((response) => response.json())
+      .then((fetchedData) => {
+        const data = fetchedData.map((user) => ({
+          userId: user.userId, // Required by Ant Design table
+          avatar: user.avatar || "https://ui-avatars.com/api/?name=Avatar", // Default if null
+          fullName: user.fullName,
+          email: user.email,
+          dateOfBirth: user.dateOfBirth ? user.dateOfBirth : "N/A",
+          active: user.active,
+          isBlocked: user.isBlocked,
+          createdAt: user.createdAt,
+        }));
+
+        const sortedData = data.sort((a, b) => a.userId - b.userId);
+
+        setData(sortedData);
+        setFilteredData(sortedData);
+      })
+      .catch((error) => console.error("Error fetching data:", error));
+  }, []);
 
   // Handle search
   const handleSearch = (value) => {
     setSearchText(value);
-    const filtered = initialData.filter((item) =>
+    const filtered = data.filter((item) =>
       item.fullName.toLowerCase().includes(value.toLowerCase())
     );
     setFilteredData(filtered);
   };
 
   // Handle delete user
-  const handleDelete = (userId) => {
-    const newData = filteredData.filter((item) => item.userId !== userId);
-    setFilteredData(newData);
-    message.success("Deleted successfully!");
+  const handleDelete = async (id) => {
+    try {
+      await fetch(`${API_URL}/admin/users/${id}`, {
+        method: "DELETE",
+      });
+
+      const newData = filteredData.filter((item) => item.id !== id);
+      setFilteredData(newData);
+      message.success("Deleted successfully!");
+    } catch (error) {
+      message.error("Failed to delete workspace!");
+      console.error("Delete error:", error);
+    }
   };
 
-  // Handle delete all selected users
-  const handleDeleteAll = () => {
-    const newData = filteredData.filter(
-      (item) => !selectedRowKeys.includes(item.userId)
-    );
-    setFilteredData(newData);
-    setSelectedRowKeys([]);
-    message.success("All selected users have been deleted!");
+  // Handle delete all work space
+  const handleDeleteAll = async () => {
+    if (selectedRowKeys.length === 0) {
+      message.warning("No users selected for deletion.");
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_URL}/admin/users/delete-multiple`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ ids: selectedRowKeys }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete users");
+      }
+
+      const newData = filteredData.filter(
+        (item) => !selectedRowKeys.includes(item.userId)
+      );
+      setFilteredData(newData);
+      setSelectedRowKeys([]);
+      message.success("All selected users have been deleted!");
+    } catch (error) {
+      message.error("Failed to delete selected users!");
+      console.error("Delete error:", error);
+    }
   };
 
   //Handle update selected users
-  const handleUpdateUser = (updatedUser) => {
-    setFilteredData((prevData) =>
-      prevData.map((user) =>
-        user.userId === updatedUser.userId ? updatedUser : user
-      )
-    );
+  const handleUpdateUser = async (updatedUser) => {
+    try {
+      const response = await fetch(
+        `${API_URL}/admin/users/update-block-status`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            id: updatedUser.userId,
+            blockStatus: updatedUser.isBlocked,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to update user status");
+      }
+
+      // Update the specific user in state, instead of removing them
+      setFilteredData((prevData) =>
+        prevData.map((user) =>
+          user.userId === updatedUser.userId
+            ? { ...user, isBlocked: updatedUser.isBlocked } // Update only block status
+            : user
+        )
+      );
+    } catch (error) {
+      message.error("Failed to update user block status!");
+      console.error("Update error:", error);
+    }
   };
 
   // Handle row selection
@@ -75,38 +155,54 @@ export default function UsersDataTable() {
   // Define table columns
   const columns = [
     {
-      title: "User",
+      title: (
+        <>
+          <UserOutlined className="mr-1 text-blue-500" /> User
+        </>
+      ),
       dataIndex: "fullName",
       key: "fullName",
       width: "20%",
+      sorter: (a, b) => a.fullName.localeCompare(b.fullName),
       render: (text, record) => (
         <div className="flex items-center space-x-2">
-          <img
-            src={record.avatar}
-            alt={text}
-            className="w-8 h-8 rounded-full"
-          />
+          <img src={record.avatar} alt={text} className="w-8 h-8 rounded-full" />
           <span>{text}</span>
         </div>
       ),
-    },
+    },  
     {
-      title: "Email",
+      title: (
+        <>
+          <MailOutlined className="mr-1 text-green-500" /> Email
+        </>
+      ),
       dataIndex: "email",
       key: "email",
       width: "20%",
+      sorter: (a, b) => a.email.localeCompare(b.email),
     },
     {
-      title: "Date of Birth",
+      title: (
+        <>
+          <CalendarOutlined className="mr-1 text-orange-500" /> Date of Birth
+        </>
+      ),
       dataIndex: "dateOfBirth",
       key: "dateOfBirth",
       width: "15%",
+      sorter: (a, b) => new Date(a.dateOfBirth) - new Date(b.dateOfBirth),
     },
     {
-      title: "Status",
+      title: (
+        <>
+          <CheckCircleOutlined className="mr-1 text-indigo-500" /> Status
+        </>
+      ),
       dataIndex: "active",
       key: "active",
       width: "15%",
+      sorter: (a, b) => a.active - b.active,
       render: (active) => (
         <Tag color={active ? "green" : "red"}>
           {active ? "Active" : "Inactive"}
@@ -114,10 +210,15 @@ export default function UsersDataTable() {
       ),
     },
     {
-      title: "Blocked",
+      title: (
+        <>
+          <StopOutlined className="mr-1 text-red-500" /> Blocked
+        </>
+      ),
       dataIndex: "isBlocked",
       key: "isBlocked",
       width: "15%",
+      sorter: (a, b) => a.isBlocked - b.isBlocked,
       render: (isBlocked) => (
         <Tag color={isBlocked ? "red" : "green"}>
           {isBlocked ? "Blocked" : "Unblocked"}
@@ -125,7 +226,11 @@ export default function UsersDataTable() {
       ),
     },
     {
-      title: "Action",
+      title: (
+        <>
+          <InfoCircleOutlined className="mr-1 text-yellow-500" /> Action
+        </>
+      ),
       key: "action",
       width: "15%",
       render: (_, record) => (
@@ -140,7 +245,9 @@ export default function UsersDataTable() {
           <Button
             type="link"
             danger
-            onClick={() => showDeleteConfirm(record.userId, handleDelete)}
+            onClick={() =>
+              showDeleteConfirm(record.userId, "user", handleDelete)
+            }
             className="group border border-red-500 rounded-[6px] px-4 transition-all duration-300 hover:bg-red-500 hover:text-white hover:border-red-600"
           >
             <DeleteOutlined className="text-red-500 group-hover:text-white" />
@@ -181,6 +288,7 @@ export default function UsersDataTable() {
           }}
           className="shadow-sm"
           style={{ width: "100%" }}
+          onChange={() => setSelectedRowKeys([])}
         />
 
         {selectedRowKeys.length > 0 && (
@@ -201,10 +309,10 @@ export default function UsersDataTable() {
                 Clear Selection
               </button>
               <button
-                onClick={() => showDeleteAllConfirm(handleDeleteAll)}
+                onClick={() => showDeleteAllConfirm("user", handleDeleteAll)}
                 className="px-3 py-1 border border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition rounded-[6px]"
               >
-                Clear All
+                Delete All Users
               </button>
             </div>
           </motion.div>

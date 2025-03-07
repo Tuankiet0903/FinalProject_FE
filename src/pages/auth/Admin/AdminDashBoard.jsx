@@ -3,7 +3,7 @@ import { ArrowDown, ArrowUp, BarChart3, Building2, Users } from "lucide-react"
 import BarChartComponent from "../../../components/admin/AdminBarChart"
 import LineChartComponent from "../../../components/admin/AdminLineChart"
 import PieChartComponent from "../../../components/admin/AdminPieChart"
-import ComposedChartComponent from "../../../components/admin/AdminTooltipChart"
+import ComposedChartComponent from "../../../components/admin/AdminComposedChart"
 
 // Import chart components
 
@@ -13,7 +13,7 @@ export default function AdminDashboard() {
 
   // Mock data for workspaces
   const monthlyData = [
-    { month: "Jan", workspaces: 12, active: 10 },
+    { month: "Jan", totalUser: 12, active: 10 },
     { month: "Feb", workspaces: 19, active: 15 },
     { month: "Mar", workspaces: 25, active: 20 },
     { month: "Apr", workspaces: 32, active: 25 },
@@ -140,33 +140,18 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        <div className="flex items-center justify-between">
-          <h2 className="text-3xl font-bold tracking-tight">Workspace Analytics</h2>
-          <div className="flex items-center gap-2">
-            <select
-              value={period}
-              onChange={handlePeriodChange}
-              className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            >
-              <option value="month">Monthly</option>
-              <option value="quarter">Quarterly</option>
-              <option value="year">Yearly</option>
-            </select>
-          </div>
-        </div>
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Bar Chart Component */}
-          <BarChartComponent data={data} xAxisKey={getXAxisKey()} />
+          <BarChartComponent/>
 
           {/* Line Chart Component */}
           <LineChartComponent data={data} xAxisKey={getXAxisKey()} />
 
           {/* Pie Chart Component */}
-          <PieChartComponent data={data} />
+          <PieChartComponent/>
 
           {/* Composed Chart Component (formerly Tooltip Chart) */}
-          <ComposedChartComponent data={data} xAxisKey={getXAxisKey()} />
+          <ComposedChartComponent/>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

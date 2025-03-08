@@ -13,7 +13,7 @@ export default function SignupPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true); 
+    setIsLoading(true);
     try {
       const response = await fetch("http://localhost:5000/auth/register", {
         method: "POST",
@@ -29,8 +29,8 @@ export default function SignupPage() {
     } catch (err) {
       console.error("Error:", err);
       alert("An error occurred");
-    }finally {
-      setIsLoading(false); 
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -93,9 +93,12 @@ export default function SignupPage() {
               required
             />
           </div>
-
-
-//           <button type="submit" className="w-full py-3 bg-purple-600 text-white rounded-md hover:bg-purple-700">Play with PTM</button>
+          <button
+            type="submit"
+            className="w-full py-3 bg-purple-600 text-white rounded-md hover:bg-purple-700"
+          >
+            Play with PTM
+          </button>
 
           <button
             type="submit"
@@ -111,7 +114,6 @@ export default function SignupPage() {
               "Sign Up"
             )}
           </button>
-
         </form>
       </div>
 

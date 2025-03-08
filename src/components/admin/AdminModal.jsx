@@ -9,8 +9,9 @@ import {
   Table,
   Input,
   InputNumber,
+  Switch,
 } from "antd";
-import { InfoCircleOutlined } from "@ant-design/icons";
+import { InfoCircleOutlined, StarFilled, StarOutlined } from "@ant-design/icons";
 
 export const showDeleteConfirm = (id, name, onDelete) => {
   Modal.confirm({
@@ -139,6 +140,8 @@ export const showWorkspaceDetailModal = (workspace) => {
 };
 
 export const showPremiumModal = (plan) => {
+  console.log(plan);
+  
   Modal.info({
     title: "Premium Plan Details",
     content: (
@@ -153,7 +156,13 @@ export const showPremiumModal = (plan) => {
             <strong>Duration:</strong> {plan.duration} days
           </Typography.Text>
           <br />
-          <Typography.Text>
+          <Typography.Text type="secondary"> 
+            <strong>Popularity:</strong> {plan.isPopular ? <><StarFilled className="text-yellow-500" />
+              Popular</> : <><StarOutlined className="text-gray-400" />
+              Normal</>}
+          </Typography.Text>
+          <br />
+          <Typography.Text type="secondary">
             <strong>Description:</strong> {plan.description}
           </Typography.Text>
         </div>
@@ -177,34 +186,12 @@ export const showEditPlanModal = (plan, onUpdate) => {
           <Typography.Text>{plan.planName}</Typography.Text>
         </div>
 
-        {/* Highlighted Notice Section */}
-        <div
-          style={{
-            backgroundColor: "#FFFBE6",
-            border: "1px solid #FFD666",
-            padding: "8px",
-            borderRadius: "5px",
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-          }}
-        >
-          <InfoCircleOutlined style={{ color: "#FAAD14" }} />
-          <Typography.Text type="warning">
-            Note: Separate descriptions with a comma (",")
-          </Typography.Text>
-        </div>
-
         {/* Form for editing plan details */}
         <Form
           layout="vertical"
-          initialValues={{ description: plan.description, price: plan.price }}
+          initialValues={{ description: plan.description, price: plan.price, isPopular: plan.isPopular }}
           ref={(instance) => (form = instance)}
         >
-          <Form.Item name="description" label="Description">
-            <Input.TextArea placeholder="Enter plan description" rows={3} />
-          </Form.Item>
-
           <Form.Item
             name="price"
             label="Price"
@@ -218,6 +205,37 @@ export const showEditPlanModal = (plan, onUpdate) => {
               placeholder="Enter plan price"
             />
           </Form.Item>
+
+          {/* New "Is Popular" Field */}
+          <Form.Item
+            name="isPopular"
+            label="Popularity Check"
+            valuePropName="checked"
+          >
+            <Switch checkedChildren="Yes" unCheckedChildren="No" />
+          </Form.Item>
+
+          <Form.Item name="description" label="Description">
+            <Input.TextArea placeholder="Enter plan description" rows={3} />
+          </Form.Item>
+
+          {/* Highlighted Notice Section */}
+          <div
+            style={{
+              backgroundColor: "#FFFBE6",
+              border: "1px solid #FFD666",
+              padding: "8px",
+              borderRadius: "5px",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+            }}
+          >
+            <InfoCircleOutlined style={{ color: "#FAAD14" }} />
+            <Typography.Text type="warning">
+              Note: Separate descriptions with a comma (",")
+            </Typography.Text>
+          </div>
         </Form>
       </Space>
     ),
@@ -229,6 +247,7 @@ export const showEditPlanModal = (plan, onUpdate) => {
           ...plan,
           description: values.description,
           price: values.price,
+          isPopular: values.isPopular,
         };
 
         // Call update function from parent component
@@ -249,7 +268,13 @@ export const showCreatePlanModal = (onSave) => {
       <Form
         ref={(instance) => (form = instance)}
         layout="vertical"
-        initialValues={{ planName: "", price: 0, duration: 0, description: "" }}
+        initialValues={{
+          planName: "",
+          price: 0,
+          duration: 0,
+          description: "",
+          isPopular: false, // Default value
+        }}
       >
         <Form.Item
           name="planName"
@@ -273,7 +298,15 @@ export const showCreatePlanModal = (onSave) => {
           <InputNumber min={1} style={{ width: "100%" }} />
         </Form.Item>
 
-        
+        {/* New "Is Popular" Field */}
+        <Form.Item
+          name="isPopular"
+          label="Popularity Check"
+          valuePropName="checked"
+        >
+          <Switch checkedChildren="Yes" unCheckedChildren="No" />
+        </Form.Item>
+
         <Form.Item
           name="description"
           label="Description"
@@ -281,6 +314,7 @@ export const showCreatePlanModal = (onSave) => {
         >
           <Input.TextArea rows={3} placeholder="Enter description" />
         </Form.Item>
+
         {/* Highlighted Notice Section */}
         <div
           style={{
@@ -302,7 +336,7 @@ export const showCreatePlanModal = (onSave) => {
     ),
     okText: "Create",
     cancelText: "Cancel",
-    
+
     onOk: async () => {
       try {
         const values = await form.validateFields();

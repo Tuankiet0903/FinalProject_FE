@@ -10,6 +10,8 @@ import {
   TagOutlined,
   InfoCircleOutlined,
   PlusOutlined,
+  StarFilled,
+  StarOutlined,
 } from "@ant-design/icons";
 
 import {
@@ -94,6 +96,9 @@ export default function PremiumPlan() {
 
   const handleUpdate = async (updatedPlan) => {
     try {
+
+      console.log(updatedPlan);
+      
       const response = await fetch(`${API_URL}/admin/plans/${updatedPlan.id}`, {
         method: "PUT",
         headers: {
@@ -103,6 +108,7 @@ export default function PremiumPlan() {
           id: updatedPlan.planId,
           description: updatedPlan.description,
           price: updatedPlan.price,
+          isPopular: updatedPlan.isPopular,
         }),
       });
 
@@ -114,7 +120,7 @@ export default function PremiumPlan() {
       setFilteredData((prevData) =>
         prevData.map((plan) =>
           plan.planId === updatedPlan.planId
-            ? { ...plan, description: updatedPlan.description }
+            ? { ...plan, description: updatedPlan.description, price: updatedPlan.price, isPopular: updatedPlan.isPopular }
             : plan
         )
       );
@@ -143,7 +149,7 @@ export default function PremiumPlan() {
       });
 
       if (response.ok) {
-        setFilteredData((prevData) => [...prevData, planDatay]);
+        setFilteredData((prevData) => [...prevData, planData]);
         message.success("Plan created successfully!");
       } else {
         message.error("Failed to create plan. Please try again.");
@@ -176,7 +182,7 @@ export default function PremiumPlan() {
       ),
       dataIndex: "price",
       key: "price",
-      width: "15%",
+      width: "10%",
       sorter: (a, b) => parseInt(a.price) - parseInt(b.price),
       render: (price) => parseInt(price, 10),
     },
@@ -188,7 +194,7 @@ export default function PremiumPlan() {
       ),
       dataIndex: "duration",
       key: "duration",
-      width: "15%",
+      width: "10%",
       sorter: (a, b) => a.duration - b.duration,
     },
     {
@@ -200,6 +206,31 @@ export default function PremiumPlan() {
       dataIndex: "description",
       key: "description",
       width: "30%",
+    },
+    {
+      title: (
+        <div className="">
+          <StarFilled className="mr-1 text-purple-500"/>
+          <span className="text-base font-semibold">Popularity</span>
+          <span className="text-xs text-gray-500">(Featured Plan)</span>
+        </div>
+      ),
+      dataIndex: "isPopular",
+      key: "isPopular",
+      width: "15%",
+      align: "center",
+      render: (isPopular) =>
+        isPopular ? (
+          <span className="text-yellow-500 font-semibold flex items-center gap-1">
+            <StarFilled className="text-yellow-500" />
+            Popular
+          </span>
+        ) : (
+          <span className="text-gray-500 flex items-center gap-1">
+            <StarOutlined className="text-gray-400" />
+            Normal
+          </span>
+        ),
     },
     {
       title: (

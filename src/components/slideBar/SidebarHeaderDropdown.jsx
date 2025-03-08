@@ -8,8 +8,7 @@ import {
   Plus,
   ChevronRight,
 } from "lucide-react";
-import mockWorkspaces from "../../lib/mockWorkspaces"; // Import mock data
-import { getAllWorkspace } from "../../api/workspace";
+import { getAllWorkspaceByUserId } from "../../api/workspace";
 import CreateWorkspace from "./CreateWorkspace";
 
 export default function SidebarHeaderDropdown({ currentWorkspace, setCurrentWorkspace }) {
@@ -18,7 +17,7 @@ export default function SidebarHeaderDropdown({ currentWorkspace, setCurrentWork
 
   const fetchAllWorkspace = async () => {
     try {
-      const workspaceData = await getAllWorkspace();
+      const workspaceData = await getAllWorkspaceByUserId();
       setWorkspaces(workspaceData);
     } catch (error) {
       console.error("Failed to fetch workspace:", error);
@@ -36,10 +35,10 @@ export default function SidebarHeaderDropdown({ currentWorkspace, setCurrentWork
         <div className="px-3 py-2 border-b">
           <div className="flex items-center gap-2">
             <div className="bg-red-500 px-2 py-1 text-white rounded">
-              <span className="font-semibold text-sm">{currentWorkspace.name.charAt(0)}</span>
+              <span className="font-semibold text-sm">{currentWorkspace?.name?.charAt(0)}</span>
             </div>
             <div className="text-left">
-              <div className="font-medium text-sm">{currentWorkspace.name}</div>
+              <div className="font-medium text-sm">{currentWorkspace?.name}</div>
               <div className="text-xs text-gray-500">Free Forever</div>
             </div>
           </div>
@@ -84,7 +83,7 @@ export default function SidebarHeaderDropdown({ currentWorkspace, setCurrentWork
         </div>
 
         {/* Workspace List */}
-        <div className="max-h-40 overflow-y-auto">
+        <div className="max-h-40 custom-scrollbar overflow-y-auto">
           {workspaces.map((workspace) => (
             <button 
               key={workspace.workSpaceId} 
@@ -110,9 +109,13 @@ export default function SidebarHeaderDropdown({ currentWorkspace, setCurrentWork
       </div>
       
       {showCreateWorkspace && (
-        <div className="fixed inset-0 w-full h-full flex items-center justify-center bg-gray-800 bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg">
-            <CreateWorkspace onClose={() => setShowCreateWorkspace(false)} refreshWorkspaces={fetchAllWorkspace}/>
+        <div className="fixed inset-0 w-full h-full flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
+          <div className="bg-white rounded-lg shadow-lg">
+            <CreateWorkspace 
+              onClose={() => setShowCreateWorkspace(false)} 
+              refreshWorkspaces={fetchAllWorkspace} 
+              setCurrentWorkspace={setCurrentWorkspace} // Pass setCurrentWorkspace
+            />
           </div>
         </div>
       )}

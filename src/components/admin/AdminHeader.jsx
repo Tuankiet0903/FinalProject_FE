@@ -40,7 +40,7 @@ export default function AdminHeader() {
       href: "/admin/workspaces",
       icon: <OrderedListOutlined />,
     },
-    { name: "User", href: "/admin/users", icon: <UserOutlined /> },
+    { name: "Users", href: "/admin/users", icon: <UserOutlined /> },
     { name: "Premium", href: "/admin/premium", icon: <CrownOutlined /> },
   ];
 

@@ -15,6 +15,7 @@ import WorkspaceSettings from "./pages/auth/Settings/WorkspaceSettings";
 import LoginPage from "./pages/auth/LoginPage"; 
 import SignupPage from "./pages/auth/SignupPage"; 
 import SpaceDetail from "./pages/auth/Settings/SpaceDetail"
+import AllSpaces from "./pages/auth/Settings/AllSpaces"
 import DashboardSpace from "./pages/auth/HomePage/DashboardSpace";
 import AdminDashboard from "./pages/auth/Admin/AdminDashBoard";
 import AdminLayout from "./layouts/AdminLayout";
@@ -36,8 +37,10 @@ export default function App() {
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="space" element={<SpaceDetail/>} />
           <Route path="dashboardspace" element={<DashboardSpace/>} />
+          <Route path="allspaces" element={<AllSpaces/>} />
           
           {/* Workspace và List Routes */}
+          <Route path="space/:spaceId" element={<SpaceDetail />} />
           <Route path="workspace/:workspaceId/space/:spaceId/folder/:folderId/list/:listId" 
                  element={<KanbanBoardPage />} 
           />

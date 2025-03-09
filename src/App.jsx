@@ -40,6 +40,7 @@ export default function App() {
           <Route path="allspaces" element={<AllSpaces/>} />
           
           {/* Workspace và List Routes */}
+          <Route path="workspace/:workspaceId/allspaces" element={<AllSpaces/>} />
           <Route path="space/:spaceId" element={<SpaceDetail />} />
           <Route path="workspace/:workspaceId/space/:spaceId/folder/:folderId/list/:listId" 
                  element={<KanbanBoardPage />} 

@@ -1,17 +1,21 @@
 import React, { useState, useEffect } from "react";
 import { Plus, Search } from "lucide-react";
+import { useParams } from "react-router-dom"; // ✅ Lấy workspaceId từ URL
 import Header from "../../../components/header/AllSpaceHeader";
-import { getUserSpaces } from "../../../api/space"; // ✅ Import createSpace
+import { getSpacesByWorkspaceId } from "../../../api/space"; // ✅ Import API mới
 import CreateSpaceDialog from "../../../components/slideBar/CreateSpaceDialog";
 
 export default function AllSpacesPage() {
+  const { workspaceId } = useParams(); // ✅ Lấy workspaceId từ URL
   const [spaces, setSpaces] = useState([]);
   const [isCreateSpaceOpen, setIsCreateSpaceOpen] = useState(false);
 
   useEffect(() => {
+    if (!workspaceId) return; // ✅ Kiểm tra workspaceId hợp lệ
+
     const loadSpaces = async () => {
       try {
-        const spacesData = await getUserSpaces();
+        const spacesData = await getSpacesByWorkspaceId(workspaceId); // ✅ Fetch danh sách Spaces theo Workspace
         setSpaces(spacesData || []);
       } catch (error) {
         console.error("Failed to fetch spaces:", error);
@@ -19,18 +23,21 @@ export default function AllSpacesPage() {
     };
 
     loadSpaces();
-  }, []); // ✅ Chỉ fetch 1 lần khi component mount
+  }, [workspaceId]); // ✅ Fetch lại khi workspaceId thay đổi
 
-  // ✅ Hàm thêm Space mà không cần fetch lại toàn bộ dữ liệu
+  // ✅ Hàm tạo Space trong Workspace hiện tại
   const handleCreateSpace = async (spaceName, description) => {
+    if (!workspaceId) return; // ✅ Tránh lỗi khi workspaceId chưa được load
+
     try {
       const newSpace = await createSpace({
         name: spaceName,
         description: description,
+        workspaceId: workspaceId, // ✅ Truyền workspaceId hiện tại vào API
       });
 
-      setSpaces((prevSpaces) => [...prevSpaces, newSpace]); // ✅ Cập nhật danh sách ngay
-      setIsCreateSpaceOpen(false); // ✅ Đóng hộp thoại
+      setSpaces((prevSpaces) => [...prevSpaces, newSpace]); // ✅ Cập nhật danh sách ngay lập tức
+      setIsCreateSpaceOpen(false); // ✅ Đóng hộp thoại sau khi tạo thành công
     } catch (error) {
       console.error("Failed to create space:", error);
     }
@@ -68,7 +75,7 @@ export default function AllSpacesPage() {
             </div>
           </div>
 
-          {/* ✅ Hiển thị danh sách Spaces */}
+          {/* ✅ Hiển thị danh sách Spaces của Workspace hiện tại */}
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full mt-6">
             {spaces.map((space) => (
               <div key={space.spaceId} className="flex items-center p-4 bg-gray-100 rounded-lg cursor-pointer hover:bg-gray-200">
@@ -86,7 +93,7 @@ export default function AllSpacesPage() {
       <CreateSpaceDialog 
         open={isCreateSpaceOpen} 
         onOpenChange={setIsCreateSpaceOpen} 
-        workspaceId={1} // Giả lập workspaceId
+        workspaceId={workspaceId} // ✅ Truyền workspaceId hiện tại
         onSpaceCreated={handleCreateSpace} 
       />
     </div>

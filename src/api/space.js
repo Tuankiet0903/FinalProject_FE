@@ -70,6 +70,23 @@ export const getUserSpaces = async (userId) => {
 
 
 
+// ✅ Lấy workspaceId từ URL và fetch danh sách Spaces của nó
+export const getSpacesByWorkspaceId = async (workspaceId) => {
+  try {
+    console.log(`Fetching spaces for workspaceId: ${workspaceId}`); // 🟢 Debug
+
+    const response = await axios.get(`${API_ROOT}/space/spaces/workspace/${workspaceId}/allspaces`);
+    
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching spaces for workspaceId ${workspaceId}:`, error);
+    return [];
+  }
+};
+
+
+
+
 
 
   

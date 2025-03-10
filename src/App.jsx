@@ -22,6 +22,7 @@ import AdminLayout from "./layouts/AdminLayout";
 import WorkspaceListTable from "./pages/auth/Admin/AdminWorkspaceList";
 import UserListTable from "./pages/auth/Admin/AdminUserList";
 import AdminPremium from "./pages/auth/Admin/AdminPremium";
+import Chat from "./pages/auth/Chat/Chat"; // Import trang Chat
 
 export default function App() {
   return (
@@ -38,7 +39,7 @@ export default function App() {
           <Route path="space" element={<SpaceDetail/>} />
           <Route path="dashboardspace" element={<DashboardSpace/>} />
           <Route path="allspaces" element={<AllSpaces/>} />
-          
+          <Route path="chat" element={<Chat />} /> {/* Định nghĩa route cho trang Chat */}
           {/* Workspace và List Routes */}
           <Route path="workspace/:workspaceId/allspaces" element={<AllSpaces/>} />
           <Route path="space/:spaceId" element={<SpaceDetail />} />

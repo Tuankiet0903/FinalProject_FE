@@ -29,11 +29,11 @@ export default function SidebarNavigation() {
       </NavLink>
 
       <NavLink 
-        to="#" 
+        to="/user/chat" 
         className="flex items-center space-x-3 px-2 py-2 rounded-md hover:bg-gray-100"
       >
         <MoreHorizontalIcon className="h-5 w-5 text-black" />
-        <span className="text-black">More</span>
+        <span className="text-black">Chat</span>
       </NavLink>
     </nav>
   );

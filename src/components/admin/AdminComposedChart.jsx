@@ -11,10 +11,9 @@ import {
   Line,
   Area,
 } from "recharts";
-import config from "../../config/Config";
+import { fetchMonthlyData, fetchYearlyData } from "../../api/Admin";
 
 export default function ComposedChartComponent() {
-  const API_URL = config.API_URL;
 
   const [data, setData] = useState([]);
   const [filter, setFilter] = useState("year");
@@ -24,22 +23,22 @@ export default function ComposedChartComponent() {
   };
 
   useEffect(() => {
-    let endpoint = `${API_URL}/admin/getCountAllWorkspaceByYear`; // Default API for yearly data
-
-    if (filter === "month") {
-      endpoint = `${API_URL}/admin/getCountAllWorkspaceByMonth`;
-    }
-
-    fetch(endpoint)
-      .then((response) => response.json())
-      .then((fetchedData) => {
+    const fetchData = async () => {
+      try {
+        let fetchedData;
+        if (filter === "month") {
+          fetchedData = await fetchMonthlyData();
+        } else {
+          fetchedData = await fetchYearlyData();
+        }
         setData(fetchedData);
-      })
-      .catch((error) => console.error("Error fetching data:", error));
-  }, [filter]); // Refetch data when filter changes
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
 
-  console.log(data);
-  
+    fetchData();
+  }, [filter]);
 
   return (
     <div className="rounded-lg border border-gray-200 bg-white shadow-sm">

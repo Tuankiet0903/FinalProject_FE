@@ -140,8 +140,6 @@ export const showWorkspaceDetailModal = (workspace) => {
 };
 
 export const showPremiumModal = (plan) => {
-  console.log(plan);
-  
   Modal.info({
     title: "Premium Plan Details",
     content: (
@@ -342,7 +340,6 @@ export const showCreatePlanModal = (onSave) => {
         const values = await form.validateFields();
         await onSave(values);
       } catch (error) {
-        console.log(error.message);
         message.error("Please fill in all required fields!");
       }
     },

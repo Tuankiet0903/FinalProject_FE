@@ -7,8 +7,8 @@ import {
   Cell,
 } from "recharts";
 import { MehOutlined } from "@ant-design/icons";
-import config from "../../config/Config";
 import { useEffect, useState } from "react";
+import { fetchCountAllWorkspaceType } from "../../api/Admin";
 
 export default function PieChartComponent() {
   const COLORS = [
@@ -20,15 +20,18 @@ export default function PieChartComponent() {
     "#d1d5db",
   ];
   const [data, setData] = useState([]);
-  const API_URL = config.API_URL;
 
   useEffect(() => {
-    fetch(`${API_URL}/admin/getCountAllWorkspaceType`)
-      .then((response) => response.json())
-      .then((fetchedData) => {
+    const fetchData = async () => {
+      try {
+        const fetchedData = await fetchCountAllWorkspaceType();
         setData(fetchedData);
-      })
-      .catch((error) => console.error("Error fetching data:", error));
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+  
+    fetchData();
   }, []);
 
   const pieData = data.map((item) => ({

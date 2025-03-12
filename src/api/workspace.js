@@ -39,13 +39,6 @@ export const createWorkspace = async ({ name, description, type = 'personal' }) 
             }
         });
 
-        console.log('Workspace creation request:', {
-            name,
-            description,
-            type,
-            createdBy: getUserId()
-        });
-
         return response.data;
     } catch (error) {
         console.error("Error creating workspace:", {

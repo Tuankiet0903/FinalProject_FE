@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import axios from "axios";
 import {
   Search,
   Send,
@@ -15,106 +16,84 @@ import {
   File,
   AtSign,
 } from "lucide-react";
+import { useParams } from "react-router-dom";
+import { io } from "socket.io-client";
+import { getUserId } from "../../../api/workspace";
 
 const Chat = () => {
-  // Mock data for users
-  const USERS = [
-    {
-      id: 1,
-      name: "Alex Johnson",
-      avatar: "/placeholder.svg?height=40&width=40",
-      status: "online",
-      role: "Product Manager",
-    },
-    {
-      id: 2,
-      name: "Sarah Williams",
-      avatar: "/placeholder.svg?height=40&width=40",
-      status: "online",
-      role: "UI Designer",
-    },
-    {
-      id: 3,
-      name: "Michael Chen",
-      avatar: "/placeholder.svg?height=40&width=40",
-      status: "offline",
-      role: "Frontend Developer",
-    },
-    {
-      id: 4,
-      name: "Jessica Lee",
-      avatar: "/placeholder.svg?height=40&width=40",
-      status: "away",
-      role: "Backend Developer",
-    },
-    {
-      id: 5,
-      name: "David Kim",
-      avatar: "/placeholder.svg?height=40&width=40",
-      status: "online",
-      role: "QA Engineer",
-    },
-    {
-      id: 6,
-      name: "Emily Davis",
-      avatar: "/placeholder.svg?height=40&width=40",
-      status: "online",
-      role: "UX Researcher",
-    },
-    {
-      id: 7,
-      name: "Robert Wilson",
-      avatar: "/placeholder.svg?height=40&width=40",
-      status: "offline",
-      role: "DevOps Engineer",
-    },
-  ];
-
-  // Mock data for messages
-  const INITIAL_MESSAGES = [
-    {
-      id: 1,
-      sender: USERS[0],
-      content: "Good morning team! Let's discuss the project timeline for this week.",
-      timestamp: "09:30 AM",
-      reactions: [{ emoji: "👍", count: 3 }],
-    },
-    {
-      id: 2,
-      sender: USERS[1],
-      content: "I've finished the design mockups for the dashboard. I'll share them shortly.",
-      timestamp: "09:32 AM",
-      reactions: [],
-    },
-    {
-      id: 3,
-      sender: USERS[3],
-      content: "The API endpoints for user authentication are now ready for testing.",
-      timestamp: "09:45 AM",
-      reactions: [{ emoji: "🎉", count: 2 }],
-    },
-    {
-      id: 4,
-      sender: USERS[4],
-      content: "I found a bug in the login flow. Created a ticket #DEV-423 to track it.",
-      timestamp: "10:15 AM",
-      reactions: [],
-    },
-    {
-      id: 5,
-      sender: USERS[2],
-      content: "Here are the updated component designs:",
-      timestamp: "10:30 AM",
-      attachment: { type: "image", url: "/placeholder.svg?height=200&width=300", name: "dashboard-components.png" },
-      reactions: [{ emoji: "❤️", count: 4 }],
-    },
-  ];
-
-  const [messages, setMessages] = useState(INITIAL_MESSAGES);
+  const { workspaceId } = useParams();
+  const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [showUserList, setShowUserList] = useState(true);
-
+  const [socket, setSocket] = useState(null);
   const messagesEndRef = useRef(null);
+
+  // Connect to socket when component mounts
+  useEffect(() => {
+    const newSocket = io("http://localhost:5000", {
+      auth: { token: localStorage.getItem('token') },
+    });
+    setSocket(newSocket);
+
+    newSocket.on("connect", () => {
+      console.log("Connected to Socket.IO server");
+      newSocket.emit("join-workspace", { workspaceId });
+  });
+
+  newSocket.on("connect_error", (error) => {
+    console.error("Socket.IO connection error:", error);
+});
+
+    newSocket.on("join-success", ({ workspaceId }) => {
+      console.log(`Successfully joined workspace ${workspaceId}`);
+    });
+
+    newSocket.on("join-error", ({ message }) => {
+      console.error("Join error:", message);
+    });
+
+    newSocket.on("new-message", (message) => {
+      console.log("New message received:", message);
+      setMessages((prev) => [...prev, message]);
+  });
+
+    // Listen for message updates
+    newSocket.on("update-message", (updatedMessage) => {
+      setMessages(prev => prev.map(msg =>
+        msg.messageId === updatedMessage.messageId ? updatedMessage : msg
+      ));
+    });
+
+    // Listen for message deletions
+    newSocket.on("delete-message", (messageId) => {
+      setMessages(prev => prev.filter(msg => msg.messageId !== messageId));
+    });
+
+    return () => {
+      newSocket.disconnect();
+    };
+  }, [workspaceId]);
+
+  // Fetch initial messages
+  useEffect(() => {
+    const fetchMessages = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5000/api/workspace/${workspaceId}/messages`, {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        console.log("Fetched messages:", response.data);
+
+        // Đảm bảo `data` là một mảng
+        setMessages(Array.isArray(response.data) ? response.data : []);
+      } catch (error) {
+        console.error("Failed to fetch messages:", error);
+      }
+    };
+    fetchMessages();
+  }, [workspaceId]);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -125,42 +104,45 @@ const Chat = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const handleSendMessage = (e) => {
+  const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!newMessage.trim()) return;
 
-    const newMsg = {
-      id: messages.length + 1,
-      sender: USERS[0], // Current user (you)
-      content: newMessage,
-      timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-      reactions: [],
-    };
+    try {
+      const response = await axios.post(`http://localhost:5000/api/workspace/${workspaceId}/messages`, {
+        content: newMessage,
+        workspaceId: workspaceId,
+        userId: getUserId(),
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
 
-    setMessages([...messages, newMsg]);
-    setNewMessage("");
+      // Socket will handle adding the message to the list
+      setNewMessage("");
+    } catch (error) {
+      console.error("Failed to send message:", error);
+    }
   };
 
-  const handleReaction = (messageId, emoji) => {
-    setMessages(
-      messages.map((msg) => {
-        if (msg.id === messageId) {
-          const existingReaction = msg.reactions.find((r) => r.emoji === emoji);
-          if (existingReaction) {
-            return {
-              ...msg,
-              reactions: msg.reactions.map((r) => (r.emoji === emoji ? { ...r, count: r.count + 1 } : r)),
-            };
-          } else {
-            return {
-              ...msg,
-              reactions: [...msg.reactions, { emoji, count: 1 }],
-            };
-          }
-        }
-        return msg;
-      })
-    );
+  const handleReaction = async (messageId, emoji) => {
+    try {
+      await axios.post(`http://localhost:5000/api/messages/${messageId}/reactions`, {
+        emoji: emoji
+      });
+    } catch (error) {
+      console.error("Failed to add reaction:", error);
+    }
+  };
+
+  const handleRemoveReaction = async (messageId, reactionId) => {
+    try {
+      await axios.delete(`http://localhost:5000/api/messages/${messageId}/reactions/${reactionId}`);
+    } catch (error) {
+      console.error("Failed to remove reaction:", error);
+    }
   };
 
   return (
@@ -169,17 +151,19 @@ const Chat = () => {
       <div className="flex-1 flex flex-col">
         <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-4">
           {messages.map((message) => (
-            <div key={message.id} className="flex items-start group">
+            <div key={message.messageId} className="flex items-start group">
               <img
-                src={message.sender.avatar || "/placeholder.svg"}
-                alt={message.sender.name}
+                src={message.User?.avatar || "/placeholder.svg"}
+                alt={message.User?.username}
                 className="w-10 h-10 rounded-full mr-3 mt-1"
               />
 
               <div className="flex-1">
                 <div className="flex items-baseline">
-                  <h4 className="font-bold">{message.sender.name}</h4>
-                  <span className="text-xs text-gray-500 ml-2">{message.timestamp}</span>
+                  <h4 className="font-bold">{message.User?.username}</h4>
+                  <span className="text-xs text-gray-500 ml-2">
+                    {new Date(message.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                  </span>
                   <div className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button className="text-gray-400 hover:text-gray-600">
                       <MoreVertical className="h-4 w-4" />
@@ -190,45 +174,69 @@ const Chat = () => {
                 <div className="mt-1">
                   <p className="text-gray-800">{message.content}</p>
 
-                  {message.attachment && (
-                    <div className="mt-2 max-w-sm">
-                      {message.attachment.type === "image" ? (
+                  {message.files && message.files.length > 0 && message.files.map((file) => (
+                    <div key={file.fileId} className="mt-2 max-w-sm">
+                      {file.fileType.startsWith('image/') ? (
                         <div className="relative">
                           <img
-                            src={message.attachment.url || "/placeholder.svg"}
-                            alt={message.attachment.name}
+                            src={file.fileUrl}
+                            alt={file.fileName}
                             className="rounded-md border border-gray-200 max-w-full"
                           />
                           <div className="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded">
-                            {message.attachment.name}
+                            {file.fileName}
                           </div>
                         </div>
                       ) : (
                         <div className="flex items-center p-3 bg-gray-100 rounded-md">
                           <File className="h-8 w-8 text-blue-500 mr-2" />
                           <div>
-                            <p className="text-sm font-medium">{message.attachment.name}</p>
+                            <p className="text-sm font-medium">{file.fileName}</p>
                             <p className="text-xs text-gray-500">Click to download</p>
                           </div>
                         </div>
                       )}
                     </div>
-                  )}
+                  ))}
 
-                  {message.reactions.length > 0 && (
+                  {message.Reactions && message.Reactions.length > 0 && (
                     <div className="flex mt-2 space-x-2">
-                      {message.reactions.map((reaction, index) => (
+                      {message.Reactions.map((reaction) => (
                         <button
-                          key={index}
+                          key={reaction.reactionId}
                           className="flex items-center bg-gray-100 hover:bg-gray-200 rounded-full px-2 py-0.5 text-sm"
-                          onClick={() => handleReaction(message.id, reaction.emoji)}
+                          onClick={() => handleRemoveReaction(message.messageId, reaction.reactionId)}
                         >
                           <span className="mr-1">{reaction.emoji}</span>
-                          <span className="text-xs text-gray-600">{reaction.count}</span>
+                          <span className="text-xs text-gray-600">{reaction.User?.username}</span>
                         </button>
                       ))}
                     </div>
                   )}
+
+                  {/* Reaction buttons */}
+                  <div className="mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => handleReaction(message.messageId, "❤️")}
+                        className="text-gray-400 hover:text-red-500"
+                      >
+                        ❤️
+                      </button>
+                      <button
+                        onClick={() => handleReaction(message.messageId, "👍")}
+                        className="text-gray-400 hover:text-blue-500"
+                      >
+                        👍
+                      </button>
+                      <button
+                        onClick={() => handleReaction(message.messageId, "😄")}
+                        className="text-gray-400 hover:text-yellow-500"
+                      >
+                        😄
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -286,23 +294,23 @@ const Chat = () => {
         <div className="w-64 border-l bg-white flex flex-col">
           <div className="p-4 border-b">
             <h3 className="font-semibold text-gray-700">Team Members</h3>
-            <p className="text-sm text-gray-500">{USERS.length} members</p>
+            <p className="text-sm text-gray-500">{messages.length} members</p>
           </div>
 
           <div className="flex-1 overflow-y-auto p-4">
             <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">
-              Online - {USERS.filter((u) => u.status === "online").length}
+              Online - {messages.filter((m) => m.User?.status === "online").length}
             </h4>
             <ul className="space-y-3">
-              {USERS.filter((u) => u.status === "online").map((user) => (
-                <li key={user.id} className="flex items-start">
+              {messages.filter((m) => m.User?.status === "online").map((message) => (
+                <li key={message.messageId} className="flex items-start">
                   <div className="relative mr-2">
-                    <img src={user.avatar || "/placeholder.svg"} alt={user.name} className="w-8 h-8 rounded-full" />
+                    <img src={message.User?.avatar || "/placeholder.svg"} alt={message.User?.username} className="w-8 h-8 rounded-full" />
                     <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-green-500 border-2 border-white"></span>
                   </div>
                   <div>
-                    <h5 className="font-medium">{user.name}</h5>
-                    <p className="text-xs text-gray-500">{user.role}</p>
+                    <h5 className="font-medium">{message.User?.username}</h5>
+                    <p className="text-xs text-gray-500">{message.User?.role}</p>
                   </div>
                 </li>
               ))}
@@ -311,26 +319,25 @@ const Chat = () => {
 
           <div className="p-4">
             <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">
-              Offline - {USERS.filter((u) => u.status !== "online").length}
+              Offline - {messages.filter((m) => m.User?.status !== "online").length}
             </h4>
             <ul className="space-y-3">
-              {USERS.filter((u) => u.status !== "online").map((user) => (
-                <li key={user.id} className="flex items-start">
+              {messages.filter((m) => m.User?.status !== "online").map((message) => (
+                <li key={message.messageId} className="flex items-start">
                   <div className="relative mr-2">
                     <img
-                      src={user.avatar || "/placeholder.svg"}
-                      alt={user.name}
+                      src={message.User?.avatar || "/placeholder.svg"}
+                      alt={message.User?.username}
                       className="w-8 h-8 rounded-full opacity-70"
                     />
                     <span
-                      className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full ${
-                        user.status === "away" ? "bg-yellow-500" : "bg-gray-500"
-                      } border-2 border-white`}
+                      className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full ${message.User?.status === "away" ? "bg-yellow-500" : "bg-gray-500"
+                        } border-2 border-white`}
                     ></span>
                   </div>
                   <div>
-                    <h5 className="font-medium text-gray-600">{user.name}</h5>
-                    <p className="text-xs text-gray-500">{user.role}</p>
+                    <h5 className="font-medium text-gray-600">{message.User?.username}</h5>
+                    <p className="text-xs text-gray-500">{message.User?.role}</p>
                   </div>
                 </li>
               ))}

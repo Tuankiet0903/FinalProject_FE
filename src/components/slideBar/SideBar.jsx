@@ -3,9 +3,11 @@ import SidebarHeader from "./SidebarHeader";
 import SidebarFooter from "./SidebarFooter";
 import SidebarNavigation from "./SidebarNavigation";
 import SidebarSpaces from "./SidebarSpaces";
+import { useWorkspaceStore } from "../../store/workspaceStore";
 
 export default function Sidebar() {
-  const [selectedWorkspaceId, setSelectedWorkspaceId] = useState(null);
+  const setSelectedWorkspaceId = useWorkspaceStore((state) => state.setSelectedWorkspaceId);
+  const selectedWorkspaceId = useWorkspaceStore((state) => state.selectedWorkspaceId);
 
   return (
     <div className="w-72 bg-white h-screen border-r text-black border-gray-200 fixed left-0 top-[72px] shadow-md flex flex-col">

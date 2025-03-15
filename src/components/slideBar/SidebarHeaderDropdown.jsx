@@ -108,17 +108,20 @@ export default function SidebarHeaderDropdown({ currentWorkspace, setCurrentWork
         </button>
       </div>
       
-      {showCreateWorkspace && (
-        <div className="fixed inset-0 w-full h-full flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
-          <div className="bg-white rounded-lg shadow-lg">
-            <CreateWorkspace 
-              onClose={() => setShowCreateWorkspace(false)} 
-              refreshWorkspaces={fetchAllWorkspace} 
-              setCurrentWorkspace={setCurrentWorkspace} // Pass setCurrentWorkspace
-            />
-          </div>
-        </div>
-      )}
+{showCreateWorkspace && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center">
+    <div className="bg-white w-full max-w-lg p-6 rounded-lg shadow-lg z-60">
+      <CreateWorkspace 
+        onClose={() => setShowCreateWorkspace(false)} 
+        refreshWorkspaces={fetchAllWorkspace} 
+        setCurrentWorkspace={setCurrentWorkspace}
+      />
+    </div>
+  </div>
+)}
+
+
+
     </div>
   );
 }

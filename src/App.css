@@ -40,3 +40,23 @@
 .read-the-docs {
   color: #888;
 }
+body {
+  overflow: hidden; /* Tắt cuộn khi modal mở */
+}
+.inbox-container {
+  z-index: 1; /* Đặt giá trị z-index thấp hơn modal */
+}
+.modal-overlay {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5); /* Đảm bảo overlay che phủ toàn màn hình */
+  z-index: 9999;
+}
+.modal-content {
+  position: relative;
+  background-color: white;
+  width: 400px;
+  border-radius: 8px;
+  padding: 20px;
+  z-index: 10000; /* Đảm bảo modal nội dung nằm trên overlay */
+}

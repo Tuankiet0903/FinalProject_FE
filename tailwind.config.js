@@ -51,6 +51,10 @@ export default {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      zIndex: {
+        'overlay': '9999', // Đặt overlay có z-index cao hơn bình thường
+        'modal': '10000',   // Đặt modal có z-index cao nhất
+      }
     },
   },
   plugins: [tailwindcssAnimate],

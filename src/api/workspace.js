@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { API_ROOT } from '../utils/constants'
 import { jwtDecode } from "jwt-decode";
+import { getUserFromToken } from './auth';
 
 export const getUserId = () => {
     const token = localStorage.getItem("token");
@@ -182,3 +183,26 @@ export const updateList = async (list) => {
         throw error;
     }
 };
+
+export const fetchUserWorkspacesInTeam = async () => {
+    try {
+      const user = getUserFromToken();
+      if (!user || !user.userId) {
+        console.warn("⚠ Không tìm thấy userId từ token.");
+        return [];
+      }
+  
+      console.log("📡 Fetching workspaces for userId:", user.userId);
+      
+      const response = await axios.get(`${API_ROOT}/workspace/workspaces/workspaceinteam/${user.userId}`, {
+        withCredentials: true, // ✅ Gửi cookie
+      });
+  
+      console.log("✅ Workspaces user tham gia:", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("❌ Lỗi khi lấy workspace:", error);
+      return [];
+    }
+  };
+

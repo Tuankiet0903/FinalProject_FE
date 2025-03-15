@@ -28,34 +28,10 @@ import {
   createList,
   deleteList,
   updateList,
-} from "../../api/workspace"
-import ItemDropdown from "../dropdown/ItemDropdown"
+ fetchUserWorkspacesInTeam, 
+} from "../../api/workspace";
+import ItemDropdown from "../dropdown/ItemDropdown";
 
-// Space icons mapping based on name or type
-const getSpaceIcon = (spaceName) => {
-  const name = spaceName?.toLowerCase() || ""
-
-  if (name.includes("project") || name.includes("requirement")) return FileText
-  if (name.includes("backlog")) return Database
-  if (name.includes("fe") || name.includes("front")) return Code
-  if (name.includes("qa") || name.includes("test")) return TestTube
-  return FileText
-}
-
-// Function to determine if an ID is a space ID
-const isSpaceId = (id, spaces) => {
-  return spaces.some((space) => space.spaceId === id)
-}
-
-// Function to determine if an ID is a folder ID
-const isFolderId = (id, spaces) => {
-  return spaces.some((space) => space.folders.some((folder) => folder.folderId === id))
-}
-
-// Function to determine if an ID is a list ID
-const isListId = (id, spaces) => {
-  return spaces.some((space) => space.folders.some((folder) => folder.lists.some((list) => list.listId === id)))
-}
 
 export default function SidebarSpaces({ selectedWorkspaceId }) {
   const [isSpacesOpen, setIsSpacesOpen] = useState(true)
@@ -510,12 +486,24 @@ export default function SidebarSpaces({ selectedWorkspaceId }) {
           )}
         </div>
       </div>
+            >
+              <ChevronRight className="h-4 w-4 mr-2" />
+              <span>View all Spaces</span>
+            </div>
 
-      <CreateSpaceDialog
-        open={isCreateSpaceOpen}
-        onOpenChange={setIsCreateSpaceOpen}
-        workspaceId={selectedWorkspaceId}
-        onSpaceCreated={handleSpaceCreated}
+            <div
+              className="flex items-center px-2 py-2 text-sm text-gray-600 hover:text-black transition cursor-pointer"
+              onClick={() => navigate(`/setting/manage-people/${selectedWorkspaceId}`)}
+
+            >
+              <ChevronRight className="h-4 w-4 mr-2" />
+              <span>Invite People</span>
+            </div>
+            <CreateSpaceDialog 
+        open={isCreateSpaceOpen} 
+        onOpenChange={setIsCreateSpaceOpen} 
+        workspaceId={selectedWorkspaceId} 
+        onSpaceCreated={handleSpaceCreated} 
       />
     </div>
   )

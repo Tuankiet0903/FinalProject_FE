@@ -22,6 +22,8 @@ import AdminLayout from "./layouts/AdminLayout";
 import WorkspaceListTable from "./pages/auth/Admin/AdminWorkspaceList";
 import UserListTable from "./pages/auth/Admin/AdminUserList";
 import AdminPremium from "./pages/auth/Admin/AdminPremium";
+import InviteMember from "./pages/auth/Settings/InviteMember";
+import ActivateUser from "./pages/auth/Settings/ActivateUser";
 
 export default function App() {
   return (
@@ -37,9 +39,11 @@ export default function App() {
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="space" element={<SpaceDetail/>} />
           <Route path="dashboardspace" element={<DashboardSpace/>} />
-          <Route path="allspaces" element={<AllSpaces/>} />
+          <Route path="allspaces" element={<AllSpaces/>} /> 
+          <Route path="invite" element={<InviteMember/>} />
           
           {/* Workspace và List Routes */}
+         
           <Route path="workspace/:workspaceId/allspaces" element={<AllSpaces/>} />
           <Route path="space/:spaceId" element={<SpaceDetail />} />
           <Route path="workspace/:workspaceId/space/:spaceId/folder/:folderId/list/:listId" 
@@ -54,14 +58,15 @@ export default function App() {
         <Route path="/setting" element={<SettingLayout />}>
           <Route index element={<Settings />} />
           <Route path="profile" element={<UserProfile />} />
-          <Route path="manage-people" element={<ManagePeople />} />
+          <Route path="/setting/manage-people/:workspaceId" element={<ManagePeople />} />
           <Route path="upgrade" element={<Upgrade />} />
-          <Route path="workspace-settings" element={<WorkspaceSettings />} />
+          <Route path="/setting/workspace-settings/:workspaceId" element={<WorkspaceSettings />} />
         </Route>
 
         {/* Login và Signup có Layout riêng */}
         <Route path="/login" element={<LoginLayout><LoginPage /></LoginLayout>} />
         <Route path="/signup" element={<LoginLayout><SignupPage /></LoginLayout>} />
+        <Route path="/activate/:token" element={<ActivateUser />} /> 
 
         {/* Admin routes */}
         <Route path="/admin" element={<AdminLayout/>}>

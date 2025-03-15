@@ -40,7 +40,7 @@ export default function Header() {
   if (!space) return <p>Space not found</p>;
 
   return (
-    <div className="w-full bg-white border-b shadow-sm relative z-30 pt-2">
+    <div className="w-full bg-white border-b shadow-sm relative z-30 pt-4">
       {/* 🔹 Tiêu đề dự án */}
       <div className="flex justify-center items-center px-6 py-3 border-b bg-white">
         <div className="flex items-center space-x-2 text-base font-semibold">

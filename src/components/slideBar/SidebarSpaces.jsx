@@ -81,8 +81,19 @@ export default function SidebarSpaces({ selectedWorkspaceId }) {
 
     const fetchSpaces = async () => {
       try {
-        const workspaceData = await fetchWorkspaceByID(selectedWorkspaceId)
-        setSpaces(workspaceData?.spaces || [])
+        const workspaceData = await fetchWorkspaceByID(selectedWorkspaceId);
+        const sortedSpaces = workspaceData.spaces
+            .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+            .map(space => ({
+              ...space,
+              folders: space.folders
+                .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+                .map(folder => ({
+                  ...folder,
+                  lists: folder.lists.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+                }))
+            }));
+        setSpaces(sortedSpaces || []);
       } catch (error) {
         setNotification("Failed to fetch workspace")
         console.error(notification, error)

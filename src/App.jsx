@@ -39,7 +39,7 @@ export default function App() {
           <Route path="space" element={<SpaceDetail/>} />
           <Route path="dashboardspace" element={<DashboardSpace/>} />
           <Route path="allspaces" element={<AllSpaces/>} />
-          <Route path="chat" element={<Chat />} /> {/* Định nghĩa route cho trang Chat */}
+          <Route path="workspace/:workspaceId/chat" element={<Chat />} /> 
           {/* Workspace và List Routes */}
           <Route path="workspace/:workspaceId/allspaces" element={<AllSpaces/>} />
           <Route path="space/:spaceId" element={<SpaceDetail />} />

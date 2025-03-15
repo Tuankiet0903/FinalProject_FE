@@ -1,8 +1,9 @@
 import axios from 'axios'
 import { API_ROOT } from '../utils/constants'
 import { jwtDecode } from "jwt-decode";
+import { getUserFromToken } from './auth';
 
-const getUserId = () => {
+export const getUserId = () => {
     const token = localStorage.getItem("token");
     if (!token) throw new Error("Người dùng chưa đăng nhập!");
 
@@ -46,6 +47,26 @@ export const createWorkspace = async ({ name, description, type = 'personal' }) 
             data: error.response?.data,
             status: error.response?.status
         });
+        throw error;
+    }
+};
+
+export const updateWorkspace = async (workspaceId, updatedData) => {
+    try {
+        const response = await axios.put(`${API_ROOT}/workspace/workspaces/${workspaceId}`, updatedData);
+        return response.data;
+    } catch (error) {
+        console.error("Error updating workspace:", error);
+        throw error;
+    }
+};
+
+export const deleteWorkspace = async (workspaceId) => {
+    try {
+        const response = await axios.delete(`${API_ROOT}/workspace/workspaces/${workspaceId}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error deleting space:", error);
         throw error;
     }
 };
@@ -155,3 +176,26 @@ export const updateList = async (list) => {
         throw error;
     }
 };
+
+export const fetchUserWorkspacesInTeam = async () => {
+    try {
+      const user = getUserFromToken();
+      if (!user || !user.userId) {
+        console.warn("⚠ Không tìm thấy userId từ token.");
+        return [];
+      }
+  
+      console.log("📡 Fetching workspaces for userId:", user.userId);
+      
+      const response = await axios.get(`${API_ROOT}/workspace/workspaces/workspaceinteam/${user.userId}`, {
+        withCredentials: true, // ✅ Gửi cookie
+      });
+  
+      console.log("✅ Workspaces user tham gia:", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("❌ Lỗi khi lấy workspace:", error);
+      return [];
+    }
+  };
+

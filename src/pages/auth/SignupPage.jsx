@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import OTPVerification from "../../components/OTP/OTPConfirmation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
+import { API_ROOT } from "../../utils/constants";
 
 export default function SignupPage() {
   const [fullName, setFullName] = useState("");
@@ -15,7 +15,7 @@ export default function SignupPage() {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const response = await fetch("http://localhost:5000/auth/register", {
+      const response = await fetch(`${API_ROOT}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ fullName, email, password }),
@@ -43,7 +43,7 @@ export default function SignupPage() {
 
         <button
           onClick={() =>
-            (window.location.href = "http://localhost:5000/auth/google")
+            (window.location.href = `${API_ROOT}}/auth/google`)
           }
           className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-gray-300 rounded-md hover:bg-gray-50 mb-6"
         >

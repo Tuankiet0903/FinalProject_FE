@@ -16,6 +16,7 @@
     "@fortawesome/react-fontawesome": "^0.2.2",
     "@hello-pangea/dnd": "^17.0.0",
     "@heroicons/react": "^2.2.0",
+    "@payos/payos-checkout": "^1.0.8",
     "@radix-ui/react-popover": "^1.1.6",
     "@radix-ui/react-scroll-area": "^1.2.2",
     "@react-oauth/google": "^0.12.1",

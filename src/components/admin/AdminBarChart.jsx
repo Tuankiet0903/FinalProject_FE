@@ -9,26 +9,28 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import config from "../../config/Config";
 import { MehOutlined } from "@ant-design/icons";
+import { getCountAllUsers } from "../../api/Admin";
 
 export default function BarChartComponent() {
   const [filter, setFilter] = useState("year");
   const [data, setData] = useState([]);
 
-  const API_URL = config.API_URL;
-
   useEffect(() => {
-    fetch(`${API_URL}/admin/getCountAllUsers`) 
-      .then((response) => response.json())
-      .then((fetchedData) => {
+    const fetchData = async () => {
+      try {
+        const fetchedData = await getCountAllUsers();
         const formattedData = fetchedData.map((item) => ({
           time: formatData(item.time, filter),
           totalUser: Number(item.totalUser),
         }));
         setData(formattedData);
-      })
-      .catch((error) => console.error("Error fetching data:", error));
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+  
+    fetchData();
   }, [filter]);
 
   const handleFilterChange = (e) => {

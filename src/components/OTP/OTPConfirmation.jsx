@@ -1,15 +1,10 @@
 import { useState, useEffect } from "react";
-import { Modal, Input, Button, Space } from "antd";
+import { Modal, Input, Button, Space, message } from "antd";
 import { CheckCircleIcon, XCircleIcon } from "@heroicons/react/24/solid";
-import axios from "axios";
-import config from "../../config/Config";
 import { useNavigate } from "react-router-dom";
+import { handleVerifyOTP, resendOtpAPI } from "../../api/Admin";
 
-export default function OTPVerification({
-  isOpen,
-  onClose,
-  email,
-}) {
+export default function OTPVerification({ isOpen, onClose, email }) {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -75,7 +70,7 @@ export default function OTPVerification({
     try {
       await handleVerify(email, otpString);
       setIsSuccess(true);
-      navigate('/login')
+      navigate("/login");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Verification failed");
     } finally {
@@ -88,7 +83,7 @@ export default function OTPVerification({
     try {
       setResendDisabled(true);
       setCountdown(30);
-      await resendOtpAPI(email);
+      await resendOtp(email);
     } catch (error) {
       setError("Failed to resend OTP. Try again later.", error);
       setResendDisabled(false);
@@ -97,34 +92,22 @@ export default function OTPVerification({
 
   const handleVerify = async (email, otp) => {
     try {
-      const response = await axios.post(`${config.API_URL}/otp/verify-otp`, {
-        email,
-        otpCode: otp,
-      });
-      console.log("✅ OTP Verified:", response.data.message);
+      await handleVerifyOTP(email, otp);
+      message.success("OTP verification successful!");
     } catch (error) {
-      console.error(
-        "❌ OTP Verification Failed:",
-        error.response?.data?.message || error.message
-      );
+      message.error(error || "OTP verification failed!");
       throw error;
     }
   };
 
-  const resendOtpAPI = async (email) => {
+  const resendOtp = async (email) => {
     try {
-      console.log(email);
-
-      const response = await axios.post(`${config.API_URL}/otp/resend-otp`, {
-        email,
-      });
-      console.log("✅ OTP Resent:", response.data.message);
-      return response.data;
-    } catch (error) {
-      console.error(
-        "❌ Error Resending OTP:",
-        error.response?.data?.message || error.message
-      );
+      const response = resendOtpAPI(email);
+      message.success(`✅ OTP Resent: ${response.message}`);
+      return response;
+    }  catch (error) {
+      message.error(error || "❌ Failed to resend OTP!");
+      console.error("❌ Error Resending OTP:", error);
       throw error;
     }
   };
@@ -173,7 +156,9 @@ export default function OTPVerification({
           onClick={handleSubmit}
           loading={isLoading}
           disabled={otp.join("").length !== 6 || isLoading}
-          className={`w-full h-10 ${isSuccess ? "bg-green-500 hover:bg-green-600" : ""}`}
+          className={`w-full h-10 ${
+            isSuccess ? "bg-green-500 hover:bg-green-600" : ""
+          }`}
           icon={isSuccess && <CheckCircleIcon className="w-5 h-5 mr-1" />}
         >
           {isLoading ? "Verifying..." : isSuccess ? "Verified!" : "Verify Code"}
@@ -185,7 +170,9 @@ export default function OTPVerification({
           className="text-blue-500 text-sm hover:underline"
           disabled={resendDisabled}
         >
-          {resendDisabled ? `Resend OTP in ${countdown}s` : "Didn't receive the code? Resend"}
+          {resendDisabled
+            ? `Resend OTP in ${countdown}s`
+            : "Didn't receive the code? Resend"}
         </button>
       </div>
     </Modal>

@@ -21,12 +21,17 @@ import {
   showDeleteAllConfirm,
   showCreatePlanModal,
 } from "../../../components/admin/AdminModal";
-import config from "../../../config/Config";
+import {
+  createPlan,
+  deleteMultiplePlans,
+  deletePlanById,
+  fetchPremiumPlansAPI,
+  updatePlanById,
+} from "../../../api/Admin";
 
 const { Search } = Input;
 
 export default function PremiumPlan() {
-  const API_URL = config.API_URL;
   const [searchText, setSearchText] = useState("");
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [data, setData] = useState([]);
@@ -35,9 +40,9 @@ export default function PremiumPlan() {
   useEffect(() => {
     const fetchPremiumPlans = async () => {
       try {
-        const response = await fetch(`${API_URL}/admin/getAllPremiumPlan`);
-        if (!response.ok) throw new Error("Failed to fetch plans");
-        const plans = await response.json();
+        const response = await fetchPremiumPlansAPI();
+        if (!response) throw new Error("Failed to fetch plans");
+        const plans = response;
         const sortedData = plans.sort((a, b) => a.planId - b.planId);
         setData(sortedData);
         setFilteredData(sortedData);
@@ -52,10 +57,8 @@ export default function PremiumPlan() {
 
   const handleDelete = async (id) => {
     try {
-      const response = await fetch(`${API_URL}/admin/plans/${id}`, {
-        method: "DELETE",
-      });
-      if (!response.ok) throw new Error("Delete request failed");
+      const response = await deletePlanById(id);
+      if (!response) throw new Error("Delete request failed");
 
       const newData = data.filter((item) => item.planId !== id);
       setData(newData);
@@ -68,65 +71,54 @@ export default function PremiumPlan() {
   };
 
   const handleDeleteAll = async () => {
+    if (selectedRowKeys.length === 0) {
+      message.warning("No plans selected for deletion.");
+      return;
+    }
+
+    const newData = data.filter(
+      (item) => !selectedRowKeys.includes(item.planId)
+    );
+
+    // Optimistically update UI
+    setData(newData);
+    setFilteredData(newData);
+    setSelectedRowKeys([]);
+
     try {
-      const response = await fetch(`${API_URL}/admin/plans/delete-multiple`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ ids: selectedRowKeys }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to delete plans");
+      const response = await deleteMultiplePlans(selectedRowKeys);
+      if (!response.success) {
+        throw new Error(response.message || "Deletion failed");
       }
-
-      const newData = data.filter(
-        (item) => !selectedRowKeys.includes(item.planId)
-      );
-      setData(newData);
-      setFilteredData(newData);
-      setSelectedRowKeys([]);
       message.success("Selected plans deleted successfully!");
     } catch (error) {
       message.error("Failed to delete selected plans!");
       console.error("Delete error:", error);
+      // Rollback in case of failure
+      setData(data);
+      setFilteredData(data);
     }
   };
 
   const handleUpdate = async (updatedPlan) => {
     try {
-
-      console.log(updatedPlan);
-      
-      const response = await fetch(`${API_URL}/admin/plans/${updatedPlan.id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          id: updatedPlan.planId,
-          description: updatedPlan.description,
-          price: updatedPlan.price,
-          isPopular: updatedPlan.isPopular,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to update user status");
+      const responseData = await updatePlanById(updatedPlan);
+  
+      if (!responseData.success) {
+        throw new Error(responseData.message || "Failed to update plan");
       }
-
-      // Update the specific user in state, instead of removing them
+  
+      // Cập nhật dữ liệu trong state
       setFilteredData((prevData) =>
         prevData.map((plan) =>
-          plan.planId === updatedPlan.planId
-            ? { ...plan, description: updatedPlan.description, price: updatedPlan.price, isPopular: updatedPlan.isPopular }
-            : plan
+          plan.planId === updatedPlan.planId ? { ...plan, ...updatedPlan } : plan
         )
       );
+  
+      message.success("Plan updated successfully!");
     } catch (error) {
       console.error("Error updating plan:", error);
-      message.error("An error occurred while updating the plan.");
+      message.error(error || "An error occurred while updating the plan.");
     }
   };
 
@@ -140,27 +132,17 @@ export default function PremiumPlan() {
 
   const handleCreate = async (planData) => {
     try {
-      const response = await fetch(`${API_URL}/admin/plans`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(planData),
-      });
-
-      if (response.ok) {
-        setFilteredData((prevData) => [...prevData, planData]);
-        message.success("Plan created successfully!");
-      } else {
-        message.error("Failed to create plan. Please try again.");
-      }
+      const responseData = await createPlan(planData);
+  
+      // Thêm plan mới vào state nếu tạo thành công
+      setFilteredData((prevData) => [...prevData, responseData.plan]);
+  
+      message.success("Plan created successfully!");
     } catch (error) {
-      message.error(
-        "An error occurred while creating the plan.",
-        error.message
-      );
+      console.error("Error creating plan:", error);
+      message.error(error || "An error occurred while creating the plan.");
     }
-  };
+  };  
 
   const columns = [
     {
@@ -210,7 +192,7 @@ export default function PremiumPlan() {
     {
       title: (
         <div className="">
-          <StarFilled className="mr-1 text-purple-500"/>
+          <StarFilled className="mr-1 text-purple-500" />
           <span className="text-base font-semibold">Popularity</span>
           <span className="text-xs text-gray-500">(Featured Plan)</span>
         </div>

@@ -16,6 +16,7 @@ import { Avatar, Menu, message, Spin } from "antd";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { API_ROOT } from "../../utils/constants";
 
 const UserDropdownMenu = () => {
     const [user, setUser] = useState(JSON.parse(localStorage.getItem("user")) || null);
@@ -36,7 +37,7 @@ const UserDropdownMenu = () => {
                 throw new Error("No token found. Please login again.");
             }
 
-            const response = await axios.get("http://localhost:5000/api/user/profile", {
+            const response = await axios.get(`${API_ROOT}/api/user/profile`, {
                 headers: {
                     Authorization: `Bearer ${token}`,  // Gửi token trong header
                 },
@@ -61,7 +62,7 @@ const UserDropdownMenu = () => {
 
     const handleLogout = async () => {
         try {
-            await axios.get("http://localhost:5000/auth/logout", {
+            await axios.get(`${API_ROOT}/auth/logout`, {
                 withCredentials: true, // ✅ Gửi request logout kèm cookies
             });
             localStorage.removeItem("token");

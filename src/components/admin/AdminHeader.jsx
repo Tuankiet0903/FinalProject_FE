@@ -4,6 +4,7 @@ import {
   HomeOutlined,
   LogoutOutlined,
   OrderedListOutlined,
+  PayCircleOutlined,
   UserOutlined,
 } from "@ant-design/icons";
 import { Link, useLocation } from "react-router-dom";
@@ -42,6 +43,7 @@ export default function AdminHeader() {
     },
     { name: "Users", href: "/admin/users", icon: <UserOutlined /> },
     { name: "Premium", href: "/admin/premium", icon: <CrownOutlined /> },
+    { name: "Payment List", href: "/admin/payments", icon: <PayCircleOutlined/> },
   ];
 
   return (

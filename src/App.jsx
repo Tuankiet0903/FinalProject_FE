@@ -22,6 +22,7 @@ import AdminLayout from "./layouts/AdminLayout";
 import WorkspaceListTable from "./pages/auth/Admin/AdminWorkspaceList";
 import UserListTable from "./pages/auth/Admin/AdminUserList";
 import AdminPremium from "./pages/auth/Admin/AdminPremium";
+import AdminPaymentList from "./pages/auth/Admin/AdminPaymentList";
 
 export default function App() {
   return (
@@ -70,6 +71,7 @@ export default function App() {
           <Route path="profile" element={<AdminDashboard/>} />
           <Route path="workspaces" element={<WorkspaceListTable/>} />
           <Route path="premium" element={<AdminPremium/>} />
+          <Route path="payments" element={<AdminPaymentList/>} />
         </Route>
       </Routes>
     </Router>

@@ -1,10 +1,13 @@
-import { useEffect, useState, useMemo } from "react";
+// src/pages/KanbanBoardPage.jsx
+import React, { useState, useEffect, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { fetchWorkspaceByID } from "../../../api/workspace";
 import ListHeader from "../../../components/ListHeader";
 import KanbanBoard from "../../../components/Kanban/KanbanBoard";
 import { MoreHorizontal } from "lucide-react"; // Import MoreHorizontal
 import StatusModal from "../../../components/Kanban/StatusModal"; // Modal Component for Sprint Status
+import Details from "../../../components/Kanban/Details"; // Import newly created Details component
+import TaskList from "../../../components/Kanban/TaskList"; // Import newly created TaskList component
 
 export default function KanbanBoardPage() {
   const { workspaceId, spaceId, folderId, listId } = useParams();
@@ -56,50 +59,38 @@ export default function KanbanBoardPage() {
     setIsModalOpen(false);
   };
 
+  const handleAddTask = () => {
+    alert("Add Task clicked"); // Placeholder for add task functionality
+  };
+
   return (
     <div className="flex flex-col h-screen">
-      {/* Header với Tabs */}
+      {/* Header with Tabs */}
       <ListHeader activeTab={activeTab} setActiveTab={setActiveTab} />
 
       <div className="p-6 bg-white shadow-md rounded-lg">
         {activeTab === "Board" ? (
-          // Khi chọn tab "Board", hiển thị KanbanBoard
           <KanbanBoard />
         ) : activeTab === "Overview" && space && folder && list ? (
-          // Khi chọn tab "Overview", hiển thị chi tiết danh sách
           <Details space={space} folder={folder} list={list} />
         ) : (
           <p className="text-red-500">Không tìm thấy danh sách.</p>
         )}
       </div>
 
-      {/* Dấu 3 chấm ở dưới cùng */}
+      <div className="p-6 bg-white shadow-md rounded-lg mt-4">
+        {/* Task List */}
+        {list && (
+          <TaskList tasks={list.tasks || []} title={list.name} statusColor="bg-[#0284c7]" onAddTask={handleAddTask} />
+        )}
+      </div>
+
       <div className="absolute bottom-4 right-4">
-        <MoreHorizontal
-          className="h-8 w-8 text-gray-600 cursor-pointer"
-          onClick={handleOpenModal}
-        />
+        <MoreHorizontal className="h-8 w-8 text-gray-600 cursor-pointer" onClick={handleOpenModal} />
       </div>
 
       {/* Modal for Sprint Status */}
       {isModalOpen && <StatusModal onClose={handleCloseModal} />}
-    </div>
-  );
-}
-
-function Details({ space, folder, list }) {
-  return (
-    <div>
-      <h1 className="text-2xl font-semibold text-black mb-4">📌 Chi Tiết Danh Sách</h1>
-      <h2 className="text-lg font-bold">🌌 Không gian: {space.name}</h2>
-      <p className="text-gray-600">{space.description}</p>
-      <h3 className="text-md font-semibold mt-3">📂 Thư mục: {folder.name}</h3>
-      <p className="text-gray-600">{folder.description}</p>
-      <p className="text-lg text-gray-700 mt-3">📌 Danh sách: {list.name}</p>
-      <p className="text-gray-500">{list.description}</p>
-      <p className="text-gray-500 text-sm mt-2">🆔 List ID: {list.listId}</p>
-      <p className="text-gray-500 text-sm">🗂 Folder ID: {folder.folderId}</p>
-      <p className="text-gray-500 text-sm">📦 Space ID: {space.spaceId}</p>
     </div>
   );
 }

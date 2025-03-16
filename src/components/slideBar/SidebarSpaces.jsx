@@ -344,9 +344,7 @@ export default function SidebarSpaces({ selectedWorkspaceId }) {
                   </div>
 
                   <div className="w-5 h-5 rounded-md bg-white flex items-center justify-center mr-2">
-                    {React.createElement(getSpaceIcon(space.name), {
-                      className: `h-3.5 w-3.5 ${selectedItem === space.spaceId ? "text-purple-600" : "text-black"}`,
-                    })}
+                   <FileText/>
                   </div>
                   <span className={`text-sm ${selectedItem === space.spaceId ? "text-purple-600" : "text-black"}`}>
                     {space.name}
@@ -485,27 +483,22 @@ export default function SidebarSpaces({ selectedWorkspaceId }) {
             <div className="text-center py-4 text-sm text-gray-500">No results found for "{searchQuery}"</div>
           )}
         </div>
+        <>
+          <div
+            className="flex items-center px-2 py-2 text-sm text-gray-600 hover:text-black transition cursor-pointer"
+            onClick={() => navigate(`/setting/manage-people/${selectedWorkspaceId}`)}
+          >
+            <ChevronRight className="h-4 w-4 mr-2" />
+            <span>Invite People</span>
+          </div>
+          <CreateSpaceDialog 
+            open={isCreateSpaceOpen} 
+            onOpenChange={setIsCreateSpaceOpen} 
+            workspaceId={selectedWorkspaceId} 
+            onSpaceCreated={handleSpaceCreated} 
+          />
+        </>
       </div>
-            >
-              <ChevronRight className="h-4 w-4 mr-2" />
-              <span>View all Spaces</span>
-            </div>
-
-            <div
-              className="flex items-center px-2 py-2 text-sm text-gray-600 hover:text-black transition cursor-pointer"
-              onClick={() => navigate(`/setting/manage-people/${selectedWorkspaceId}`)}
-
-            >
-              <ChevronRight className="h-4 w-4 mr-2" />
-              <span>Invite People</span>
-            </div>
-            <CreateSpaceDialog 
-        open={isCreateSpaceOpen} 
-        onOpenChange={setIsCreateSpaceOpen} 
-        workspaceId={selectedWorkspaceId} 
-        onSpaceCreated={handleSpaceCreated} 
-      />
     </div>
   )
 }
-

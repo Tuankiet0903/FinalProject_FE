@@ -1,4 +1,3 @@
-// src/pages/KanbanBoardPage.jsx
 import React, { useState, useEffect, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { fetchWorkspaceByID } from "../../../api/workspace";
@@ -78,10 +77,12 @@ export default function KanbanBoardPage() {
         )}
       </div>
 
+      {/* Task List */}
       <div className="p-6 bg-white shadow-md rounded-lg mt-4">
-        {/* Task List */}
-        {list && (
+        {list ? (
           <TaskList tasks={list.tasks || []} title={list.name} statusColor="bg-[#0284c7]" onAddTask={handleAddTask} />
+        ) : (
+          <p className="text-gray-500">Không tìm thấy danh sách.</p>
         )}
       </div>
 

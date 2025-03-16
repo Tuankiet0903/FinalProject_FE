@@ -283,6 +283,7 @@ export default function SidebarSpaces({ selectedWorkspaceId }) {
         onOpenChange={setIsCreateSpaceOpen}
         workspaceId={selectedWorkspaceId}
         onSpaceCreated={handleSpaceCreated}
+
       />
     </>
   );

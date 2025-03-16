@@ -159,7 +159,7 @@ export default function PremiumPlan() {
     {
       title: (
         <>
-          <DollarCircleOutlined className="mr-1 text-green-500" /> Price ($)
+          <DollarCircleOutlined className="mr-1 text-green-500" /> Price (VNĐ)
         </>
       ),
       dataIndex: "price",

@@ -128,7 +128,7 @@ export const deleteMultiplePlans = async (ids) => {
   }
 };
 
-export const updatePlanById= async (updatedPlan) => {
+export const updatePlanById = async (updatedPlan) => {
   try {
     const response = await axios.put(`${API_ROOT}/api/admin/plans/${updatedPlan.planId}`, {
       id: updatedPlan.planId,
@@ -144,14 +144,13 @@ export const updatePlanById= async (updatedPlan) => {
   }
 };
 
-export const createPlan= async (planData) => {
+export const createPlan = async (planData) => {
   try {
     const response = await axios.post(`${API_ROOT}/api/admin/plans`, planData);
 
     if (!response.data) {
       throw new Error(response.data?.message || "Failed to create plan");
     }
-
     return response.data.res; // Trả về dữ liệu từ server
   } catch (error) {
     console.error("Error creating plan on server:", error);

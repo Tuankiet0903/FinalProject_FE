@@ -135,7 +135,7 @@ export default function PremiumPlan() {
       const responseData = await createPlan(planData);
   
       // Thêm plan mới vào state nếu tạo thành công
-      setFilteredData((prevData) => [...prevData, responseData.plan]);
+      setFilteredData((prevData) => [...prevData, responseData]);
   
       message.success("Plan created successfully!");
     } catch (error) {

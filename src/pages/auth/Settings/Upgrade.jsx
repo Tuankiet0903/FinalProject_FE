@@ -5,9 +5,12 @@ import axios from "axios";
 import { fetchPremiumPlansAPI } from "../../../api/premiumPlan";
 import { CheckCircleOutlined } from "@ant-design/icons";
 import { jwtDecode } from "jwt-decode";
+import { useParams } from "react-router-dom";
+import { useWorkspaceStore } from "../../../store/workspaceStore";
 
 const Upgrade = () => {
   const [plans, setPlans] = useState([]);
+  const selectedWorkspaceId = useWorkspaceStore((state) => state.selectedWorkspaceId); //selectedWorkspaceId
   const [checkoutMessage, setCheckoutMessage] = useState("");
   const [isModalVisible, setIsModalVisible] = useState(false);
 
@@ -56,9 +59,11 @@ const Upgrade = () => {
     const success = query.get("success");
     const canceled = query.get("canceled");
     const orderCode = query.get("orderCode");
+    const userId = getUserId();
+
 
     if (success && orderCode) {
-        axios.post(`${API_ROOT}/api/payment/update-payment-status`, { orderCode, status: "success" })
+        axios.post(`${API_ROOT}/api/payment/update-payment-status`, { orderCode, status: "success", userId, workspaceId: selectedWorkspaceId })
             .then(() => {
                 setCheckoutMessage("Thanh toán thành công. Cảm ơn bạn!");
                 setIsModalVisible(true);
@@ -79,7 +84,7 @@ const Upgrade = () => {
     try {
       const response = await axios.post(
         `${API_ROOT}/api/payment/create-payment-link`,
-        { planId , userId: getUserId() }
+        { planId , userId: getUserId(), workspaceId : selectedWorkspaceId }
       );
   
       const data = response.data;

@@ -148,11 +148,11 @@ export const createPlan= async (planData) => {
   try {
     const response = await axios.post(`${API_ROOT}/api/admin/plans`, planData);
 
-    if (!response.data?.success) {
+    if (!response.data) {
       throw new Error(response.data?.message || "Failed to create plan");
     }
 
-    return response.data; // Trả về dữ liệu từ server
+    return response.data.res; // Trả về dữ liệu từ server
   } catch (error) {
     console.error("Error creating plan on server:", error);
     throw error.response?.data?.message || "Failed to create plan";

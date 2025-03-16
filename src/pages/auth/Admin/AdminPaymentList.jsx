@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Table, Input, Button, Space } from "antd";
+import { Table, Input, Button, Space, message } from "antd";
 import { motion } from "framer-motion";
 import {
   DeleteOutlined,
@@ -18,13 +18,54 @@ import {
   showEditPlanModal,
   showCreatePlanModal,
 } from "../../../components/admin/AdminModal";
+import axios from "axios";
+import { API_ROOT } from "../../../utils/constants";
 const { Search } = Input;
 
 export default function PremiumPlan() {
   const [searchText, setSearchText] = useState("");
-  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [data, setData] = useState([]);
-  const [filteredData, setFilteredData] = useState([]);
+    const [filteredData, setFilteredData] = useState(data);
+
+
+  const handleSearch = (value) => {
+    setSearchText(value);
+    const filtered = data.filter((item) =>
+      item.fullName.toLowerCase().includes(value.toLowerCase())
+    );
+    setFilteredData(filtered);
+  };
+
+  useEffect(() => {
+    const fetchPremiumPlans = async () => {
+      try {
+        const response = await axios.get(`${API_ROOT}/api/payment/getAllPayment`);
+        if (!response || !response.data) throw new Error("Failed to fetch plans");
+  
+        // Ensure response.data.data is an array before mapping
+        // const payments = Array.isArray(response.data.data) ? response.data.data : [response.data.data];
+        const payments = Array.isArray(response.data.data) ? response.data.data : [response.data.data];
+  
+        const res = payments.map((payment) => ({
+          orderCode: payment.order_code,
+          workspaceName: payment.workspace_name,
+          owner : payment.fullName,
+          planName: payment.planName,
+          price: payment.price,
+          date : payment.created_at
+        }));
+  
+        console.log(res);
+  
+        setFilteredData(res);
+      } catch (error) {
+        message.error("Error fetching premium plans");
+        console.error("Fetch error:", error);
+      }
+    };
+  
+    fetchPremiumPlans();
+  }, []);
 
   const columns = [
     {
@@ -63,7 +104,7 @@ export default function PremiumPlan() {
     {
       title: (
         <>
-          <DollarCircleOutlined className="mr-1 text-green-500" /> Price ($)
+          <DollarCircleOutlined className="mr-1 text-green-500" /> Price (VNĐ)
         </>
       ),
       dataIndex: "price",
@@ -81,41 +122,10 @@ export default function PremiumPlan() {
       dataIndex: "date",
       key: "date",
       width: "15%",
-      sorter: (a, b) => new Date(a.date) - new Date(b.date),
-    },
-    {
-      title: (
-        <>
-          <InfoCircleOutlined className="mr-1 text-yellow-500" /> Action
-        </>
-      ),
-      key: "action",
-      width: "15%",
-      render: (_, record) => (
-        <Space>
-          <Button
-            type="link"
-            onClick={(event) => {
-              event.stopPropagation();
-              showEditPlanModal(record);
-            }}
-            className="ant-btn-edit"
-          >
-            <EditOutlined className="text-yellow-500" />
-          </Button>
-          <Button
-            type="link"
-            danger
-            onClick={(event) => {
-              event.stopPropagation();
-              showDeleteConfirm(record.planId, "plan");
-            }}
-            className="ant-btn-delete"
-          >
-            <DeleteOutlined className="text-red-500" />
-          </Button>
-        </Space>
-      ),
+      sorter: (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
+      sortDirections: ["ascend", "descend"],
+      render: (date) =>
+        date ? new Date(date).toISOString().split("T")[0] : "N/A",
     },
   ];
 
@@ -127,20 +137,12 @@ export default function PremiumPlan() {
     >
       <div className="w-full max-w-[95rem] space-y-4 bg-white rounded-lg shadow-lg p-6">
         <div className="mb-6">
-          <h2 className="text-2xl font-bold mb-2">Premium Plans</h2>
-          <div className="flex items-center justify-between">
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={() => showCreatePlanModal()}
-              className="bg-blue-500 hover:bg-blue-600 border-none text-white"
-            >
-              Add Plan
-            </Button>
+          <h2 className="text-2xl font-bold mb-2">Payment History</h2>
+          <div className="flex items-end justify-end">
             <Search
               placeholder="Search by workspace name..."
               allowClear
-              onChange={(e) => setSearchText(e.target.value)}
+              onChange={(e) => handleSearch(e.target.value)}
               style={{ width: 300 }}
               className="max-w-sm"
             />

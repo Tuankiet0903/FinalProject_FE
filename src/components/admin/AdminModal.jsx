@@ -283,7 +283,7 @@ export const showCreatePlanModal = (onSave) => {
         </Form.Item>
         <Form.Item
           name="price"
-          label="Price ($)"
+          label="Price (VNĐ)"
           rules={[{ required: true, message: "Please enter price!" }]}
         >
           <InputNumber min={0} style={{ width: "100%" }} />

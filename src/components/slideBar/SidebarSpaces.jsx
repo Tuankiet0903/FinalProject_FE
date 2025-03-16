@@ -232,14 +232,20 @@ export default function SidebarSpaces({ selectedWorkspaceId }) {
         )}
       </div>
       <div
-              className="flex items-center px-2 py-2 text-sm text-gray-600 hover:text-black transition cursor-pointer"
-              onClick={() => navigate(`/user/workspace/${selectedWorkspaceId}/allspaces`)}
-
-            >
-              <ChevronRight className="h-4 w-4 mr-2" />
-              <span>View all Spaces</span>
-            </div>
-            <CreateSpaceDialog 
+        className="flex items-center px-2 py-2 text-sm text-gray-600 hover:text-black transition cursor-pointer"
+        onClick={() => navigate(`/user/workspace/${selectedWorkspaceId}/allspaces`)}
+      >
+        <ChevronRight className="h-4 w-4 mr-2" />
+        <span>View all Spaces</span>
+      </div>
+      <div
+        className="flex items-center px-2 py-2 text-sm text-gray-600 hover:text-black transition cursor-pointer"
+        onClick={() => navigate(`/setting/manage-people/${selectedWorkspaceId}`)}
+      >
+        <ChevronRight className="h-4 w-4 mr-2" />
+        <span>Invite People</span>
+      </div>
+      <CreateSpaceDialog 
         open={isCreateSpaceOpen} 
         onOpenChange={setIsCreateSpaceOpen} 
         workspaceId={selectedWorkspaceId} 

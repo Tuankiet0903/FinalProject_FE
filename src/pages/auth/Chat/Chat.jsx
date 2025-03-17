@@ -1,5 +1,4 @@
 "use client";
-
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import {
@@ -18,7 +17,18 @@ import {
 } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { io } from "socket.io-client";
-import { getUserId } from "../../../api/workspace";
+import { fetchMessages, addReaction, removeReaction, sendMessage } from "../../../api/workspaceMessage";
+import { API_ROOT } from "../../../utils/constants";
+
+// Ánh xạ giữa ENUM type và emoji
+const reactionMap = {
+  like: "👍",
+  love: "❤️",
+  hava: "😂",
+  wow: "😮",
+  sad: "😢",
+  angry: "😡",
+};
 
 const Chat = () => {
   const { workspaceId } = useParams();
@@ -30,19 +40,19 @@ const Chat = () => {
 
   // Connect to socket when component mounts
   useEffect(() => {
-    const newSocket = io("http://localhost:5000", {
-      auth: { token: localStorage.getItem('token') },
+    const newSocket = io(API_ROOT, {
+      auth: { token: localStorage.getItem("token") },
     });
     setSocket(newSocket);
 
     newSocket.on("connect", () => {
       console.log("Connected to Socket.IO server");
       newSocket.emit("join-workspace", { workspaceId });
-  });
+    });
 
-  newSocket.on("connect_error", (error) => {
-    console.error("Socket.IO connection error:", error);
-});
+    newSocket.on("connect_error", (error) => {
+      console.error("Socket.IO connection error:", error);
+    });
 
     newSocket.on("join-success", ({ workspaceId }) => {
       console.log(`Successfully joined workspace ${workspaceId}`);
@@ -55,18 +65,36 @@ const Chat = () => {
     newSocket.on("new-message", (message) => {
       console.log("New message received:", message);
       setMessages((prev) => [...prev, message]);
-  });
-
-    // Listen for message updates
-    newSocket.on("update-message", (updatedMessage) => {
-      setMessages(prev => prev.map(msg =>
-        msg.messageId === updatedMessage.messageId ? updatedMessage : msg
-      ));
     });
 
-    // Listen for message deletions
-    newSocket.on("delete-message", (messageId) => {
-      setMessages(prev => prev.filter(msg => msg.messageId !== messageId));
+    newSocket.on("update-message", (updatedMessage) => {
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.workspaceMessageId === updatedMessage.workspaceMessageId ? updatedMessage : msg
+        )
+      );
+    });
+
+    newSocket.on("delete-message", (workspaceMessageId) => {
+      setMessages((prev) => prev.filter((msg) => msg.workspaceMessageId !== workspaceMessageId));
+    });
+
+    newSocket.on("new-reaction", ({ workspaceMessageId, reaction }) => {
+      console.log("New reaction received:", reaction);
+      setMessages((prev) => {
+        console.log("Current messages state:", prev);
+        const normalizedId = Number(workspaceMessageId); // Chuyển thành số
+        const messageExists = prev.some((msg) => Number(msg.workspaceMessageId) === normalizedId);
+        if (messageExists) {
+          return prev.map((msg) =>
+            Number(msg.workspaceMessageId) === normalizedId
+              ? { ...msg, Reactions: [...(msg.Reactions || []), reaction] }
+              : msg
+          );
+        }
+        console.warn(`Message with ID ${workspaceMessageId} not found in state`);
+        return prev;
+      });
     });
 
     return () => {
@@ -76,23 +104,16 @@ const Chat = () => {
 
   // Fetch initial messages
   useEffect(() => {
-    const fetchMessages = async () => {
+    const fetchAllMessages = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/workspace/${workspaceId}/messages`, {
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        });
-        console.log("Fetched messages:", response.data);
-
-        // Đảm bảo `data` là một mảng
+        const response = await fetchMessages(workspaceId);
+        console.log("✅ Fetched messages:", response);
         setMessages(Array.isArray(response.data) ? response.data : []);
       } catch (error) {
         console.error("Failed to fetch messages:", error);
       }
     };
-    fetchMessages();
+    fetchAllMessages();
   }, [workspaceId]);
 
   // Auto-scroll to bottom when new messages arrive
@@ -109,37 +130,25 @@ const Chat = () => {
     if (!newMessage.trim()) return;
 
     try {
-      const response = await axios.post(`http://localhost:5000/api/workspace/${workspaceId}/messages`, {
-        content: newMessage,
-        workspaceId: workspaceId,
-        userId: getUserId(),
-      }, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-
-      // Socket will handle adding the message to the list
+      const response = await sendMessage(workspaceId, newMessage);
       setNewMessage("");
     } catch (error) {
       console.error("Failed to send message:", error);
     }
   };
 
-  const handleReaction = async (messageId, emoji) => {
+  const handleReaction = async (workspaceMessageId, reactionType) => {
     try {
-      await axios.post(`http://localhost:5000/api/messages/${messageId}/reactions`, {
-        emoji: emoji
-      });
+      await addReaction(workspaceMessageId, reactionType); // Gửi ENUM như "love", "like"
     } catch (error) {
-      console.error("Failed to add reaction:", error);
+      const errorMsg = error.response?.data?.error || "Failed to add reaction";
+      console.error("Failed to add reaction:", errorMsg);
     }
   };
 
-  const handleRemoveReaction = async (messageId, reactionId) => {
+  const handleRemoveReaction = async (workspaceMessageId, reactionId) => {
     try {
-      await axios.delete(`http://localhost:5000/api/messages/${messageId}/reactions/${reactionId}`);
+      await removeReaction(workspaceMessageId, reactionId);
     } catch (error) {
       console.error("Failed to remove reaction:", error);
     }
@@ -151,7 +160,7 @@ const Chat = () => {
       <div className="flex-1 flex flex-col">
         <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-4">
           {messages.map((message) => (
-            <div key={message.messageId} className="flex items-start group">
+            <div key={message.workspaceMessageId} className="flex items-start group">
               <img
                 src={message.User?.avatar || "/placeholder.svg"}
                 alt={message.User?.username}
@@ -176,7 +185,7 @@ const Chat = () => {
 
                   {message.files && message.files.length > 0 && message.files.map((file) => (
                     <div key={file.fileId} className="mt-2 max-w-sm">
-                      {file.fileType.startsWith('image/') ? (
+                      {file.fileType.startsWith("image/") ? (
                         <div className="relative">
                           <img
                             src={file.fileUrl}
@@ -205,9 +214,9 @@ const Chat = () => {
                         <button
                           key={reaction.reactionId}
                           className="flex items-center bg-gray-100 hover:bg-gray-200 rounded-full px-2 py-0.5 text-sm"
-                          onClick={() => handleRemoveReaction(message.messageId, reaction.reactionId)}
+                          onClick={() => handleRemoveReaction(message.workspaceMessageId, reaction.reactionId)}
                         >
-                          <span className="mr-1">{reaction.emoji}</span>
+                          <span className="mr-1">{reactionMap[reaction.type]}</span>
                           <span className="text-xs text-gray-600">{reaction.User?.username}</span>
                         </button>
                       ))}
@@ -218,22 +227,40 @@ const Chat = () => {
                   <div className="mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
                     <div className="flex space-x-2">
                       <button
-                        onClick={() => handleReaction(message.messageId, "❤️")}
-                        className="text-gray-400 hover:text-red-500"
-                      >
-                        ❤️
-                      </button>
-                      <button
-                        onClick={() => handleReaction(message.messageId, "👍")}
+                        onClick={() => handleReaction(message.workspaceMessageId, "like")}
                         className="text-gray-400 hover:text-blue-500"
                       >
                         👍
                       </button>
                       <button
-                        onClick={() => handleReaction(message.messageId, "😄")}
+                        onClick={() => handleReaction(message.workspaceMessageId, "love")}
+                        className="text-gray-400 hover:text-red-500"
+                      >
+                        ❤️
+                      </button>
+                      <button
+                        onClick={() => handleReaction(message.workspaceMessageId, "hava")}
                         className="text-gray-400 hover:text-yellow-500"
                       >
-                        😄
+                        😂
+                      </button>
+                      <button
+                        onClick={() => handleReaction(message.workspaceMessageId, "wow")}
+                        className="text-gray-400 hover:text-yellow-500"
+                      >
+                        😮
+                      </button>
+                      <button
+                        onClick={() => handleReaction(message.workspaceMessageId, "sad")}
+                        className="text-gray-400 hover:text-blue-500"
+                      >
+                        😢
+                      </button>
+                      <button
+                        onClick={() => handleReaction(message.workspaceMessageId, "angry")}
+                        className="text-gray-400 hover:text-red-500"
+                      >
+                        😡
                       </button>
                     </div>
                   </div>
@@ -303,9 +330,13 @@ const Chat = () => {
             </h4>
             <ul className="space-y-3">
               {messages.filter((m) => m.User?.status === "online").map((message) => (
-                <li key={message.messageId} className="flex items-start">
+                <li key={message.workspaceMessageId} className="flex items-start">
                   <div className="relative mr-2">
-                    <img src={message.User?.avatar || "/placeholder.svg"} alt={message.User?.username} className="w-8 h-8 rounded-full" />
+                    <img
+                      src={message.User?.avatar || "/placeholder.svg"}
+                      alt={message.User?.username}
+                      className="w-8 h-8 rounded-full"
+                    />
                     <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-green-500 border-2 border-white"></span>
                   </div>
                   <div>
@@ -323,7 +354,7 @@ const Chat = () => {
             </h4>
             <ul className="space-y-3">
               {messages.filter((m) => m.User?.status !== "online").map((message) => (
-                <li key={message.messageId} className="flex items-start">
+                <li key={message.workspaceMessageId} className="flex items-start">
                   <div className="relative mr-2">
                     <img
                       src={message.User?.avatar || "/placeholder.svg"}

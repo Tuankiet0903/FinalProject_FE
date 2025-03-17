@@ -1,22 +1,16 @@
 import { useEffect, useState } from "react";
-import { Table, Input, Button, Space, message } from "antd";
+import { Table, Input, Tag, message } from "antd";
 import { motion } from "framer-motion";
 import {
-  DeleteOutlined,
-  EditOutlined,
   DollarCircleOutlined,
   CalendarOutlined,
   FileTextOutlined,
   UserOutlined,
   TagOutlined,
   InfoCircleOutlined,
-  PlusOutlined,
 } from "@ant-design/icons";
 
 import {
-  showDeleteConfirm,
-  showEditPlanModal,
-  showCreatePlanModal,
 } from "../../../components/admin/AdminModal";
 import axios from "axios";
 import { API_ROOT } from "../../../utils/constants";
@@ -27,11 +21,18 @@ export default function PremiumPlan() {
   const [data, setData] = useState([]);
     const [filteredData, setFilteredData] = useState(data);
 
+    const statusColors = {
+      success: "green",
+      pending: "gold",
+      failed: "red",
+      canceled: "volcano",
+    };
+
 
   const handleSearch = (value) => {
     setSearchText(value);
     const filtered = data.filter((item) =>
-      item.fullName.toLowerCase().includes(value.toLowerCase())
+      item.workspaceName.toLowerCase().includes(value.toLowerCase())
     );
     setFilteredData(filtered);
   };
@@ -52,10 +53,9 @@ export default function PremiumPlan() {
           owner : payment.fullName,
           planName: payment.planName,
           price: payment.price,
+          status: payment.status,
           date : payment.created_at
         }));
-  
-        console.log(res);
   
         setFilteredData(res);
       } catch (error) {
@@ -116,13 +116,27 @@ export default function PremiumPlan() {
     {
       title: (
         <>
+          <InfoCircleOutlined className="mr-1 text-green-500" /> Status
+        </>
+      ),
+      dataIndex: "status",
+      key: "status",
+      width: "10%",
+      sorter: (a, b) => a.status.localeCompare(b.status),
+      render: (status) => (
+        <Tag color={statusColors[status] || "default"}>{status.toUpperCase()}</Tag>
+      ),
+    },
+    {
+      title: (
+        <>
           <CalendarOutlined className="mr-1 text-yellow-500" /> Date
         </>
       ),
       dataIndex: "date",
       key: "date",
       width: "15%",
-      sorter: (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
+      sorter: (a, b) => new Date(a.date) - new Date(b.date),
       sortDirections: ["ascend", "descend"],
       render: (date) =>
         date ? new Date(date).toISOString().split("T")[0] : "N/A",

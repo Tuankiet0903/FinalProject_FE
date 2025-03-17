@@ -114,7 +114,6 @@ export default function WorkspaceSettings() {
   const handleSave = () => {
     if (selectedUser) {
       const newOwner = users.find(user => user.id === selectedUser);
-      console.log("Transferring ownership to:", newOwner.name);
       message.success(`Ownership transferred to ${newOwner.name}`);
     }
     message.success("All changes saved successfully!");

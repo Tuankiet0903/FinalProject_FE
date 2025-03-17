@@ -18,7 +18,6 @@ const ManagePeople = () => {
   const [currentUserRole, setCurrentUserRole] = useState(null); // Lưu role của user
 
   useEffect(() => {
-    console.log("🔍 Checking workspaceId:", workspaceId);
     if (workspaceId) {
       fetchMembers(workspaceId);
       fetchUserRole(workspaceId);

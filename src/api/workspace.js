@@ -184,14 +184,10 @@ export const fetchUserWorkspacesInTeam = async () => {
         console.warn("⚠ Không tìm thấy userId từ token.");
         return [];
       }
-  
-      console.log("📡 Fetching workspaces for userId:", user.userId);
       
       const response = await axios.get(`${API_ROOT}/workspace/workspaces/workspaceinteam/${user.userId}`, {
         withCredentials: true, // ✅ Gửi cookie
       });
-  
-      console.log("✅ Workspaces user tham gia:", response.data);
       return response.data;
     } catch (error) {
       console.error("❌ Lỗi khi lấy workspace:", error);

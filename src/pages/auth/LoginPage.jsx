@@ -18,7 +18,6 @@ export default function LoginPage() {
       return;
     }
     
-    console.log("🔹 Lưu dữ liệu user vào localStorage:", user);
     localStorage.setItem("user", JSON.stringify(user));
     localStorage.setItem("token", token);
   };
@@ -33,8 +32,7 @@ export default function LoginPage() {
     const storedInviteToken = localStorage.getItem("inviteToken");
     if (storedInviteToken) {
       try {
-        console.log("🔥 Sending inviteToken to activate user...");
-        await axios.post("http://localhost:5000/auth/activate-from-google", { inviteToken: storedInviteToken }, { withCredentials: true });
+        await axios.post(`${API_ROOT}/auth/activate-from-google`, { inviteToken: storedInviteToken }, { withCredentials: true });
         localStorage.removeItem("inviteToken"); // ✅ Xóa inviteToken sau khi kích hoạt
       } catch (error) {
         console.error("❌ Error activating user with inviteToken:", error);
@@ -47,7 +45,6 @@ export default function LoginPage() {
   useEffect(() => {
     // 🔥 Nếu có inviteToken trên URL, lưu vào localStorage
     if (inviteToken) {
-      console.log("📩 Invite Token Detected:", inviteToken);
       localStorage.setItem("inviteToken", inviteToken);
     }
 
@@ -56,7 +53,6 @@ export default function LoginPage() {
     const storedToken = localStorage.getItem("token");
 
     if (storedUser && storedToken) {
-      console.log("✅ User đã có trong localStorage, không cần fetch lại.");
       return;
     }
 
@@ -68,8 +64,6 @@ export default function LoginPage() {
           withCredentials: true, // 🔥 Quan trọng: Gửi cookies nếu backend lưu token trong cookies
 
         });
-
-        console.log("✅ Google Login Response:", response.data);
 
         if (response.data?.token) {
           handleLoginSuccess(response.data.user, response.data.token);

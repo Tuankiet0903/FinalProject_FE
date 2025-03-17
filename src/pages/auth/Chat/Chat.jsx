@@ -3,14 +3,10 @@
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import {
-  Search,
   Send,
   Paperclip,
   Smile,
   MoreVertical,
-  Phone,
-  Video,
-  Users,
   Hash,
   ImageIcon,
   File,
@@ -19,6 +15,7 @@ import {
 import { useParams } from "react-router-dom";
 import { io } from "socket.io-client";
 import { getUserId } from "../../../api/workspace";
+import { API_ROOT } from "../../../utils/constants";
 
 const Chat = () => {
   const { workspaceId } = useParams();
@@ -30,13 +27,12 @@ const Chat = () => {
 
   // Connect to socket when component mounts
   useEffect(() => {
-    const newSocket = io("http://localhost:5000", {
+    const newSocket = io(API_ROOT, {
       auth: { token: localStorage.getItem('token') },
     });
     setSocket(newSocket);
 
     newSocket.on("connect", () => {
-      console.log("Connected to Socket.IO server");
       newSocket.emit("join-workspace", { workspaceId });
   });
 
@@ -45,7 +41,6 @@ const Chat = () => {
 });
 
     newSocket.on("join-success", ({ workspaceId }) => {
-      console.log(`Successfully joined workspace ${workspaceId}`);
     });
 
     newSocket.on("join-error", ({ message }) => {
@@ -53,7 +48,6 @@ const Chat = () => {
     });
 
     newSocket.on("new-message", (message) => {
-      console.log("New message received:", message);
       setMessages((prev) => [...prev, message]);
   });
 
@@ -78,13 +72,12 @@ const Chat = () => {
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/workspace/${workspaceId}/messages`, {
+        const response = await axios.get(`${API_ROOT}/api/workspace/${workspaceId}/messages`, {
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${localStorage.getItem('token')}`
           }
         });
-        console.log("Fetched messages:", response.data);
 
         // Đảm bảo `data` là một mảng
         setMessages(Array.isArray(response.data) ? response.data : []);
@@ -109,7 +102,7 @@ const Chat = () => {
     if (!newMessage.trim()) return;
 
     try {
-      const response = await axios.post(`http://localhost:5000/api/workspace/${workspaceId}/messages`, {
+      const response = await axios.post(`${API_ROOT}/api/workspace/${workspaceId}/messages`, {
         content: newMessage,
         workspaceId: workspaceId,
         userId: getUserId(),
@@ -129,7 +122,7 @@ const Chat = () => {
 
   const handleReaction = async (messageId, emoji) => {
     try {
-      await axios.post(`http://localhost:5000/api/messages/${messageId}/reactions`, {
+      await axios.post(`${API_ROOT}/api/messages/${messageId}/reactions`, {
         emoji: emoji
       });
     } catch (error) {
@@ -139,7 +132,7 @@ const Chat = () => {
 
   const handleRemoveReaction = async (messageId, reactionId) => {
     try {
-      await axios.delete(`http://localhost:5000/api/messages/${messageId}/reactions/${reactionId}`);
+      await axios.delete(`${API_ROOT}/api/messages/${messageId}/reactions/${reactionId}`);
     } catch (error) {
       console.error("Failed to remove reaction:", error);
     }

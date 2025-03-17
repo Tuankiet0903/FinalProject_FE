@@ -3,16 +3,19 @@ import { useEffect, useState } from "react";
 import { API_ROOT } from "../../../utils/constants";
 import axios from "axios";
 import { fetchPremiumPlansAPI } from "../../../api/premiumPlan";
-import { CheckCircleOutlined } from "@ant-design/icons";
+import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import { jwtDecode } from "jwt-decode";
 import { useParams } from "react-router-dom";
 import { useWorkspaceStore } from "../../../store/workspaceStore";
 
 const Upgrade = () => {
   const [plans, setPlans] = useState([]);
-  const selectedWorkspaceId = useWorkspaceStore((state) => state.selectedWorkspaceId); //selectedWorkspaceId
+  const selectedWorkspaceId = useWorkspaceStore(
+    (state) => state.selectedWorkspaceId
+  ); //selectedWorkspaceId
   const [checkoutMessage, setCheckoutMessage] = useState("");
-  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [checkouStatus, setCheckouStatus] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(true);
 
   const getUserId = () => {
     const token = localStorage.getItem("token");
@@ -20,8 +23,7 @@ const Upgrade = () => {
 
     const decoded = jwtDecode(token);
     return decoded.userId;
-}
-
+  };
 
   useEffect(() => {
     const fetchPremiumPlans = async () => {
@@ -61,45 +63,76 @@ const Upgrade = () => {
     const orderCode = query.get("orderCode");
     const userId = getUserId();
 
+    if (!selectedWorkspaceId) {
+      const storedWorkspaceId = localStorage.getItem("workspace-storage");
+      if (storedWorkspaceId) {
+        useWorkspaceStore.setState({
+          selectedWorkspaceId:
+            JSON.parse(storedWorkspaceId).state.selectedWorkspaceId,
+        });
+      }
+    }
+
+    if (!selectedWorkspaceId) return; // Đảm bảo có workspaceId trước khi gọi API
 
     if (success && orderCode) {
-        axios.post(`${API_ROOT}/api/payment/update-payment-status`, { orderCode, status: "success", userId, workspaceId: selectedWorkspaceId })
-            .then(() => {
-                setCheckoutMessage("Thanh toán thành công. Cảm ơn bạn!");
-                setIsModalVisible(true);
-            })
-            .catch(error => console.error("Error updating payment:", error));
+      axios
+        .post(`${API_ROOT}/api/payment/update-payment-status`, {
+          orderCode,
+          status: "success",
+          userId,
+          workspaceId: selectedWorkspaceId,
+        })
+        .then(() => {
+          setCheckoutMessage("Thanh toán thành công. Cảm ơn bạn!");
+          setCheckouStatus(true)
+          setIsModalVisible(true);
+        })
+        .catch((error) => console.error("Error updating payment:", error));
     }
 
     if (canceled) {
-        setCheckoutMessage("Thanh toán thất bại. Vui lòng thử lại.");
-        setIsModalVisible(true);
+      axios
+        .post(`${API_ROOT}/api/payment/update-payment-status`, {
+          orderCode,
+          status: "cancelled",
+          userId,
+          workspaceId: selectedWorkspaceId,
+        })
+        .then(() => {
+          setCheckoutMessage("Thanh toán thất bại. Vui lòng thử lại.");
+          setCheckouStatus(false)
+          setIsModalVisible(true);
+        })
+        .catch((error) => console.error("Error updating payment:", error));
     }
 
-    // ✅ Remove query parameters from URL after detecting them (prevents reload issue)
-    window.history.replaceState({}, document.title, window.location.origin + window.location.pathname);
-  }, []);
+    // ✅ Loại bỏ query params để tránh gọi lại API khi reload
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }, [selectedWorkspaceId]);
 
   const handleGetPaymentLink = async (planId) => {
     try {
       const response = await axios.post(
         `${API_ROOT}/api/payment/create-payment-link`,
-        { planId , userId: getUserId(), workspaceId : selectedWorkspaceId }
+        { planId, userId: getUserId(), workspaceId: selectedWorkspaceId }
       );
-  
+
       const data = response.data;
-  
+
       if (data.paymentUrl) {
         window.location.href = data.paymentUrl; // Redirect manually
       } else {
         throw new Error("Invalid payment URL received");
       }
     } catch (error) {
-      console.error("Payment link error:", error.response?.data || error.message);
+      console.error(
+        "Payment link error:",
+        error.response?.data || error.message
+      );
       antMessage.error("Error creating payment link. Please try again.");
     }
   };
-  
 
   const faqs = [
     {
@@ -130,6 +163,7 @@ const Upgrade = () => {
       <CheckoutMessage
         message={checkoutMessage}
         visible={isModalVisible}
+        status={checkouStatus}
         onClose={() => setIsModalVisible(false)}
       />
       <div className="max-w-7xl mx-auto px-4 py-12">
@@ -221,7 +255,7 @@ const Upgrade = () => {
   );
 };
 
-const CheckoutMessage = ({ message, visible, onClose }) => {
+const CheckoutMessage = ({ message, visible, onClose, status }) => {
   return (
     <Modal
       title={null} // Ẩn tiêu đề
@@ -240,11 +274,19 @@ const CheckoutMessage = ({ message, visible, onClose }) => {
       ]}
       centered
     >
-      <div className="text-center mt-8">
-        <CheckCircleOutlined style={{ fontSize: "80px", color: "#52c41a" }} />
-        <h2 className="text-2xl font-semibold mt-4">Thanh toán thành công</h2>
-        <p className="text-gray-600 mt-2">{message}</p>
-      </div>
+      {status ? (
+        <div className="text-center mt-8">
+          <CheckCircleOutlined style={{ fontSize: "80px", color: "#52c41a" }} />
+          <h2 className="text-2xl font-semibold mt-4">Thanh toán thành công</h2>
+          <p className="text-gray-600 mt-2">{message}</p>
+        </div>
+      ) : (
+        <div className="text-center mt-8">
+          <CloseCircleOutlined style={{ fontSize: "80px", color: "red" }} />
+          <h2 className="text-2xl font-semibold mt-4">Thanh toán thất bại</h2>
+          <p className="text-gray-600 mt-2">{message}</p>
+        </div>
+      )}
     </Modal>
   );
 };

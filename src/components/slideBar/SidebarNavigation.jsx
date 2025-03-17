@@ -1,7 +1,10 @@
 import { NavLink } from "react-router-dom";
-import { HomeIcon, InboxIcon, LayoutDashboardIcon, MoreHorizontalIcon } from "lucide-react";
+import { HomeIcon, InboxIcon, LayoutDashboardIcon, MoreHorizontalIcon, MessageSquare } from "lucide-react";
+import { useWorkspaceStore } from "../../store/workspaceStore";
 
 export default function SidebarNavigation() {
+  const { selectedWorkspaceId } = useWorkspaceStore();
+
   return (
     <nav className="p-4 space-y-2">
       <NavLink 
@@ -28,12 +31,14 @@ export default function SidebarNavigation() {
         <span className="text-black">Dashboard</span>
       </NavLink>
 
-      <NavLink 
-        to="#" 
-        className="flex items-center space-x-3 px-2 py-2 rounded-md hover:bg-gray-100"
+      <NavLink
+        to={selectedWorkspaceId ? `workspace/${selectedWorkspaceId}/chat` : "#"}
+        className={`flex items-center space-x-3 px-2 py-2 rounded-md ${
+          selectedWorkspaceId ? "hover:bg-gray-100" : "cursor-not-allowed opacity-50"
+        }`}
       >
-        <MoreHorizontalIcon className="h-5 w-5 text-black" />
-        <span className="text-black">More</span>
+        <MessageSquare className="h-5 w-5 text-black" />
+        <span className="text-black">Chat</span>
       </NavLink>
     </nav>
   );

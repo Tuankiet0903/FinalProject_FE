@@ -1,27 +1,49 @@
 import { useState, useEffect } from "react";
 import { ChevronDown } from "lucide-react";
 import SidebarHeaderDropdown from "./SidebarHeaderDropdown";
-import mockWorkspaces from "../../lib/mockWorkspaces";
-import { getAllWorkspaceByUserId } from "../../api/workspace";
+import { getAllWorkspaceByUserId, fetchUserWorkspacesInTeam } from "../../api/workspace";
+import { getUserFromToken } from "../../api/auth"; // ✅ Đảm bảo đúng đường dẫn
 
 export default function SidebarHeader({ setSelectedWorkspaceId }) {
   const [isOpen, setIsOpen] = useState(false);
   const [currentWorkspace, setCurrentWorkspace] = useState(null);
+  const [workspaces, setWorkspaces] = useState([]);
 
   useEffect(() => {
     const fetchAllWorkspace = async () => {
       try {
-        const workspaceData = await getAllWorkspaceByUserId();
-        if (workspaceData && workspaceData.length > 0) {
-          setCurrentWorkspace(workspaceData[0]);
-          setSelectedWorkspaceId(workspaceData[0].workspaceId);
+        // 🔥 Lấy userId từ token
+        const user = getUserFromToken();
+        if (!user || !user.userId) {
+          console.warn("⚠ Không tìm thấy userId từ token.");
+          return;
+        }
+
+        // ✅ Fetch workspace do user tạo
+        const createdWorkspaces = await getAllWorkspaceByUserId();
+
+        // ✅ Fetch workspace mà user được mời vào (ManageMemberWorkSpace)
+        const managedWorkspaces = await fetchUserWorkspacesInTeam();
+
+        // 🔥 Gộp tất cả workspace + loại bỏ trùng lặp
+        const allWorkspaces = [...createdWorkspaces, ...managedWorkspaces];
+        const uniqueWorkspaces = Array.from(new Set(allWorkspaces.map(ws => ws.workspaceId)))
+          .map(id => allWorkspaces.find(ws => ws.workspaceId === id));
+          
+        setWorkspaces(uniqueWorkspaces);
+
+        // ✅ Chọn workspace đầu tiên làm mặc định
+        if (uniqueWorkspaces.length > 0) {
+          setCurrentWorkspace(uniqueWorkspaces[0]);
+          setSelectedWorkspaceId(uniqueWorkspaces[0].workspaceId);
         }
       } catch (error) {
-        console.error("Failed to fetch workspace:", error);
+        console.error("❌ Failed to fetch workspace:", error);
       }
     };
+
     fetchAllWorkspace();
-  }, []);
+  }, [setSelectedWorkspaceId]);
 
   const handleWorkspaceChange = (workspace) => {
     setCurrentWorkspace(workspace);
@@ -35,7 +57,6 @@ export default function SidebarHeader({ setSelectedWorkspaceId }) {
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-2 cursor-pointer"
       >
-        
         <div className="bg-red-500 px-3 py-2 text-white rounded">
           <span className="font-semibold">{currentWorkspace?.name?.charAt(0) || "W"}</span>
         </div>
@@ -45,6 +66,7 @@ export default function SidebarHeader({ setSelectedWorkspaceId }) {
 
       {isOpen && (
         <SidebarHeaderDropdown 
+          workspaces={workspaces}
           currentWorkspace={currentWorkspace} 
           setCurrentWorkspace={handleWorkspaceChange} 
         />

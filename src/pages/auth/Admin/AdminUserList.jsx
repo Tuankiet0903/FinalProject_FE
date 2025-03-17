@@ -16,39 +16,32 @@ import {
   showDeleteConfirm,
   showEditModal,
 } from "../../../components/admin/AdminModal";
-import config from "../../../config/Config";
+import { deleteMultipleUsers, deleteUserById, fetchAllUsers, updateUserBlockStatus } from "../../../api/Admin";
 
 const { Search } = Input;
 
 export default function UsersDataTable() {
-  const API_URL = config.API_URL;
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [searchText, setSearchText] = useState("");
   const [data, setData] = useState([]);
   const [filteredData, setFilteredData] = useState(data);
 
   useEffect(() => {
-    fetch(`${API_URL}/admin/getAllUser`)
-      .then((response) => response.json())
-      .then((fetchedData) => {
-        const data = fetchedData.map((user) => ({
-          userId: user.userId, // Required by Ant Design table
-          avatar: user.avatar || "https://ui-avatars.com/api/?name=Avatar", // Default if null
-          fullName: user.fullName,
-          email: user.email,
-          dateOfBirth: user.dateOfBirth ? user.dateOfBirth : "N/A",
-          active: user.active,
-          isBlocked: user.isBlocked,
-          createdAt: user.createdAt,
-        }));
-
-        const sortedData = data.sort((a, b) => a.userId - b.userId);
-
-        setData(sortedData);
-        setFilteredData(sortedData);
-      })
-      .catch((error) => console.error("Error fetching data:", error));
+    const getUsers = async () => {
+      try {
+        const users = await fetchAllUsers();
+        const sortedUsers = users.sort((a, b) => a.userId - b.userId);
+  
+        setData(sortedUsers);
+        setFilteredData(sortedUsers);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+  
+    getUsers();
   }, []);
+  
 
   // Handle search
   const handleSearch = (value) => {
@@ -62,18 +55,18 @@ export default function UsersDataTable() {
   // Handle delete user
   const handleDelete = async (id) => {
     try {
-      await fetch(`${API_URL}/admin/users/${id}`, {
-        method: "DELETE",
-      });
-
-      const newData = filteredData.filter((item) => item.id !== id);
+      await deleteUserById(id);
+  
+      const newData = filteredData.filter((item) => item.userId !== id);
       setFilteredData(newData);
+  
       message.success("Deleted successfully!");
     } catch (error) {
-      message.error("Failed to delete workspace!");
+      message.error(error || "Failed to delete user!");
       console.error("Delete error:", error);
     }
   };
+  
 
   // Handle delete all work space
   const handleDeleteAll = async () => {
@@ -81,66 +74,42 @@ export default function UsersDataTable() {
       message.warning("No users selected for deletion.");
       return;
     }
-
+  
     try {
-      const response = await fetch(`${API_URL}/admin/users/delete-multiple`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ ids: selectedRowKeys }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to delete users");
-      }
-
-      const newData = filteredData.filter(
-        (item) => !selectedRowKeys.includes(item.userId)
-      );
+      await deleteMultipleUsers(selectedRowKeys);
+  
+      const newData = filteredData.filter((item) => !selectedRowKeys.includes(item.userId));
       setFilteredData(newData);
       setSelectedRowKeys([]);
+  
       message.success("All selected users have been deleted!");
     } catch (error) {
-      message.error("Failed to delete selected users!");
+      message.error(error || "Failed to delete selected users!");
       console.error("Delete error:", error);
     }
   };
-
+  
   //Handle update selected users
   const handleUpdateUser = async (updatedUser) => {
     try {
-      const response = await fetch(
-        `${API_URL}/admin/users/update-block-status`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            id: updatedUser.userId,
-            blockStatus: updatedUser.isBlocked,
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to update user status");
-      }
-
-      // Update the specific user in state, instead of removing them
+      await updateUserBlockStatus(updatedUser.userId, updatedUser.isBlocked);
+  
+      // Cập nhật trạng thái khóa người dùng trong state
       setFilteredData((prevData) =>
         prevData.map((user) =>
           user.userId === updatedUser.userId
-            ? { ...user, isBlocked: updatedUser.isBlocked } // Update only block status
+            ? { ...user, isBlocked: updatedUser.isBlocked } // Chỉ cập nhật trạng thái khóa
             : user
         )
       );
+  
+      message.success("User block status updated successfully!");
     } catch (error) {
-      message.error("Failed to update user block status!");
+      message.error(error || "Failed to update user block status!");
       console.error("Update error:", error);
     }
   };
+  
 
   // Handle row selection
   const onSelectChange = (newSelectedRowKeys) => {

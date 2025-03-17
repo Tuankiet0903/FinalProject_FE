@@ -1,4 +1,5 @@
 import { Link, useNavigate } from "react-router-dom"; // Import Link để điều hướng
+import {  useParams } from "react-router-dom";
 import {
   ArrowLeft,
   Users,
@@ -23,9 +24,10 @@ const userName = "Tú Nguyễn Văn"; // Mock data cho tên người dùng
 
 function SettingsSidebar() {
   const navigate = useNavigate();
+  const { workspaceId } = useParams(); // Lấy workspaceId từ URL
 
   const workspaceItems = [
-    { icon: Users, label: "People", path: "/setting/manage-people" }, // Thêm đường dẫn
+    { icon: Users, label: "People", path: `/setting/manage-people/${workspaceId}` },
     { icon: Sparkles, label: "Upgrade", path: "/setting/upgrade" }, // Cập nhật đường dẫn
     { icon: Settings, label: "Settings", path: "/setting/workspace-settings" },
     { icon: Grid, label: "Spaces" },

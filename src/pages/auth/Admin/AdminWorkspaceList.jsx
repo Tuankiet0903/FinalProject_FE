@@ -16,12 +16,11 @@ import {
   showDeleteConfirm,
   showWorkspaceDetailModal,
 } from "../../../components/admin/AdminModal";
-import config from "../../../config/Config";
+import { deleteMultipleWorkspaces, deleteWorkspaceById, fetchAllWorkspaces } from "../../../api/Admin";
 
 const { Search } = Input;
 
 export default function WorkspacesDataTable() {
-  const API_URL = config.API_URL;
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [searchText, setSearchText] = useState("");
 
@@ -29,32 +28,19 @@ export default function WorkspacesDataTable() {
   const [filteredData, setFilteredData] = useState(data);
 
   useEffect(() => {
-    fetch(`${API_URL}/admin/getAllWorkspace`)
-      .then((response) => response.json())
-      .then((fetchedData) => {
-        const data = fetchedData.map((workspace) => ({
-          id: workspace.workspaceId,
-          name: workspace.name,
-          type: workspace.type,
-          email: workspace.User?.email || "N/A",
-          owner: workspace.User?.fullName || "N/A",
-          members: workspace.ManageMemberWorkSpaces?.length || 0,
-          // status: workspace.status || "Inactive",
-          users:
-            workspace.ManageMemberWorkSpaces?.map((member) => ({
-              id: member.userId,
-              fullName: member.User?.fullName || "Unknown",
-              email: member.User?.email || "N/A",
-              role: member.roleWorkSpace,
-            })) || [],
-        }));
-
-        const sortedData = data.sort((a, b) => a.id - b.id);
-
-        setData(sortedData);
-        setFilteredData(sortedData);
-      })
-      .catch((error) => console.error("Error fetching data:", error));
+    const getWorkspaces = async () => {
+      try {
+        const workspaces = await fetchAllWorkspaces();
+        const sortedWorkspaces = workspaces.sort((a, b) => a.id - b.id);
+  
+        setData(sortedWorkspaces);
+        setFilteredData(sortedWorkspaces);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+  
+    getWorkspaces();
   }, []);
 
   // Handle search
@@ -69,18 +55,18 @@ export default function WorkspacesDataTable() {
   // Handle delete 1 work space
   const handleDelete = async (id) => {
     try {
-      await fetch(`${API_URL}/admin/workspace/${id}`, {
-        method: "DELETE",
-      });
-
+      await deleteWorkspaceById(id);
+  
       const newData = filteredData.filter((item) => item.id !== id);
       setFilteredData(newData);
-      message.success("Deleted successfully!");
+  
+      message.success("Workspace deleted successfully!");
     } catch (error) {
-      message.error("Failed to delete workspace!");
+      message.error(error || "Failed to delete workspace!");
       console.error("Delete error:", error);
     }
   };
+  
 
   // Handle delete all work space
   const handleDeleteAll = async () => {
@@ -88,31 +74,17 @@ export default function WorkspacesDataTable() {
       message.warning("No workspaces selected for deletion.");
       return;
     }
-
+  
     try {
-      const response = await fetch(
-        `${API_URL}/admin/workspace/delete-multiple`,
-        {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ ids: selectedRowKeys }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to delete workspaces");
-      }
-
-      const newData = filteredData.filter(
-        (item) => !selectedRowKeys.includes(item.id)
-      );
+      await deleteMultipleWorkspaces(selectedRowKeys);
+  
+      const newData = filteredData.filter((item) => !selectedRowKeys.includes(item.id));
       setFilteredData(newData);
       setSelectedRowKeys([]); // Xóa lựa chọn sau khi xóa dữ liệu
+  
       message.success("All selected workspaces have been deleted!");
     } catch (error) {
-      message.error("Failed to delete selected workspaces!");
+      message.error(error || "Failed to delete selected workspaces!");
       console.error("Delete error:", error);
     }
   };

@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { getMembersByWorkspace, inviteUserToWorkspace, getUserRoleInWorkspace, deleteUserFromWorkspace, resendInviteToWorkspace  } from "../../../api/member"; // API gọi tới backend
+import { getMembersByWorkspace, inviteUserToWorkspace, getUserRoleInWorkspace, deleteUserFromWorkspace, resendInviteToWorkspace } from "../../../api/member"; // API gọi tới backend
 import { Loader2 } from "lucide-react";
 import { toast } from "react-toastify";
 import { getUserFromToken } from "../../../api/auth";
 import { useNavigate } from "react-router-dom";
+import { fetchWorkspaceByID } from "../../../api/workspace";
 
 const ManagePeople = () => {
+  const [currentUser, setCurrentUser] = useState(null); 
   const navigate = useNavigate();
   const { workspaceId } = useParams();
+  const [workspace, setWorkSpace] = useState(null);
   const [members, setMembers] = useState([]);
   const [searchText, setSearchText] = useState("");
   const [inviteEmail, setInviteEmail] = useState("");
@@ -17,6 +20,16 @@ const ManagePeople = () => {
   const [showRoleDropdown, setShowRoleDropdown] = useState(false);
   const [currentUserRole, setCurrentUserRole] = useState(null); // Lưu role của user
 
+useEffect(() => {
+        // Hàm gọi API để lấy người dùng hiện tại từ token
+        const fetchCurrentUser = async () => {
+          const user = await getUserFromToken(); // Giả sử hàm này trả về thông tin người dùng
+          setCurrentUser(user); // Lưu thông tin người dùng vào state
+        };
+    
+        fetchCurrentUser(); // Gọi hàm khi component mount
+      }, []);
+
   useEffect(() => {
     console.log("🔍 Checking workspaceId:", workspaceId);
     if (workspaceId) {
@@ -24,6 +37,22 @@ const ManagePeople = () => {
       fetchUserRole(workspaceId);
     }
   }, [workspaceId]);
+
+  useEffect(() => {
+          const fetchSpace = async () => {
+              try {
+                  const data = await fetchWorkspaceByID(workspaceId);
+                  console.log(data); // Kiểm tra dữ liệu trả về
+                  setWorkSpace(data);
+              } catch (error) {
+                  console.error("Failed to fetch space details:", error);
+              } finally {
+                  setLoading(false);
+              }
+          };
+      
+          fetchSpace();
+      }, [workspaceId]);
 
   // 🔹 Lấy danh sách thành viên trong workspace từ API
   const fetchMembers = async (workspaceId) => {
@@ -67,16 +96,16 @@ const ManagePeople = () => {
     } catch (error) {
       toast.error("⚠️ Không thể xóa user!");
     }
-};
-const handleResendInvite = async (email) => {
-  if (!window.confirm("Bạn có chắc muốn gửi lại Email mời người này vào Workspace?")) return;
-  try {
+  };
+  const handleResendInvite = async (email) => {
+    if (!window.confirm("Bạn có chắc muốn gửi lại Email mời người này vào Workspace?")) return;
+    try {
       await resendInviteToWorkspace(workspaceId, email);
       toast.success(`📧 Đã gửi lại lời mời đến ${email}!`);
-  } catch (error) {
+    } catch (error) {
       toast.error("⚠️ Không thể gửi lại lời mời!");
-  }
-};
+    }
+  };
 
   // 🔹 Gửi lời mời tham gia workspace
   const handleInvite = async () => {
@@ -106,7 +135,7 @@ const handleResendInvite = async (email) => {
   const filteredMembers = members.filter((member) => {
     const query = searchText.toLowerCase().trim();
     return (
-      member.email.toLowerCase().includes(query) || 
+      member.email.toLowerCase().includes(query) ||
       member.name.toLowerCase().includes(query)
     );
   });
@@ -114,7 +143,7 @@ const handleResendInvite = async (email) => {
   return (
     <div className="p-6 bg-white max-w-7xl mx-auto text-sm">
       <h1 className="text-2xl font-semibold text-gray-700 mb-4">
-        Manage People - Workspace ID: <span className="text-purple-600">{workspaceId}</span>
+        Manage People - Workspace Name : <span className="text-purple-600">{workspace ? workspace.name : 'Loading'}</span>
       </h1>
 
       {/* 🔹 Chỉ hiển thị phần mời nếu user có quyền "Owner" */}
@@ -190,82 +219,80 @@ const handleResendInvite = async (email) => {
             </tr>
           </thead>
           <tbody>
-  {loading ? (
-    <tr>
-      <td colSpan="6" className="p-6 text-center text-gray-500">
-        <Loader2 className="w-6 h-6 animate-spin mx-auto text-purple-500" />
-        <p>Loading members...</p>
-      </td>
-    </tr>
-  ) : filteredMembers.length > 0 ? (
-    filteredMembers.map((member) => (
-      <tr key={member.id} className="border-b hover:bg-gray-50 transition">
-        <td className="p-4">
-          <img src={member.avatar || "/default-avatar.png"} alt={member.name} className="w-10 h-10 rounded-full border" />
-        </td>
-        <td className="p-4 font-medium text-gray-800">{member.name}</td>
-        <td className="p-4 text-gray-600">{member.email}</td>
+            {loading ? (
+              <tr>
+                <td colSpan="6" className="p-6 text-center text-gray-500">
+                  <Loader2 className="w-6 h-6 animate-spin mx-auto text-purple-500" />
+                  <p>Loading members...</p>
+                </td>
+              </tr>
+            ) : filteredMembers.length > 0 ? (
+              filteredMembers.map((member) => (
+                <tr key={member.id} className="border-b hover:bg-gray-50 transition">
+                  <td className="p-4">
+                    <img src={member.avatar || "/default-avatar.png"} alt={member.name} className="w-10 h-10 rounded-full border" />
+                  </td>
+                  <td className="p-4 font-medium text-gray-800">{member.name}</td>
+                  <td className="p-4 text-gray-600">{member.email}</td>
 
-        {/* Màu cho Role */}
-        <td className="p-4">
-          <span
-            className={`px-3 py-1 text-xs font-medium rounded-md ${
-              member.role === "Owner"
-                ? "bg-red-100 text-red-700"
-                : member.role === "Leader"
-                ? "bg-blue-100 text-blue-700"
-                : "bg-gray-100 text-gray-700"
-            }`}
-          >
-            {member.role}
-          </span>
-        </td>
+                  {/* Màu cho Role */}
+                  <td className="p-4">
+                    <span
+                      className={`px-3 py-1 text-xs font-medium rounded-md ${member.role === "Owner"
+                          ? "bg-red-100 text-red-700"
+                          : member.role === "Leader"
+                            ? "bg-blue-100 text-blue-700"
+                            : "bg-gray-100 text-gray-700"
+                        }`}
+                    >
+                      {member.role}
+                    </span>
+                  </td>
 
-        {/* Màu cho Status */}
-        <td className="p-4">
-          <span
-            className={`px-3 py-1 text-xs font-medium rounded-md ${
-              member.status === "Active"
-                ? "bg-green-100 text-green-700"
-                : "bg-yellow-100 text-yellow-700"
-            }`}
-          >
-            {member.status}
-          </span>
-        </td>
+                  {/* Màu cho Status */}
+                  <td className="p-4">
+                    <span
+                      className={`px-3 py-1 text-xs font-medium rounded-md ${member.status === "Active"
+                          ? "bg-green-100 text-green-700"
+                          : "bg-yellow-100 text-yellow-700"
+                        }`}
+                    >
+                      {member.status}
+                    </span>
+                  </td>
 
-        {/* Thao tác - Xóa và Gửi lại Invite */}
-        {currentUserRole === "Owner" && (
-  <td className="p-4 flex  justify-center item-center gap-3">
-    {/* Nút Xóa */}
-    <button
-      className="px-4 py-2 bg-red-400 text-white rounded-full text-xs shadow-md hover:bg-red-600 transition-all flex items-center gap-2"
-      onClick={() => handleDeleteUser(member.id)}
-    >
-      ❌ Xóa
-    </button>
+                  {/* Thao tác - Xóa và Gửi lại Invite */}
+                  {currentUserRole === "Owner" &&  member.id !== currentUser.userId && (
+                    <td className="p-4 flex  justify-center item-center gap-3">
+                      {/* Nút Xóa */}
+                      <button
+                        className="px-4 py-2 bg-red-400 text-white rounded-full text-xs shadow-md hover:bg-red-600 transition-all flex items-center gap-2"
+                        onClick={() => handleDeleteUser(member.id)}
+                      >
+                        ❌ Xóa
+                      </button>
 
-    {/* Nút Resend Invite */}
-    <button
-      className="px-4 py-2 bg-blue-400 text-white rounded-full text-xs shadow-md hover:bg-blue-600 transition-all flex items-center gap-2"
-      onClick={() => handleResendInvite(member.email)}
-    >
-      🔄 Gửi lại
-    </button>
-  </td>
-)}
+                      {/* Nút Resend Invite */}
+                      <button
+                        className="px-4 py-2 bg-blue-400 text-white rounded-full text-xs shadow-md hover:bg-blue-600 transition-all flex items-center gap-2"
+                        onClick={() => handleResendInvite(member.email)}
+                      >
+                        🔄 Gửi lại
+                      </button>
+                    </td>
+                  )}
 
-      </tr>
-    ))
-  ) : (
-    <tr>
-      <td colSpan="6" className="p-6 text-center text-gray-500">
-        <img src="/empty.svg" alt="No members" className="w-32 mx-auto mb-2" />
-        <p>No members found.</p>
-      </td>
-    </tr>
-  )}
-</tbody>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="6" className="p-6 text-center text-gray-500">
+                  <img src="/empty.svg" alt="No members" className="w-32 mx-auto mb-2" />
+                  <p>Loading...</p>
+                </td>
+              </tr>
+            )}
+          </tbody>
 
         </table>
       </div>

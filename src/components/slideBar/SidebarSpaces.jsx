@@ -12,9 +12,10 @@ import {
   createList,
   deleteList,
   updateList,
- fetchUserWorkspacesInTeam, 
 } from "../../api/workspace";
 import ItemDropdown from "../dropdown/ItemDropdown";
+import { getUserFromToken } from "../../api/auth";
+import { fetchUserSpacesInWorkspace } from "../../api/space";
 
 export default function SidebarSpaces({ selectedWorkspaceId }) {
   const [isSpacesOpen, setIsSpacesOpen] = useState(true);
@@ -24,25 +25,46 @@ export default function SidebarSpaces({ selectedWorkspaceId }) {
   const [spaces, setSpaces] = useState([]);
   const [isCreateSpaceOpen, setIsCreateSpaceOpen] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [userId, setUserId] = useState(null);  // Initialize state for userId
   const navigate = useNavigate();
 
   const handleSpaceCreated = () => {
     setRefreshTrigger((prev) => prev + 1);
   };
   useEffect(() => {
-    if (!selectedWorkspaceId) return;
+    const user = getUserFromToken();
+    if (user && user.userId) {
+      setUserId(user.userId);
+    }
+  }, []);
+
+  // Fetch danh sách các space người dùng có quyền truy cập
+  useEffect(() => {
+    if (!selectedWorkspaceId) return
 
     const fetchSpaces = async () => {
       try {
         const workspaceData = await fetchWorkspaceByID(selectedWorkspaceId);
-        setSpaces(workspaceData?.spaces || []);
+        const sortedSpaces = workspaceData.spaces
+            .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+            .map(space => ({
+              ...space,
+              folders: space.folders
+                .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+                .map(folder => ({
+                  ...folder,
+                  lists: folder.lists.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+                }))
+            }));
+        setSpaces(sortedSpaces || []);
       } catch (error) {
-        console.error("Failed to fetch workspace:", error);
+        setNotification("Failed to fetch workspace")
+        console.error(notification, error)
       }
-    };
+    }
 
-    fetchSpaces();
-  }, [selectedWorkspaceId, refreshTrigger]);
+    fetchSpaces()
+  }, [selectedWorkspaceId, refreshTrigger])
 
   const handleItemClick = (itemId) => {
     setSelectedItem(itemId);
@@ -160,7 +182,7 @@ export default function SidebarSpaces({ selectedWorkspaceId }) {
                 <div
                   onClick={() => {
                     handleItemClick(space.spaceId);
-                    navigate(`/user/space/${space.spaceId}`);
+                    navigate(`/user/workspace/${selectedWorkspaceId}/space/${space.spaceId}`);
                   }}
                   className={`flex items-center justify-between w-full px-2 py-2 text-sm rounded-md transition cursor-pointer ${
                     selectedItem === space.spaceId ? "bg-blue-100 text-blue-700" : "hover:bg-gray-100"

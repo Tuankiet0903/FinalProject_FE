@@ -40,31 +40,35 @@ export default function SidebarSpaces({ selectedWorkspaceId }) {
 
   // Fetch danh sách các space người dùng có quyền truy cập
   useEffect(() => {
-    if (!selectedWorkspaceId) return
-
+    if (!selectedWorkspaceId) return;
+  
     const fetchSpaces = async () => {
       try {
-        const workspaceData = await fetchWorkspaceByID(selectedWorkspaceId);
-        const sortedSpaces = workspaceData.spaces
-            .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
-            .map(space => ({
-              ...space,
-              folders: space.folders
-                .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
-                .map(folder => ({
-                  ...folder,
-                  lists: folder.lists.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
-                }))
-            }));
+        // Fetch spaces from the API (Spaces the user has access to)
+        const userSpaces = await fetchUserSpacesInWorkspace(selectedWorkspaceId);
+  
+        // Sort spaces, folders, and lists based on creation date
+        const sortedSpaces = userSpaces
+          .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+          .map(space => ({
+            ...space,
+            folders: space.folders
+              .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+              .map(folder => ({
+                ...folder,
+                lists: folder.lists.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+              }))
+          }));
+  
         setSpaces(sortedSpaces || []);
       } catch (error) {
-        setNotification("Failed to fetch workspace")
-        console.error(notification, error)
+        setNotification('Failed to fetch user spaces');
+        console.error(error);
       }
-    }
-
-    fetchSpaces()
-  }, [selectedWorkspaceId, refreshTrigger])
+    };
+  
+    fetchSpaces();
+  }, [selectedWorkspaceId, refreshTrigger]);
 
   const handleItemClick = (itemId) => {
     setSelectedItem(itemId);
@@ -192,7 +196,7 @@ export default function SidebarSpaces({ selectedWorkspaceId }) {
                     <ChevronRight className={`h-4 w-4 transform transition-transform ${expandedSpaces[space.spaceId] ? "rotate-90" : ""}`} />
                   </button>
 
-                  <span className="flex-grow text-left font-medium">{space.name}</span>
+                  <span className="flex-grow text-left font-medium">{space.spaceName}</span>
 
                   <ItemDropdown
                     type="space"
@@ -213,7 +217,7 @@ export default function SidebarSpaces({ selectedWorkspaceId }) {
                           </button>
                           <div className="flex items-center flex-grow">
                             <Folder className="h-4 w-4 mr-2 text-blue-600" />
-                            <span>{folder.name}</span>
+                            <span>{folder.folderName}</span>
                           </div>
                           <ItemDropdown
                             type="folder"
@@ -233,7 +237,7 @@ export default function SidebarSpaces({ selectedWorkspaceId }) {
                                 onClick={() => navigate(`/user/workspace/${selectedWorkspaceId}/space/${space.spaceId}/folder/${folder.folderId}/list/${list.listId}`)}
                               >
                                 <List className="h-4 w-4 mr-2 text-gray-500" />
-                                <span>{list.name}</span>
+                                <span>{list.listName}</span>
                                 <ItemDropdown
                                   type="list"
                                   item={list}

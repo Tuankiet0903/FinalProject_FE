@@ -2,14 +2,10 @@
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import {
-  Search,
   Send,
   Paperclip,
   Smile,
   MoreVertical,
-  Phone,
-  Video,
-  Users,
   Hash,
   ImageIcon,
   File,
@@ -46,7 +42,6 @@ const Chat = () => {
     setSocket(newSocket);
 
     newSocket.on("connect", () => {
-      console.log("Connected to Socket.IO server");
       newSocket.emit("join-workspace", { workspaceId });
     });
 
@@ -55,7 +50,6 @@ const Chat = () => {
     });
 
     newSocket.on("join-success", ({ workspaceId }) => {
-      console.log(`Successfully joined workspace ${workspaceId}`);
     });
 
     newSocket.on("join-error", ({ message }) => {
@@ -63,7 +57,6 @@ const Chat = () => {
     });
 
     newSocket.on("new-message", (message) => {
-      console.log("New message received:", message);
       setMessages((prev) => [...prev, message]);
     });
 

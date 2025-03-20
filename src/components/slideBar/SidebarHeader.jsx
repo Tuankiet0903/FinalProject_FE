@@ -19,8 +19,6 @@ export default function SidebarHeader({ setSelectedWorkspaceId }) {
           return;
         }
 
-        console.log("👤 Fetching workspaces for userId:", user.userId);
-
         // ✅ Fetch workspace do user tạo
         const createdWorkspaces = await getAllWorkspaceByUserId();
 
@@ -31,8 +29,7 @@ export default function SidebarHeader({ setSelectedWorkspaceId }) {
         const allWorkspaces = [...createdWorkspaces, ...managedWorkspaces];
         const uniqueWorkspaces = Array.from(new Set(allWorkspaces.map(ws => ws.workspaceId)))
           .map(id => allWorkspaces.find(ws => ws.workspaceId === id));
-
-        console.log("✅ Workspaces fetched:", uniqueWorkspaces);
+          
         setWorkspaces(uniqueWorkspaces);
 
         // ✅ Chọn workspace đầu tiên làm mặc định

@@ -1,5 +1,5 @@
-import { Link, useNavigate } from "react-router-dom"; // Import Link để điều hướng
-import {  useParams } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom"; 
+import { useParams } from "react-router-dom";
 import {
   ArrowLeft,
   Users,
@@ -18,17 +18,25 @@ import {
   Calendar,
   LogOut,
 } from "lucide-react";
+import React, { useState, useEffect } from 'react';
 
-const workspaceName = "PTM-2025"; // Mock data cho tên workspace
-const userName = "Tú Nguyễn Văn"; // Mock data cho tên người dùng
+
 
 function SettingsSidebar() {
   const navigate = useNavigate();
-  const { workspaceId } = useParams(); // Lấy workspaceId từ URL
+  const { workspaceId } = useParams(); // Get workspaceId from URL
+  const [user, setUser] = useState(null);  // Initialize state for user
+  const [workspace, setWorkspace] = useState(null);  // Initialize state for workspace
+
+ 
+
+  // Mock workspace name and user name if no data is available
+  const workspaceName = workspace ? workspace.name : "PTM-2025"; 
+  const userName = user ? user.name : "Tú Nguyễn Văn"; 
 
   const workspaceItems = [
     { icon: Users, label: "People", path: `/setting/manage-people/${workspaceId}` },
-    { icon: Sparkles, label: "Upgrade", path: "/setting/upgrade" }, // Cập nhật đường dẫn
+    { icon: Sparkles, label: "Upgrade", path: "/setting/upgrade" },
     { icon: Settings, label: "Settings", path: "/setting/workspace-settings" },
     { icon: Grid, label: "Spaces" },
     { icon: Shield, label: "Security & Permissions" },
@@ -38,8 +46,8 @@ function SettingsSidebar() {
   ];
 
   const personalItems = [
-    { icon: User, label: "My Settings", path: "/setting/profile" }, // Thêm đường dẫn
-    { icon: Briefcase, label: "Workspaces" },
+    { icon: User, label: "My Settings", path: "/setting/profile" },
+    { icon: Briefcase, label: "Workspaces", path: "/setting/workspace" },
     { icon: Bell, label: "Notifications" },
     { icon: AppWindowIcon, label: "Apps" },
     { icon: Cloud, label: "Cloud Storage" },
@@ -47,9 +55,8 @@ function SettingsSidebar() {
     { icon: LogOut, label: "Log out" },
   ];
 
-
   return (
-    <div className="w-64 h-screen bg-white border-r border-gray-200 flex flex-col ">
+    <div className="w-64 h-screen bg-white border-r border-gray-200 flex flex-col">
       <div className="h-14 border-b border-gray-200 px-4 flex items-center">
         <a href="/user" className="flex items-center gap-2 text-sm font-medium text-gray-700">
           <ArrowLeft className="h-4 w-4" />
@@ -62,7 +69,7 @@ function SettingsSidebar() {
         </div>
         <nav className="px-2">
           {workspaceItems.map((item) =>
-            item.path ? ( // Kiểm tra nếu có đường dẫn thì dùng Link
+            item.path ? (
               <Link
                 key={item.label}
                 to={item.path}
@@ -88,7 +95,7 @@ function SettingsSidebar() {
         </div>
         <nav className="px-2">
           {personalItems.map((item) =>
-            item.path ? ( // Kiểm tra nếu có đường dẫn thì dùng Link
+            item.path ? (
               <Link
                 key={item.label}
                 to={item.path}

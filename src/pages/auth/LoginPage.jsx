@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import axios from "axios";
+import { API_ROOT } from "../../utils/constants";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -17,7 +18,6 @@ export default function LoginPage() {
       return;
     }
     
-    console.log("🔹 Lưu dữ liệu user vào localStorage:", user);
     localStorage.setItem("user", JSON.stringify(user));
     localStorage.setItem("token", token);
   };
@@ -32,8 +32,7 @@ export default function LoginPage() {
     const storedInviteToken = localStorage.getItem("inviteToken");
     if (storedInviteToken) {
       try {
-        console.log("🔥 Sending inviteToken to activate user...");
-        await axios.post("http://localhost:5000/auth/activate-from-google", { inviteToken: storedInviteToken }, { withCredentials: true });
+        await axios.post(`${API_ROOT}/auth/activate-from-google`, { inviteToken: storedInviteToken }, { withCredentials: true });
         localStorage.removeItem("inviteToken"); // ✅ Xóa inviteToken sau khi kích hoạt
       } catch (error) {
         console.error("❌ Error activating user with inviteToken:", error);
@@ -46,7 +45,6 @@ export default function LoginPage() {
   useEffect(() => {
     // 🔥 Nếu có inviteToken trên URL, lưu vào localStorage
     if (inviteToken) {
-      console.log("📩 Invite Token Detected:", inviteToken);
       localStorage.setItem("inviteToken", inviteToken);
     }
 
@@ -55,18 +53,17 @@ export default function LoginPage() {
     const storedToken = localStorage.getItem("token");
 
     if (storedUser && storedToken) {
-      console.log("✅ User đã có trong localStorage, không cần fetch lại.");
       return;
     }
 
     /** 🔥 Gọi API lấy thông tin user nếu chưa có trong localStorage */
     const checkGoogleLogin = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/auth/google/success", {
-          withCredentials: true, // ✅ Gửi kèm cookie để backend nhận diện
-        });
+        // Gọi API để lấy token từ cookie
+        const response = await axios.get(`${API_ROOT}/auth/google/success`, {
+          withCredentials: true, // 🔥 Quan trọng: Gửi cookies nếu backend lưu token trong cookies
 
-        console.log("✅ Google Login Response:", response.data);
+        });
 
         if (response.data?.token) {
           handleLoginSuccess(response.data.user, response.data.token);
@@ -87,7 +84,7 @@ export default function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:5000/auth/login", {
+      const response = await axios.post(`${API_ROOT}/auth/login`, {
         email,
         password,
       });
@@ -107,10 +104,7 @@ export default function LoginPage() {
   return (
     <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg mx-auto">
       <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">Welcome back!</h2>
-      <button 
-        onClick={() => window.location.href = "http://localhost:5000/auth/google"} 
-        className="w-full flex items-center justify-center gap-2 border rounded-lg py-2.5 hover:bg-gray-50 transition-colors mb-6"
-      >
+      <button onClick={() => window.location.href = `${API_ROOT}/auth/google`} className="w-full flex items-center justify-center gap-2 border rounded-lg py-2.5 hover:bg-gray-50 transition-colors mb-6">
         <img src="/placeholder.svg" alt="Google" className="w-6 h-6" />
         <span className="text-gray-700">Continue with Google</span>
       </button>

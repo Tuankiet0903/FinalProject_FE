@@ -168,7 +168,11 @@ export default function SidebarSpaces({ selectedWorkspaceId }) {
             onClick={() => setIsSpacesOpen(!isSpacesOpen)}
             className="flex items-center text-xs font-semibold text-gray-800"
           >
-            <ChevronDown className={`h-4 w-4 mr-1 transition-transform ${isSpacesOpen ? "" : "-rotate-90"}`} />
+            <ChevronDown
+              className={`h-4 w-4 mr-1 transition-transform ${
+                isSpacesOpen ? "" : "-rotate-90"
+              }`}
+            />
             Spaces
           </button>
           <button
@@ -189,21 +193,31 @@ export default function SidebarSpaces({ selectedWorkspaceId }) {
                     navigate(`/user/workspace/${selectedWorkspaceId}/space/${space.spaceId}`);
                   }}
                   className={`flex items-center justify-between w-full px-2 py-2 text-sm rounded-md transition cursor-pointer ${
-                    selectedItem === space.spaceId ? "bg-blue-100 text-blue-700" : "hover:bg-gray-100"
+                    selectedItem === space.spaceId
+                      ? "bg-blue-100 text-blue-700"
+                      : "hover:bg-gray-100"
                   }`}
                 >
-                  <button onClick={() => toggleSpace(space.spaceId)} className="mr-2">
-                    <ChevronRight className={`h-4 w-4 transform transition-transform ${expandedSpaces[space.spaceId] ? "rotate-90" : ""}`} />
+                  <button
+                    onClick={() => toggleSpace(space.spaceId)}
+                    className="mr-2"
+                  >
+                    <ChevronRight
+                      className={`h-4 w-4 transform transition-transform ${
+                        expandedSpaces[space.spaceId] ? "rotate-90" : ""
+                      }`}
+                    />
                   </button>
 
                   <span className="flex-grow text-left font-medium">{space.spaceName}</span>
-
                   <ItemDropdown
                     type="space"
                     item={space}
                     onDelete={() => handleDeleteSpace(space.spaceId)}
                     onUpdate={(updatedSpace) => handleUpdateSpace(updatedSpace)}
-                    onCreate={(folderName) => handleCreateFolder(space.spaceId, folderName)}
+                    onCreate={(folderName) =>
+                      handleCreateFolder(space.spaceId, folderName)
+                    }
                   />
                 </div>
 
@@ -212,8 +226,17 @@ export default function SidebarSpaces({ selectedWorkspaceId }) {
                     {space.folders.map((folder) => (
                       <div key={folder.folderId}>
                         <div className="flex items-center justify-between px-3 py-2 text-sm rounded-md transition cursor-pointer hover:bg-gray-100">
-                          <button onClick={() => toggleFolder(folder.folderId)} className="mr-2">
-                            <ChevronRight className={`h-4 w-4 transform transition-transform ${expandedFolders[folder.folderId] ? "rotate-90" : ""}`} />
+                          <button
+                            onClick={() => toggleFolder(folder.folderId)}
+                            className="mr-2"
+                          >
+                            <ChevronRight
+                              className={`h-4 w-4 transform transition-transform ${
+                                expandedFolders[folder.folderId]
+                                  ? "rotate-90"
+                                  : ""
+                              }`}
+                            />
                           </button>
                           <div className="flex items-center flex-grow">
                             <Folder className="h-4 w-4 mr-2 text-blue-600" />
@@ -223,11 +246,14 @@ export default function SidebarSpaces({ selectedWorkspaceId }) {
                             type="folder"
                             item={folder}
                             onDelete={() => handleDeleteFolder(folder.folderId)}
-                            onUpdate={(updatedFolder) => handleUpdateFolder(updatedFolder)}
-                            onCreate={(listName) => handleCreateList(folder.folderId, listName)}
+                            onUpdate={(updatedFolder) =>
+                              handleUpdateFolder(updatedFolder)
+                            }
+                            onCreate={(listName) =>
+                              handleCreateList(folder.folderId, listName)
+                            }
                           />
                         </div>
-
                         {expandedFolders[folder.folderId] && folder.lists.length > 0 && (
                           <div className="ml-6 space-y-1">
                             {folder.lists.map((list) => (
@@ -259,27 +285,20 @@ export default function SidebarSpaces({ selectedWorkspaceId }) {
         )}
       </div>
       <div
-              className="flex items-center px-2 py-2 text-sm text-gray-600 hover:text-black transition cursor-pointer"
-              onClick={() => navigate(`/user/workspace/${selectedWorkspaceId}/allspaces`)}
+        className="flex items-center px-2 py-2 text-sm text-gray-600 hover:text-black transition cursor-pointer"
+        onClick={() =>
+          navigate(`/user/workspace/${selectedWorkspaceId}/allspaces`)
+        }
+      >
+        <ChevronRight className="h-4 w-4 mr-2" />
+        <span>View all Spaces</span>
+      </div>
+      <CreateSpaceDialog
+        open={isCreateSpaceOpen}
+        onOpenChange={setIsCreateSpaceOpen}
+        workspaceId={selectedWorkspaceId}
+        onSpaceCreated={handleSpaceCreated}
 
-            >
-              <ChevronRight className="h-4 w-4 mr-2" />
-              <span>View all Spaces</span>
-            </div>
-
-            <div
-              className="flex items-center px-2 py-2 text-sm text-gray-600 hover:text-black transition cursor-pointer"
-              onClick={() => navigate(`/setting/manage-people/${selectedWorkspaceId}`)}
-
-            >
-              <ChevronRight className="h-4 w-4 mr-2" />
-              <span>Invite People</span>
-            </div>
-            <CreateSpaceDialog 
-        open={isCreateSpaceOpen} 
-        onOpenChange={setIsCreateSpaceOpen} 
-        workspaceId={selectedWorkspaceId} 
-        onSpaceCreated={handleSpaceCreated} 
       />
     </>
   );

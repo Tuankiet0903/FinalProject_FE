@@ -22,11 +22,14 @@ import AdminLayout from "./layouts/AdminLayout";
 import WorkspaceListTable from "./pages/auth/Admin/AdminWorkspaceList";
 import UserListTable from "./pages/auth/Admin/AdminUserList";
 import AdminPremium from "./pages/auth/Admin/AdminPremium";
+import AdminPaymentList from "./pages/auth/Admin/AdminPaymentList";
 import InviteMember from "./pages/auth/Settings/InviteMember";
 import ActivateUser from "./pages/auth/Settings/ActivateUser";
 import ManagePeopleSpace from "./pages/auth/Settings/ManagePeopleSpace"
 import ConfirmInvitePage from "./pages/auth/ConfirmInvitePage";
 import WorkspacePrivate from "./pages/auth/Settings/WorkspacePrivate";
+import Chat from "./pages/auth/Chat/Chat"; // Import trang Chat
+
 
 export default function App() {
   return (
@@ -44,7 +47,7 @@ export default function App() {
           <Route path="dashboardspace" element={<DashboardSpace/>} />
           <Route path="allspaces" element={<AllSpaces/>} /> 
           <Route path="invite" element={<InviteMember/>} />
-          
+          <Route path="workspace/:workspaceId/chat" element={<Chat />} /> 
           {/* Workspace và List Routes */}
          
           <Route path="workspace/:workspaceId/allspaces" element={<AllSpaces/>} />
@@ -81,6 +84,7 @@ export default function App() {
           <Route path="profile" element={<AdminDashboard/>} />
           <Route path="workspaces" element={<WorkspaceListTable/>} />
           <Route path="premium" element={<AdminPremium/>} />
+          <Route path="payments" element={<AdminPaymentList/>} />
         </Route>
       </Routes>
     </Router>

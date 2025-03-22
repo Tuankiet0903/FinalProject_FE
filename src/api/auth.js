@@ -26,7 +26,6 @@ export const getUserFromToken = () => {
       );
   
       const decodedUser = JSON.parse(jsonPayload);
-      console.log("✅ User từ token:", decodedUser);
   
       return decodedUser;
     } catch (error) {

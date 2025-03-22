@@ -5,7 +5,6 @@ export const getMembersByWorkspace = async (workspaceId) => {
     if (!workspaceId) throw new Error("workspaceId is required");
 
     try {
-        console.log("🔍 Fetching members for workspaceId:", workspaceId);
         const response = await axios.get(`${API_ROOT}/api/admin/manage-people/workspace/${workspaceId}`);
 
         return response.data; // ✅ Trả về danh sách thành viên
@@ -63,7 +62,6 @@ export const resendInvite = async (workspaceId, email) => {
     if (!userId || !workspaceId) throw new Error("Missing userId or workspaceId");
   
     try {
-      console.log(`🔍 Fetching role for userId: ${userId} in workspaceId: ${workspaceId}`);
       const response = await axios.get(`${API_ROOT}/api/admin/getRole/${userId}/${workspaceId}`);
       
       return response.data; // ✅ Trả về role của user

@@ -119,7 +119,6 @@ const CalendarView = () => {
     setCalendarDays(days);
     
     const groupedTasks = groupTasksByDate(mockTasks);
-    console.log('Grouped Tasks:', groupedTasks); // Kiểm tra dữ liệu
     setTasksByDate(groupedTasks);
   }, [currentDate]);
 

@@ -5,13 +5,7 @@ import { FiMail, FiCheck, FiUser } from "react-icons/fi"; // Import icons
 const tasks = [
   { id: 1, title: "FE - Header Home, inbox, Dashboards", assignedBy: "Tú Nguyễn Văn", date: "Today", status: 3 },
   { id: 2, title: "BE-FE - Invite member WorkSpace", assignedBy: "Tú Nguyễn Văn", date: "Yesterday", status: 3 },
-  { id: 3, title: "[FE] - Dash Board trang chủ", assignedBy: "Tú Nguyễn Văn", date: "January", overdue: "Jan 13, 11:15pm", status: 3 },
-  { id: 4, title: "[FE] - Assigned comments", assignedBy: "Tú Nguyễn Văn", date: "January", status: 3 },
-  { id: 5, title: "[FE] - Assigned to me", assignedBy: "Tú Nguyễn Văn", date: "January", status: 3 },
-  { id: 6, title: "[FE] - My Work", assignedBy: "Tú Nguyễn Văn", date: "January", status: 3 },
-  { id: 7, title: "[FE] - Agenda", assignedBy: "Tú Nguyễn Văn", date: "January", status: 3 },
-  { id: 8, title: "[FE] - Recents", assignedBy: "Tú Nguyễn Văn", date: "January", status: 3 },
-  { id: 9, title: "[FE] - Home", assignedBy: "Tú Nguyễn Văn", date: "January", status: 3 },
+
 ];
 
 const InboxList = () => {

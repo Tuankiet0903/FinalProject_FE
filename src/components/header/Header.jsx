@@ -4,7 +4,7 @@ import UserDropdownMenu from "./UserDropdownMenu";
 import NotificationModal from "../notifications/NotificationModal";
 import logo from "../../assets/logo-clickup.svg";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { fetchUserProfile } from "../../api/Header";
 
 const Header = () => {
@@ -66,9 +66,11 @@ const Header = () => {
         </div>
 
         {/* Upgrade Button */}
-        <button className="px-5 py-2 bg-[#FF29C0] hover:bg-[#E020A0] text-white rounded-lg text-sm transition">
-          Upgrade
-        </button>
+        <Link to={"/setting/upgrade"}> 
+          <button className="px-5 py-2 bg-[#FF29C0] hover:bg-[#E020A0] text-white rounded-lg text-sm transition">
+            Upgrade
+          </button>
+        </Link>
 
         {/* New Button */}
         <button className="flex items-center gap-2 px-4 py-2 bg-[#372C81] text-white rounded-lg text-sm transition">

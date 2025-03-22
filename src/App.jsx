@@ -27,6 +27,7 @@ import InviteMember from "./pages/auth/Settings/InviteMember";
 import ActivateUser from "./pages/auth/Settings/ActivateUser";
 import ManagePeopleSpace from "./pages/auth/Settings/ManagePeopleSpace"
 import ConfirmInvitePage from "./pages/auth/ConfirmInvitePage";
+import WorkspacePrivate from "./pages/auth/Settings/WorkspacePrivate";
 import Chat from "./pages/auth/Chat/Chat"; // Import trang Chat
 
 
@@ -63,6 +64,7 @@ export default function App() {
         <Route path="/setting" element={<SettingLayout />}>
           <Route index element={<Settings />} />
           <Route path="profile" element={<UserProfile />} />
+          <Route path="workspace" element={<WorkspacePrivate/>} />
           <Route path="/setting/manage-people/:workspaceId" element={<ManagePeople />} />
           <Route path="/setting/manage-people-space/workspace/:workspaceId/space/:spaceId" element={<ManagePeopleSpace />} />
           <Route path="upgrade" element={<Upgrade />} />

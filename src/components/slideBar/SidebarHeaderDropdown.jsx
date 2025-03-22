@@ -10,11 +10,14 @@ import {
 } from "lucide-react";
 import { getAllWorkspaceByUserId } from "../../api/workspace";
 import CreateWorkspace from "./CreateWorkspace";
+import { useNavigate } from "react-router-dom";
+
 
 export default function SidebarHeaderDropdown({ currentWorkspace, setCurrentWorkspace }) {
   const [workspaces, setWorkspaces] = useState([]);
   const [showCreateWorkspace, setShowCreateWorkspace] = useState(false);
-
+  const navigate = useNavigate();
+  
   const fetchAllWorkspace = async () => {
     try {
       const workspaceData = await getAllWorkspaceByUserId();
@@ -60,10 +63,13 @@ export default function SidebarHeaderDropdown({ currentWorkspace, setCurrentWork
           <span>Apps</span>
           <ChevronRight className="w-4 h-4 ml-auto" />
         </button>
-        <button className="w-full px-3 py-1 flex items-center gap-2 hover:bg-gray-50 text-gray-700">
-          <Users className="w-4 h-4" />
-          <span>Manage users</span>
-        </button>
+        <button
+      className="w-full px-3 py-1 flex items-center gap-2 hover:bg-gray-50 text-gray-700"
+      onClick={() => navigate(`/setting/manage-people/${currentWorkspace.workspaceId}`)} // Điều hướng đến đường dẫn
+    >
+      <Users className="w-4 h-4" />
+      <span>Manage users</span>
+    </button>
       </div>
 
       {/* Switch Workspaces */}

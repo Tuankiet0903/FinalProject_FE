@@ -14,6 +14,8 @@ import {
   updateList,
 } from "../../api/workspace";
 import ItemDropdown from "../dropdown/ItemDropdown";
+import { getUserFromToken } from "../../api/auth";
+import { fetchUserSpacesInWorkspace } from "../../api/space";
 
 export default function SidebarSpaces({ selectedWorkspaceId }) {
   const [isSpacesOpen, setIsSpacesOpen] = useState(true);
@@ -23,23 +25,48 @@ export default function SidebarSpaces({ selectedWorkspaceId }) {
   const [spaces, setSpaces] = useState([]);
   const [isCreateSpaceOpen, setIsCreateSpaceOpen] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [userId, setUserId] = useState(null);  // Initialize state for userId
   const navigate = useNavigate();
 
   const handleSpaceCreated = () => {
     setRefreshTrigger((prev) => prev + 1);
   };
   useEffect(() => {
-    if (!selectedWorkspaceId) return;
+    const user = getUserFromToken();
+    if (user && user.userId) {
+      setUserId(user.userId);
+    }
+  }, []);
 
+  // Fetch danh sách các space người dùng có quyền truy cập
+  useEffect(() => {
+    if (!selectedWorkspaceId) return;
+  
     const fetchSpaces = async () => {
       try {
-        const workspaceData = await fetchWorkspaceByID(selectedWorkspaceId);
-        setSpaces(workspaceData?.spaces || []);
+        // Fetch spaces from the API (Spaces the user has access to)
+        const userSpaces = await fetchUserSpacesInWorkspace(selectedWorkspaceId);
+  
+        // Sort spaces, folders, and lists based on creation date
+        const sortedSpaces = userSpaces
+          .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+          .map(space => ({
+            ...space,
+            folders: space.folders
+              .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+              .map(folder => ({
+                ...folder,
+                lists: folder.lists.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+              }))
+          }));
+  
+        setSpaces(sortedSpaces || []);
       } catch (error) {
-        console.error("Failed to fetch workspace:", error);
+        setNotification('Failed to fetch user spaces');
+        console.error(error);
       }
     };
-
+  
     fetchSpaces();
   }, [selectedWorkspaceId, refreshTrigger]);
 
@@ -163,7 +190,7 @@ export default function SidebarSpaces({ selectedWorkspaceId }) {
                 <div
                   onClick={() => {
                     handleItemClick(space.spaceId);
-                    navigate(`/user/space/${space.spaceId}`);
+                    navigate(`/user/workspace/${selectedWorkspaceId}/space/${space.spaceId}`);
                   }}
                   className={`flex items-center justify-between w-full px-2 py-2 text-sm rounded-md transition cursor-pointer ${
                     selectedItem === space.spaceId
@@ -182,10 +209,7 @@ export default function SidebarSpaces({ selectedWorkspaceId }) {
                     />
                   </button>
 
-                  <span className="flex-grow text-left font-medium">
-                    {space.name}
-                  </span>
-
+                  <span className="flex-grow text-left font-medium">{space.spaceName}</span>
                   <ItemDropdown
                     type="space"
                     item={space}
@@ -216,7 +240,7 @@ export default function SidebarSpaces({ selectedWorkspaceId }) {
                           </button>
                           <div className="flex items-center flex-grow">
                             <Folder className="h-4 w-4 mr-2 text-blue-600" />
-                            <span>{folder.name}</span>
+                            <span>{folder.folderName}</span>
                           </div>
                           <ItemDropdown
                             type="folder"
@@ -230,36 +254,27 @@ export default function SidebarSpaces({ selectedWorkspaceId }) {
                             }
                           />
                         </div>
+                        {expandedFolders[folder.folderId] && folder.lists.length > 0 && (
+                          <div className="ml-6 space-y-1">
+                            {folder.lists.map((list) => (
+                              <div 
+                                key={list.listId} 
+                                className="flex items-center justify-between px-4 py-2 text-sm rounded-md transition cursor-pointer hover:bg-gray-100"
+                                onClick={() => navigate(`/user/workspace/${selectedWorkspaceId}/space/${space.spaceId}/folder/${folder.folderId}/list/${list.listId}`)}
+                              >
+                                <List className="h-4 w-4 mr-2 text-gray-500" />
+                                <span>{list.listName}</span>
+                                <ItemDropdown
+                                  type="list"
+                                  item={list}
+                                  onDelete={() => handleDeleteList(list.listId)}
+                                  onUpdate={(updatedList) => handleUpdateList(updatedList)}
+                                />
+                              </div>
 
-                        {expandedFolders[folder.folderId] &&
-                          folder.lists.length > 0 && (
-                            <div className="ml-6 space-y-1">
-                              {folder.lists.map((list) => (
-                                <div
-                                  key={list.listId}
-                                  className="flex items-center justify-between px-4 py-2 text-sm rounded-md transition cursor-pointer hover:bg-gray-100"
-                                  onClick={() =>
-                                    navigate(
-                                      `/user/workspace/${selectedWorkspaceId}/space/${space.spaceId}/folder/${folder.folderId}/list/${list.listId}`
-                                    )
-                                  }
-                                >
-                                  <List className="h-4 w-4 mr-2 text-gray-500" />
-                                  <span>{list.name}</span>
-                                  <ItemDropdown
-                                    type="list"
-                                    item={list}
-                                    onDelete={() =>
-                                      handleDeleteList(list.listId)
-                                    }
-                                    onUpdate={(updatedList) =>
-                                      handleUpdateList(updatedList)
-                                    }
-                                  />
-                                </div>
-                              ))}
-                            </div>
-                          )}
+                            ))}
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>

@@ -25,6 +25,8 @@ import AdminPremium from "./pages/auth/Admin/AdminPremium";
 import AdminPaymentList from "./pages/auth/Admin/AdminPaymentList";
 import InviteMember from "./pages/auth/Settings/InviteMember";
 import ActivateUser from "./pages/auth/Settings/ActivateUser";
+import ManagePeopleSpace from "./pages/auth/Settings/ManagePeopleSpace"
+import ConfirmInvitePage from "./pages/auth/ConfirmInvitePage";
 import Chat from "./pages/auth/Chat/Chat"; // Import trang Chat
 
 
@@ -48,7 +50,7 @@ export default function App() {
           {/* Workspace và List Routes */}
          
           <Route path="workspace/:workspaceId/allspaces" element={<AllSpaces/>} />
-          <Route path="space/:spaceId" element={<SpaceDetail />} />
+          <Route path="workspace/:workspaceId/space/:spaceId" element={<SpaceDetail />} />
           <Route path="workspace/:workspaceId/space/:spaceId/folder/:folderId/list/:listId" 
                  element={<KanbanBoardPage />} 
           />
@@ -62,6 +64,7 @@ export default function App() {
           <Route index element={<Settings />} />
           <Route path="profile" element={<UserProfile />} />
           <Route path="/setting/manage-people/:workspaceId" element={<ManagePeople />} />
+          <Route path="/setting/manage-people-space/workspace/:workspaceId/space/:spaceId" element={<ManagePeopleSpace />} />
           <Route path="upgrade" element={<Upgrade />} />
           <Route path="/setting/workspace-settings/:workspaceId" element={<WorkspaceSettings />} />
         </Route>
@@ -70,6 +73,7 @@ export default function App() {
         <Route path="/login" element={<LoginLayout><LoginPage /></LoginLayout>} />
         <Route path="/signup" element={<LoginLayout><SignupPage /></LoginLayout>} />
         <Route path="/activate/:token" element={<ActivateUser />} /> 
+        <Route path="/confirm-invite" element={<ConfirmInvitePage/>} />
 
         {/* Admin routes */}
         <Route path="/admin" element={<AdminLayout/>}>

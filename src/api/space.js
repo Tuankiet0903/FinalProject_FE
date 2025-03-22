@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { API_ROOT } from '../utils/constants'
 import { jwtDecode } from "jwt-decode";
+import { getUserFromToken } from './auth';
 
 const getUserId = () => {
     const token = localStorage.getItem("token");
@@ -79,6 +80,37 @@ export const getSpacesByWorkspaceId = async (workspaceId) => {
     return [];
   }
 };
+
+// Cập nhật API Fetch ở Frontend
+export const fetchUserSpacesInWorkspace = async (workspaceId) => {
+  try {
+    const user = getUserFromToken();
+    if (!user || !user.userId) {
+      console.warn("⚠️ Không tìm thấy userId từ token.");
+      return [];
+    }
+
+    console.log("📡 Fetching spaces for userId:", user.userId, "in workspaceId:", workspaceId);
+
+    // Gửi yêu cầu GET đến backend để lấy thông tin các space mà user tham gia trong workspace
+    const response = await axios.get(
+      `${API_ROOT}/space/spaces/workspace/${workspaceId}/user/${user.userId}`,
+      {
+        withCredentials: true, // ✅ Gửi cookie (nếu cần)
+      }
+    );
+
+    console.log("✅ Spaces user tham gia trong workspace:", response.data);
+
+    // Trả về dữ liệu gồm cả spaceId và spaceName
+    return response.data; // Bao gồm cả spaceId và spaceName
+  } catch (error) {
+    console.error("❌ Lỗi khi lấy spaces:", error);
+    return [];
+  }
+};
+
+
 
 
 

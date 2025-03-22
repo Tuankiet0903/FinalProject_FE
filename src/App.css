@@ -40,6 +40,28 @@
 .read-the-docs {
   color: #888;
 }
+
+/* Cập nhật thanh cuộn */
+::-webkit-scrollbar {
+  width: 8px; /* Đặt chiều rộng của thanh cuộn */
+}
+
+/* Đổi màu của thanh cuộn */
+::-webkit-scrollbar-track {
+  background-color: #f1f1f1; /* Màu nền của thanh cuộn */
+}
+
+/* Đổi màu của thanh cuộn khi cuộn */
+::-webkit-scrollbar-thumb {
+  background-color: #ffffff; /* Màu thanh cuộn */
+  border-radius: 10px; /* Tạo góc bo cho thanh cuộn */
+  border: 2px solid #f1f1f1; /* Đặt đường viền cho thanh cuộn */
+}
+
+/* Tùy chỉnh khi di chuột qua thanh cuộn */
+::-webkit-scrollbar-thumb:hover {
+  background-color: #c1c1c1; /* Màu khi hover vào thanh cuộn */
+
 body {
   overflow: hidden; /* Tắt cuộn khi modal mở */
 }
@@ -59,4 +81,5 @@ body {
   border-radius: 8px;
   padding: 20px;
   z-index: 10000; /* Đảm bảo modal nội dung nằm trên overlay */
+
 }

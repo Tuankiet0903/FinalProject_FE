@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Avatar, Form, Input, Switch, Button, Typography, Row, Col, Divider, message } from "antd";
 import axios from "axios";
+import { API_ROOT } from "../../../utils/constants";
 
 const { Title, Text } = Typography;
 
@@ -24,11 +25,9 @@ const UserProfile = () => {
       try {
         const token = localStorage.getItem("token");
 
-        const response = await axios.get("http://localhost:5000/api/user/profile", {
+        const response = await axios.get(`${API_ROOT}/api/user/profile`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-
-        console.log("User Profile Data:", response.data);
         setUserData({
           fullName: response.data.fullName,
           email: response.data.email,
@@ -75,7 +74,7 @@ const UserProfile = () => {
       const token = localStorage.getItem("token");
 
       // Use userId from state
-      const response = await axios.put(`http://localhost:5000/api/user/users/${userId}`, data, {
+      const response = await axios.put(`${API_ROOT}/api/user/users/${userId}`, data, {
         headers: {
           "Authorization": `Bearer ${token}`,
         },
@@ -109,17 +108,14 @@ const UserProfile = () => {
 
     try {
       const token = localStorage.getItem("token");
-      console.log("🔹 Token gửi lên:", token); // Debug token
 
-      const response = await axios.post("http://localhost:5000/api/user/upload-file", formData, {
+      const response = await axios.post(`${API_ROOT}/api/user/upload-file`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           "Authorization": `Bearer ${token}`,  // 🔥 Đảm bảo token được gửi
         },
         withCredentials: true,  // 🔥 Nếu backend dùng cookie để xác thực
       });
-
-      console.log("✅ Avatar uploaded:", response.data);
       message.success("Avatar uploaded successfully!");
       setAvatarUrl(response.data.avatarUrl);
     } catch (error) {

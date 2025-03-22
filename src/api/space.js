@@ -34,9 +34,7 @@ export const fetchSpaceById = async (spaceId) => {
 
 export async function fetchFoldersBySpaceId(spaceId) {
     try {
-        console.log(`Fetching folders for spaceId: ${spaceId}`); // 🟢 Debug spaceId
-
-        const response = await fetch(`http://localhost:5000/folder/folders/space/${spaceId}`); // 🔥 Sửa URL theo backend
+        const response = await fetch(`${API_ROOT}/folder/folders/space/${spaceId}`); // 🔥 Sửa URL theo backend
 
         if (!response.ok) {
             throw new Error(`API error ${response.status}: ${response.statusText}`);
@@ -51,7 +49,7 @@ export async function fetchFoldersBySpaceId(spaceId) {
 
 export const getUserSpaces = async (userId) => {
     try {
-      const response = await fetch(`http://localhost:5000/space/spaces?userId=${userId}`, {
+      const response = await fetch(`${API_ROOT}/space/spaces?userId=${userId}`, {
         method: "GET",
         headers: { "Content-Type": "application/json" },
         credentials: "include" // Nếu có authentication bằng cookies
@@ -74,8 +72,6 @@ export const getUserSpaces = async (userId) => {
 // ✅ Lấy workspaceId từ URL và fetch danh sách Spaces của nó
 export const getSpacesByWorkspaceId = async (workspaceId) => {
   try {
-    console.log(`Fetching spaces for workspaceId: ${workspaceId}`); // 🟢 Debug
-
     const response = await axios.get(`${API_ROOT}/space/spaces/workspace/${workspaceId}/allspaces`);
     
     return response.data;

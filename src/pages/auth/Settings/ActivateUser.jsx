@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { API_ROOT } from "../../../utils/constants";
 
 const ActivateUser = () => {
   const { token } = useParams();
@@ -9,8 +10,7 @@ const ActivateUser = () => {
   useEffect(() => {
     const activateAccount = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/auth/activate/${token}`);
-        console.log("🎉 Activation response:", response.data);
+        const response = await axios.get(`${API_ROOT}auth/activate/${token}`);
 
         const { workspaceId } = response.data;
         if (!workspaceId) throw new Error("Missing workspaceId!");

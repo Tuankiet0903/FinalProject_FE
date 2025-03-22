@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { ArrowDown, ArrowUp, BarChart3, Building2, Users } from "lucide-react";
+import { BarChart3, Users } from "lucide-react";
 import BarChartComponent from "../../../components/admin/AdminBarChart";
 import LineChartComponent from "../../../components/admin/AdminLineChart";
 import PieChartComponent from "../../../components/admin/AdminPieChart";
 import ComposedChartComponent from "../../../components/admin/AdminComposedChart";
-import config from "../../../config/Config";
+import { fetchCountAllActiveUsers } from "../../../api/Admin";
 
 // Import chart components
 
@@ -12,24 +12,21 @@ export default function AdminDashboard() {
   const [period, setPeriod] = useState("year");
   const [userData, setUserData] = useState([]);
 
-  const API_URL = config.API_URL;
 
   useEffect(() => {
-    const fetchData = () => {
-      fetch(`${API_URL}/admin/getCountAllActiveUsers`)
-        .then((response) => response.json())
-        .then((fetchedData) => {
-          setUserData(fetchedData);
-        })
-        .catch((error) => console.error("Error fetching data:", error));
+    const fetchData = async () => {
+      try {
+        const fetchedData = await fetchCountAllActiveUsers();
+        setUserData(fetchedData);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
     };
-  
     fetchData();
     const interval = setInterval(fetchData, 30000); // Fetch every 30s
-  
+
     return () => clearInterval(interval); // Cleanup on unmount
   }, []);
-  
 
   // Mock data for workspaces
   const monthlyData = [
@@ -115,8 +112,8 @@ export default function AdminDashboard() {
             </div>
             <div className="text-2xl font-bold">{userData.active}</div>
             <div className="text-xs text-gray-500">
-              {Math.round((userData.active / userData.totalUser) * 100)}%
-              of total
+              {Math.round((userData.active / userData.totalUser) * 100)}% of
+              total
             </div>
           </div>
 

@@ -11,7 +11,6 @@ export default function LoginHeader() {
           <p className="text-xs text-white/80">The everything app for work.</p>
         </div>
       </Link>
-
       {/* Chỉ có 1 nút chuyển đổi giữa Login / Signup */}
       <AuthButton />
     </header>

@@ -328,18 +328,27 @@ export default function KanbanBoard() {
       try {
          const taskData = {
             title: newTaskName.trim(),
-            priority: selectedPriority || 'normal',
+            priority: selectedPriority || 'Normal',
             startDate: taskDates.startDate ? taskDates.startDate.format('YYYY-MM-DD') : null,
             endDate: taskDates.endDate ? taskDates.endDate.format('YYYY-MM-DD') : null,
             userId: userId,
-            status: 1
          };
 
-         if (isEditMode && editingTask) {
-            await updateTask(editingTask.taskId, taskData);
+         // Check if we're editing by checking editingTaskId instead of isEditMode
+         if (editingTaskId) {
+            // When updating
+            taskData.taskColumnId = editingTask.taskColumnId;
+            taskData.status = editingTask.status;
+            await updateTask(editingTaskId, taskData);
+
+            // Reset editing state
+            setEditingTaskId(null);
+            setEditingTask(null);
             message.success('Task updated successfully');
          } else {
+            // When creating new task
             taskData.taskColumnId = activeTaskForm;
+            taskData.status = 1;
             await createTask(taskData);
             message.success('Task created successfully');
          }
@@ -352,7 +361,6 @@ export default function KanbanBoard() {
          setTaskDates({ startDate: null, endDate: null });
          setActiveTaskForm(null);
          setIsEditMode(false);
-         setEditingTask(null);
       } catch (error) {
          const errorMessage = error.response?.data?.message || 'Failed to save task';
          message.error(errorMessage);
@@ -436,7 +444,7 @@ export default function KanbanBoard() {
                                     className="text-xs bg-[rgb(96,73,231)] hover:bg-[rgb(86,63,221)] text-white h-7 px-3 flex-shrink-0"
                                     onClick={handleTaskSubmit}
                                  >
-                                    {isEditMode ? 'Update' : 'Save'}
+                                    Update
                                  </Button>
                               </div>
                               <div className="flex flex-col w-full">

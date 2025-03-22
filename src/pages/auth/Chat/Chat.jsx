@@ -156,13 +156,13 @@ const Chat = () => {
             <div key={message.workspaceMessageId} className="flex items-start group">
               <img
                 src={message.User?.avatar || "/placeholder.svg"}
-                alt={message.User?.username}
+                alt={message.User?.fullName}
                 className="w-10 h-10 rounded-full mr-3 mt-1"
               />
 
               <div className="flex-1">
                 <div className="flex items-baseline">
-                  <h4 className="font-bold">{message.User?.username}</h4>
+                  <h4 className="font-bold">{message.User?.fullName}</h4>
                   <span className="text-xs text-gray-500 ml-2">
                     {new Date(message.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                   </span>
@@ -210,7 +210,7 @@ const Chat = () => {
                           onClick={() => handleRemoveReaction(message.workspaceMessageId, reaction.reactionId)}
                         >
                           <span className="mr-1">{reactionMap[reaction.type]}</span>
-                          <span className="text-xs text-gray-600">{reaction.User?.username}</span>
+                          <span className="text-xs text-gray-600">{reaction.User?.fullName}</span>
                         </button>
                       ))}
                     </div>
@@ -327,13 +327,13 @@ const Chat = () => {
                   <div className="relative mr-2">
                     <img
                       src={message.User?.avatar || "/placeholder.svg"}
-                      alt={message.User?.username}
+                      alt={message.User?.fullName}
                       className="w-8 h-8 rounded-full"
                     />
                     <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-green-500 border-2 border-white"></span>
                   </div>
                   <div>
-                    <h5 className="font-medium">{message.User?.username}</h5>
+                    <h5 className="font-medium">{message.User?.fullName}</h5>
                     <p className="text-xs text-gray-500">{message.User?.role}</p>
                   </div>
                 </li>
@@ -351,7 +351,7 @@ const Chat = () => {
                   <div className="relative mr-2">
                     <img
                       src={message.User?.avatar || "/placeholder.svg"}
-                      alt={message.User?.username}
+                      alt={message.User?.fullName}
                       className="w-8 h-8 rounded-full opacity-70"
                     />
                     <span
@@ -360,7 +360,7 @@ const Chat = () => {
                     ></span>
                   </div>
                   <div>
-                    <h5 className="font-medium text-gray-600">{message.User?.username}</h5>
+                    <h5 className="font-medium text-gray-600">{message.User?.fullName}</h5>
                     <p className="text-xs text-gray-500">{message.User?.role}</p>
                   </div>
                 </li>

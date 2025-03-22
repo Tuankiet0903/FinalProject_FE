@@ -13,6 +13,19 @@ import {
 } from "antd";
 import { InfoCircleOutlined, StarFilled, StarOutlined } from "@ant-design/icons";
 
+export const showExportExcelConfirm = (onOK) => {
+  Modal.confirm({
+    title: "Are you sure you want to export the file?",
+    content: "This action cannot be undone.",
+    okText: "Export",
+    okType: "primary",
+    cancelText: "Cancel",
+    onOk() {
+      onOK();
+    },
+  });
+};
+
 export const showDeleteConfirm = (id, name, onDelete) => {
   Modal.confirm({
     title: `Are you sure you want to delete this ${name}?`,

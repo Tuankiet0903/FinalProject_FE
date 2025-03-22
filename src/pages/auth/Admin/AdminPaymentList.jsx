@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Table, Input, Tag, message } from "antd";
+import { Table, Input, Tag, message, Button } from "antd";
 import { motion } from "framer-motion";
 import {
   DollarCircleOutlined,
@@ -8,10 +8,9 @@ import {
   UserOutlined,
   TagOutlined,
   InfoCircleOutlined,
+  DownloadOutlined,
 } from "@ant-design/icons";
-
-import {
-} from "../../../components/admin/AdminModal";
+import { showExportExcelConfirm } from "../../../components/admin/AdminModal";
 import axios from "axios";
 import { API_ROOT } from "../../../utils/constants";
 const { Search } = Input;
@@ -19,15 +18,36 @@ const { Search } = Input;
 export default function PremiumPlan() {
   const [searchText, setSearchText] = useState("");
   const [data, setData] = useState([]);
-    const [filteredData, setFilteredData] = useState(data);
+  const [filteredData, setFilteredData] = useState(data);
 
-    const statusColors = {
-      success: "green",
-      pending: "gold",
-      failed: "red",
-      canceled: "volcano",
-    };
+  const statusColors = {
+    success: "green",
+    pending: "gold",
+    failed: "red",
+    canceled: "volcano",
+  };
 
+  const handleExportExcel = async () => {
+    try {
+      const response = await axios.get(`${API_ROOT}/api/admin/exportPayment`, {
+        responseType: "blob", // Quan trọng: Định dạng tệp Excel
+      });
+
+      // Tạo URL để tải file
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `data.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      message.success("Exported successfully!");
+    } catch (error) {
+      console.error("Export error:", error);
+      message.error("Failed to export Excel file.");
+    }
+  };
 
   const handleSearch = (value) => {
     setSearchText(value);
@@ -40,30 +60,35 @@ export default function PremiumPlan() {
   useEffect(() => {
     const fetchPremiumPlans = async () => {
       try {
-        const response = await axios.get(`${API_ROOT}/api/payment/getAllPayment`);
-        if (!response || !response.data) throw new Error("Failed to fetch plans");
-  
+        const response = await axios.get(
+          `${API_ROOT}/api/payment/getAllPayment`
+        );
+        if (!response || !response.data)
+          throw new Error("Failed to fetch payment list");
+
         // Ensure response.data.data is an array before mapping
         // const payments = Array.isArray(response.data.data) ? response.data.data : [response.data.data];
-        const payments = Array.isArray(response.data.data) ? response.data.data : [response.data.data];
-  
+        const payments = Array.isArray(response.data.data)
+          ? response.data.data
+          : [response.data.data];
+
         const res = payments.map((payment) => ({
           orderCode: payment.order_code,
           workspaceName: payment.workspace_name,
-          owner : payment.fullName,
+          owner: payment.fullName,
           planName: payment.planName,
           price: payment.price,
           status: payment.status,
-          date : payment.created_at
+          date: payment.created_at,
         }));
-  
+
         setFilteredData(res);
       } catch (error) {
-        message.error("Error fetching premium plans");
+        message.error("Error fetching payment list");
         console.error("Fetch error:", error);
       }
     };
-  
+
     fetchPremiumPlans();
   }, []);
 
@@ -111,7 +136,8 @@ export default function PremiumPlan() {
       key: "price",
       width: "10%",
       sorter: (a, b) => parseInt(a.price) - parseInt(b.price),
-      render: (price) => parseInt(price, 10),
+      render: (price) => new Intl.NumberFormat("vi-VN", { style: "decimal" }).format(price)
+
     },
     {
       title: (
@@ -124,7 +150,9 @@ export default function PremiumPlan() {
       width: "10%",
       sorter: (a, b) => a.status.localeCompare(b.status),
       render: (status) => (
-        <Tag color={statusColors[status] || "default"}>{status.toUpperCase()}</Tag>
+        <Tag color={statusColors[status] || "default"}>
+          {status.toUpperCase()}
+        </Tag>
       ),
     },
     {
@@ -152,7 +180,17 @@ export default function PremiumPlan() {
       <div className="w-full max-w-[95rem] space-y-4 bg-white rounded-lg shadow-lg p-6">
         <div className="mb-6">
           <h2 className="text-2xl font-bold mb-2">Payment History</h2>
-          <div className="flex items-end justify-end">
+          <div className="flex justify-between items-center">
+            <Button
+              type="primary"
+              onClick={() => {
+                showExportExcelConfirm(handleExportExcel);
+              }}
+              icon={<DownloadOutlined />}
+              className="bg-blue-500"
+            >
+              Export to Excel
+            </Button>
             <Search
               placeholder="Search by workspace name..."
               allowClear
